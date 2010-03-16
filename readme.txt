@@ -4,7 +4,7 @@ Donate link: http://www.trinyx.nl/
 Tags: spam, block, countries, country, comments, ban
 Requires at least: 2.9.2
 Tested up to: 2.9.2
-Stable tag: 1.0
+Stable tag: 1.0.1
 
 Block out the bad guys based on from which country the ip address is from.
 
@@ -68,7 +68,15 @@ download it and unzip the file to this specific location.
 = 1.0 =
 * Initial release
 
+= 1.0.1 =
+* Included the necessary geoip.inc file.. *duh*
+
+
+
 == Upgrade Notice ==
 
 = 1.0 =
 * Initial release
+
+= 1.0.1 =
+* Just upgrade it.
