@@ -1,0 +1,204 @@
+<?php
+/*
+Plugin Name: iQ Block Country
+Plugin URI: http://www.trinyx.nl/2010/03/iq-block-country-a-wordpress-plugin/
+Version: 1.0
+Author: Pascal
+Author URI: http://www.trinyx.nl/
+Description: Block out the bad guys based on from which country the ip address is from. This plugin uses the GeoLite data created by MaxMind for the ip-to-country lookups.
+Author URI: http://www.trinyx.nl/
+License: GPL2
+*/
+
+/* This script uses GeoLite Country from MaxMind (http://www.maxmind.com) which is available under terms of GPL/LGPL */
+
+/*  Copyright 2010  Pascal  (email : pascal@trinyx.nl)
+
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License, version 2, as
+    published by the Free Software Foundation.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+*/
+
+/*
+ * Admin menu stuff
+ */
+function iqblockcountry_create_menu() {
+	//create new menu option in the settings department
+	add_submenu_page ( 'options-general.php', 'iQ Block Country', 'iQ Block Country', 'administrator', __FILE__, 'iqblockcountry_settings_page' );
+	//call register settings function
+	add_action ( 'admin_init', 'iqblockcountry_register_mysettings' );
+}
+
+function iqblockcountry_register_mysettings() {
+	//register our settings
+	register_setting ( 'iqblockcountry-settings-group', 'blockcountry_banlist' );
+}
+
+function iqblockcountry_settings_page() {
+	?>
+<div class="wrap">
+<h2>iQ Block Countries</h2>
+
+<form method="post" action="options.php">
+    <?php
+	settings_fields ( 'iqblockcountry-settings-group' );
+	
+	include ("geoip.inc");
+	
+	if (class_exists(GeoIP))
+	{
+		/* Create an array with all countries that the database knows */
+		$geo = new GeoIP ();
+		$countrycodes = $geo->GEOIP_COUNTRY_CODE_TO_NUMBER;
+		$countries = $geo->GEOIP_COUNTRY_NAMES;
+		$countrylist = array ();
+		foreach ( $countrycodes as $key => $value ) {
+			if (!empty($value))
+			{
+			$countrylist [$key] = $countries [$value];
+			}
+		}
+		/* Display this array on the admin page and select any country that was already set */
+		?>
+    	    <table class="form-table">
+			<tr valign="top">
+				<th scope="row">Countries to block:<br />
+				Use the ctrl key to select multiple countries</th>
+				<td><select name="blockcountry_banlist[]" multiple="multiple" style="height: 450px;">
+    	        <?
+			$haystack = get_option ( 'blockcountry_banlist' );
+			foreach ( $countrylist as $key => $value ) {
+			print "<option value=\"$key\"";
+			if (is_array($haystack) && in_array ( $key, $haystack )) {
+				print " selected=\"selected\" ";
+			}
+			print ">$value</option>";
+		}
+		
+		?>
+    	        </select></td>
+			</tr>
+	
+			</table>	
+	
+			<p class="submit"><input type="submit" class="button-primary"
+				value="<?php _e ( 'Save Changes' )?>" /></p>
+	
+	<?php 
+	} 
+	else
+	{
+		print "<p>You are missing the GeoIP class. Perhaps geoip.inc is missing?</p>";	
+	
+	}
+	?>	
+
+	<p>This product includes GeoLite data created by MaxMind, available from
+	<a href="http://www.maxmind.com/">http://www.maxmind.com/</a>.</p>
+
+	<p>If you like this plugin please link back to <a href="http://www.trinyx.nl/">Trinyx.nl</a>! :-)</p>
+
+    <?php
+	global $geodbfile;
+	
+	/* Check if the Geo Database exists otherwise try to download it */
+	if (! (file_exists ( $geodbfile ))) {
+		?> 
+		<p>GeoIP database does not exists. Trying to download it...</p>
+		<?php
+		
+		/* GeoLite URL */
+		$url = 'http://geolite.maxmind.com/download/geoip/database/GeoLiteCountry/GeoIP.dat.gz';
+		$request = new WP_Http ();
+		$result = $request->request ( $url );
+		$content = array ();
+		
+		if ((isset ( $result->errors )) || (! (in_array ( '200', $result ['response'] )))) {
+			print "<p>Error occured: Could not download the GeoIP database from $url.<br />";
+			print "Please download this file yourself and unzip this file to $geodbfile</p>";
+		} else {
+			/* Download file */
+			$content = $result ['body'];
+			$fp = fopen ( $geodbfile . ".gz", "w" );
+			fwrite ( $fp, "$content" );
+			fclose ( $fp );
+			
+			/* Unzip this file and throw it away afterwards*/
+			$zd = gzopen ( $geodbfile . ".gz", "r" );
+			$buffer = gzread ( $zd, 2000000 );
+			gzclose ( $zd );
+			unlink ( $geodbfile . ".gz" );
+			
+			/* Write this file to the GeoIP database file */
+			$fp = fopen ( $geodbfile, "w" );
+			fwrite ( $fp, "$buffer" );
+			fclose ( $fp );
+			print "<p>Finished downloading</p>";
+		
+		}
+	}
+	
+	?>
+
+
+
+</form>
+</div>
+<?php
+}
+
+/*
+  * Country check stuff that happens at the frontpage
+ */
+
+function iqblockcountry_CheckCountry() {
+	include ("geoip.inc");
+	global $geodbfile;
+	
+	if ((file_exists ( $geodbfile )) && function_exists(geoip_open)) {
+		echo "<!-- This product includes GeoLite data created by MaxMind -->\n";
+
+		if (empty($_SERVER["HTTP_X_FORWARDED_FOR"])) {
+			$ip_address = $_SERVER["REMOTE_ADDR"];
+		} else {
+			$ip_address = $_SERVER["HTTP_X_FORWARDED_FOR"];
+		}
+		
+		$gi = geoip_open ( $geodbfile, GEOIP_STANDARD );
+		$country = geoip_country_code_by_addr ( $gi, $ip_address );
+		geoip_close ( $gi );
+		
+		$badcountries = get_option( 'blockcountry_banlist' );
+		
+		//if (!is_array($badcountries)) { $badcountries = array(); }
+		
+		/* Check if we have one of those bad guys */
+		if (is_array ( $badcountries ) && in_array ( $country, $badcountries )) {
+			header ( 'HTTP/1.1 403 Forbidden' );
+			print "<p><strong>Forbidden - Users from your country are not permitted to browse this site.<strong></p>";
+			
+			exit ();
+		}
+	
+	}
+
+}
+
+/*
+ * Main things
+ */
+$geodbfile = WP_PLUGIN_DIR . "/" . dirname ( plugin_basename ( __FILE__ ) ) . "/GeoIP.dat";
+
+add_action ( 'wp_head', 'iqblockcountry_checkCountry', 1 );
+add_action ( 'admin_menu', 'iqblockcountry_create_menu' );
+
+?>
