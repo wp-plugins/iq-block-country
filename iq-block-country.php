@@ -2,7 +2,7 @@
 /*
 Plugin Name: iQ Block Country
 Plugin URI: http://www.trinyx.nl/2010/03/iq-block-country-a-wordpress-plugin/
-Version: 1.0
+Version: 1.0.1
 Author: Pascal
 Author URI: http://www.trinyx.nl/
 Description: Block out the bad guys based on from which country the ip address is from. This plugin uses the GeoLite data created by MaxMind for the ip-to-country lookups.
