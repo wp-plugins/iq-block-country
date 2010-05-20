@@ -2,7 +2,7 @@
 /*
 Plugin Name: iQ Block Country
 Plugin URI: http://www.trinyx.nl/2010/03/iq-block-country-a-wordpress-plugin/
-Version: 1.0.1
+Version: 1.0.2
 Author: Pascal
 Author URI: http://www.trinyx.nl/
 Description: Block out the bad guys based on from which country the ip address is from. This plugin uses the GeoLite data created by MaxMind for the ip-to-country lookups.
@@ -28,6 +28,24 @@ License: GPL2
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
+function iq_is_valid_ipv4($ipv4) {
+
+	if(filter_var($ipv4, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) === FALSE) {
+		return false;
+	}
+
+	return true;
+}
+
+function iq_is_valid_ipv6($ipv6) {
+
+	if(filter_var($ipv6, FILTER_VALIDATE_IP,FILTER_FLAG_IPV6) === FALSE) {
+		return false;
+	}
+
+	return true;
+}
+	
 /*
  * Admin menu stuff
  */
@@ -41,6 +59,8 @@ function iqblockcountry_create_menu() {
 function iqblockcountry_register_mysettings() {
 	//register our settings
 	register_setting ( 'iqblockcountry-settings-group', 'blockcountry_banlist' );
+	register_setting ( 'iqblockcountry-settings-group', 'blockcountry_blacklist' );
+	register_setting ( 'iqblockcountry-settings-group', 'blockcountry_whitelist' );
 }
 
 function iqblockcountry_settings_page() {
@@ -52,8 +72,10 @@ function iqblockcountry_settings_page() {
     <?php
 	settings_fields ( 'iqblockcountry-settings-group' );
 	
-	include ("geoip.inc");
-	
+	if (!class_exists(GeoIP))
+	{
+		include_once("geoip.inc");
+	}
 	if (class_exists(GeoIP))
 	{
 		/* Create an array with all countries that the database knows */
@@ -161,26 +183,41 @@ function iqblockcountry_settings_page() {
  */
 
 function iqblockcountry_CheckCountry() {
-	include ("geoip.inc");
+	if (!class_exists(GeoIP))
+	{
+		include_once("geoip.inc");
+	}
 	global $geodbfile;
 	
 	if ((file_exists ( $geodbfile )) && function_exists(geoip_open)) {
-		echo "<!-- This product includes GeoLite data created by MaxMind -->\n";
 
 		if (empty($_SERVER["HTTP_X_FORWARDED_FOR"])) {
 			$ip_address = $_SERVER["REMOTE_ADDR"];
 		} else {
 			$ip_address = $_SERVER["HTTP_X_FORWARDED_FOR"];
 		}
+
+		// First steps into being IPv6 compatible.
 		
-		$gi = geoip_open ( $geodbfile, GEOIP_STANDARD );
-		$country = geoip_country_code_by_addr ( $gi, $ip_address );
-		geoip_close ( $gi );
+		$ipv4 = FALSE;
+		$ipv6 = FALSE;
+		if (iq_is_valid_ipv4($ip_address)) { $ipv4 = TRUE; }
+		if (iq_is_valid_ipv6($ip_address)) { $ipv6 = TRUE; }
+		
+		if ($ipv4) 
+		{ 	
+			$gi = geoip_open ( $geodbfile, GEOIP_STANDARD );
+			$country = geoip_country_code_by_addr ( $gi, $ip_address );
+			geoip_close ( $gi );
+		}
+		elseif ($ipv6)
+		{
+			// Do nothing at all as we're not IPv6 compatible just yet.
+			$country = 'ipv6';
+		}
 		
 		$badcountries = get_option( 'blockcountry_banlist' );
-		
-		//if (!is_array($badcountries)) { $badcountries = array(); }
-		
+
 		/* Check if we have one of those bad guys */
 		if (is_array ( $badcountries ) && in_array ( $country, $badcountries )) {
 			header ( 'HTTP/1.1 403 Forbidden' );

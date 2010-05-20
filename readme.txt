@@ -1,10 +1,10 @@
 === iQ Block Country ===
 Contributors: iqpascal
-Donate link: http://www.trinyx.nl/
+Donate link: http://www.unicef.org/
 Tags: spam, block, countries, country, comments, ban
 Requires at least: 2.9.2
 Tested up to: 2.9.2
-Stable tag: 1.0.1
+Stable tag: 1.0.2
 
 Block out the bad guys based on from which country the ip address is from.
 
@@ -36,8 +36,8 @@ multiple countries
 
 = Does this plugin also work with IPv6? =
 
-No not yet. Maxmind has a GeoIPv6 database though. And as my blog is also reachable
-on IPv6 I might incoporate this database is this is possible.
+No not yet. Maxmind has a GeoIPv6 database though just no support for PHP yet. 
+And as my blog is also reachable on IPv6 I might incoporate this database as soon this is possible.
 
 However: We need more IPv6 out there so please DO ask your hosting provider for IPv6!
 
@@ -65,18 +65,23 @@ download it and unzip the file to this specific location.
 
 == Changelog ==
 
-= 1.0 =
-* Initial release
+= 1.0.2 =
+* PHP 5.2 or higher required
+* Fixed an include bug when other plugins also use the MaxMind database. Thanks to Marcus from LunaWorX for finding this bug.
 
 = 1.0.1 =
 * Included the necessary geoip.inc file.. *duh*
 
-
-
-== Upgrade Notice ==
-
 = 1.0 =
 * Initial release
 
+== Upgrade Notice ==
+
+= 1.0.2 =
+PHP 5.2 or higher is now required.
+
+Just upgrade if you have PHP 5.2 or higher.
+
 = 1.0.1 =
-* Just upgrade it.
+Critical upgrade for this plugin to work as it was missing a necessary file.
+
