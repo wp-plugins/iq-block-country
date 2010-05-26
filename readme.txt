@@ -4,7 +4,7 @@ Donate link: http://www.unicef.org/
 Tags: spam, block, countries, country, comments, ban
 Requires at least: 2.9.2
 Tested up to: 2.9.2
-Stable tag: 1.0.2
+Stable tag: 1.0.3
 
 Block out the bad guys based on from which country the ip address is from.
 
@@ -62,8 +62,22 @@ http://geolite.maxmind.com/download/geoip/database/GeoLiteCountry/GeoIP.dat.gz
 It will also give you the location it expects the GeoIP.dat file. So go ahead and
 download it and unzip the file to this specific location.
 
+= How come that I still see visitors from countries that I blocked in Statpress or other statistics software? =
+
+It’s true that you might see hits from countries that you have blocked in your statistics software. 
+That is the way it works, certain plugins may be run before iQ Block Country is run so it may log visitors to pages. 
+This however does not mean this plugin does not work, it just means somebody tried to access a certain page or pages 
+and that that fact is logged.
+
+If you are worried this plugin does not work you could try to block your own country and afterwards visit your 
+frontend website and see if it actually works. Also if you have access to the logfiles of the webserver that hosts 
+your website  you can see that these visitors are actually denied with a HTTP error 403.
 
 == Changelog ==
+
+= 1.0.3 =
+* FAQ updated
+* Try to make sure this plugin is loaded first to avoid "headers already sent" trouble.
 
 = 1.0.2 =
 * PHP 5.2 or higher required
@@ -76,6 +90,11 @@ download it and unzip the file to this specific location.
 * Initial release
 
 == Upgrade Notice ==
+
+= 1.0.3 = 
+
+This baby should just upgrade fine. You may want to deactivate and reactivate this plugin to make (pretty) sure this
+plugin is loaded first. This especially recommended if you have problems with 'headers already sent' notices.
 
 = 1.0.2 =
 PHP 5.2 or higher is now required.

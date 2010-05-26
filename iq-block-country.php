@@ -2,7 +2,7 @@
 /*
 Plugin Name: iQ Block Country
 Plugin URI: http://www.trinyx.nl/2010/03/iq-block-country-a-wordpress-plugin/
-Version: 1.0.2
+Version: 1.0.3
 Author: Pascal
 Author URI: http://www.trinyx.nl/
 Description: Block out the bad guys based on from which country the ip address is from. This plugin uses the GeoLite data created by MaxMind for the ip-to-country lookups.
@@ -28,6 +28,14 @@ License: GPL2
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
+/*
+ * 
+ * This software is dedicated to my one true love.
+ * Luvya :)
+ * 
+ */
+
+
 function iq_is_valid_ipv4($ipv4) {
 
 	if(filter_var($ipv4, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) === FALSE) {
@@ -45,6 +53,20 @@ function iq_is_valid_ipv6($ipv6) {
 
 	return true;
 }
+
+function iq_this_plugin_first() {
+	// ensure path to this file is via main wp plugin path
+	$wp_path_to_this_file = preg_replace('/(.*)plugins\/(.*)$/', WP_PLUGIN_DIR."/$2", __FILE__);
+	$this_plugin = plugin_basename(trim($wp_path_to_this_file));
+	$active_plugins = get_option('active_plugins');
+	$this_plugin_key = array_search($this_plugin, $active_plugins);
+	if ($this_plugin_key) { // if it's 0 it's the first plugin already, no need to continue
+		array_splice($active_plugins, $this_plugin_key, 1);
+		array_unshift($active_plugins, $this_plugin);
+		update_option('active_plugins', $active_plugins);
+	}
+}
+
 	
 /*
  * Admin menu stuff
@@ -235,6 +257,7 @@ function iqblockcountry_CheckCountry() {
  */
 $geodbfile = WP_PLUGIN_DIR . "/" . dirname ( plugin_basename ( __FILE__ ) ) . "/GeoIP.dat";
 
+add_action ( "activated_plugin", "iq_this_plugin_first");
 add_action ( 'wp_head', 'iqblockcountry_checkCountry', 1 );
 add_action ( 'admin_menu', 'iqblockcountry_create_menu' );
 
