@@ -3,8 +3,8 @@ Contributors: iqpascal
 Donate link: http://www.unicef.org/
 Tags: spam, block, countries, country, comments, ban
 Requires at least: 2.9.2
-Tested up to: 2.9.2
-Stable tag: 1.0.3
+Tested up to: 3.0.1
+Stable tag: 1.0.4
 
 Block out the bad guys based on from which country the ip address is from.
 
@@ -75,6 +75,9 @@ your website  you can see that these visitors are actually denied with a HTTP er
 
 == Changelog ==
 
+= 1.0.4 =
+* Added a button to download the new GeoIP database.
+
 = 1.0.3 =
 * FAQ updated
 * Try to make sure this plugin is loaded first to avoid "headers already sent" trouble.
@@ -90,6 +93,10 @@ your website  you can see that these visitors are actually denied with a HTTP er
 * Initial release
 
 == Upgrade Notice ==
+
+= 1.0.4 = 
+
+None, this is just a minor update.
 
 = 1.0.3 = 
 

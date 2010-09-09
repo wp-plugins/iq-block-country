@@ -2,7 +2,7 @@
 /*
 Plugin Name: iQ Block Country
 Plugin URI: http://www.trinyx.nl/2010/03/iq-block-country-a-wordpress-plugin/
-Version: 1.0.3
+Version: 1.0.4
 Author: Pascal
 Author URI: http://www.trinyx.nl/
 Description: Block out the bad guys based on from which country the ip address is from. This plugin uses the GeoLite data created by MaxMind for the ip-to-country lookups.
@@ -34,7 +34,6 @@ License: GPL2
  * Luvya :)
  * 
  */
-
 
 function iq_is_valid_ipv4($ipv4) {
 
@@ -85,21 +84,77 @@ function iqblockcountry_register_mysettings() {
 	register_setting ( 'iqblockcountry-settings-group', 'blockcountry_whitelist' );
 }
 
+function iqblockcountry_downloadgeodatabase() {
+/*
+ * Download the GeoIP database from MaxMind
+ */
+		/* GeoLite URL */
+		$url = 'http://geolite.maxmind.com/download/geoip/database/GeoLiteCountry/GeoIP.dat.gz';
+		$request = new WP_Http ();
+		$result = $request->request ( $url );
+		$content = array ();
+		
+		if ((isset ( $result->errors )) || (! (in_array ( '200', $result ['response'] )))) {
+			print "<p>Error occured: Could not download the GeoIP database from $url.<br />";
+			print "Please download this file yourself and unzip this file to $geodbfile</p>";
+		} else {
+
+			global $geodbfile;
+			
+			/* Download file */
+			if (file_exists ( $geodbfile . ".gz" )) { unlink ( $geodbfile . ".gz" ); }
+			$content = $result ['body'];
+			$fp = fopen ( $geodbfile . ".gz", "w" );
+			fwrite ( $fp, "$content" );
+			fclose ( $fp );
+			
+			/* Unzip this file and throw it away afterwards*/
+			$zd = gzopen ( $geodbfile . ".gz", "r" );
+			$buffer = gzread ( $zd, 2000000 );
+			gzclose ( $zd );
+			if (file_exists ( $geodbfile . ".gz" )) { unlink ( $geodbfile . ".gz" ); }
+			
+			/* Write this file to the GeoIP database file */
+			if (file_exists ( $geodbfile )) { unlink ( $geodbfile ); } 
+			$fp = fopen ( $geodbfile, "w" );
+			fwrite ( $fp, "$buffer" );
+			fclose ( $fp );
+			print "<p>Finished downloading</p>";
+		}
+}
+
 function iqblockcountry_settings_page() {
 	?>
 <div class="wrap">
 <h2>iQ Block Countries</h2>
 
+		<strong>The GeoIP database is updated once a month. Be sure to update this file every now and then by clicking the following button:</strong>
+        
+		<form name="download_geoip" action="#download" method="post">
+        <input type="hidden" name="action" value="download" />
+<?php 
+        echo '<div class="submit"><input type="submit" name="test" value="' . __( 'Download new GeoIP Database', 'iq-block-country' ) . '" /></div>';
+        wp_nonce_field('iq-block-country');
+        echo '</form>';
+		
+        if ( $_POST[ 'action' ] == 'download') {
+			echo "Downloading....";	
+			iqblockcountry_downloadgeodatabase();	
+		}
+        
+        
+        ?>
+
 <form method="post" action="options.php">
     <?php
 	settings_fields ( 'iqblockcountry-settings-group' );
-	
-	if (!class_exists(GeoIP))
+    if (!class_exists(GeoIP))
 	{
 		include_once("geoip.inc");
 	}
 	if (class_exists(GeoIP))
 	{
+		
 		/* Create an array with all countries that the database knows */
 		$geo = new GeoIP ();
 		$countrycodes = $geo->GEOIP_COUNTRY_CODE_TO_NUMBER;
@@ -160,36 +215,8 @@ function iqblockcountry_settings_page() {
 		<p>GeoIP database does not exists. Trying to download it...</p>
 		<?php
 		
-		/* GeoLite URL */
-		$url = 'http://geolite.maxmind.com/download/geoip/database/GeoLiteCountry/GeoIP.dat.gz';
-		$request = new WP_Http ();
-		$result = $request->request ( $url );
-		$content = array ();
-		
-		if ((isset ( $result->errors )) || (! (in_array ( '200', $result ['response'] )))) {
-			print "<p>Error occured: Could not download the GeoIP database from $url.<br />";
-			print "Please download this file yourself and unzip this file to $geodbfile</p>";
-		} else {
-			/* Download file */
-			$content = $result ['body'];
-			$fp = fopen ( $geodbfile . ".gz", "w" );
-			fwrite ( $fp, "$content" );
-			fclose ( $fp );
-			
-			/* Unzip this file and throw it away afterwards*/
-			$zd = gzopen ( $geodbfile . ".gz", "r" );
-			$buffer = gzread ( $zd, 2000000 );
-			gzclose ( $zd );
-			unlink ( $geodbfile . ".gz" );
-			
-			/* Write this file to the GeoIP database file */
-			$fp = fopen ( $geodbfile, "w" );
-			fwrite ( $fp, "$buffer" );
-			fclose ( $fp );
-			print "<p>Finished downloading</p>";
-		
+			iqblockcountry_downloadgeodatabase();	
 		}
-	}
 	
 	?>
 
