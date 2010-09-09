@@ -43,7 +43,11 @@ However: We need more IPv6 out there so please DO ask your hosting provider for 
 
 = How can I get a new version of the GeoIP database? =
 
-You can remove the file GeoIP.dat from the plugin directory and after removal go to
+Since version 1.0.4 you can press the "Download new GeoIP database" from the admin page
+to download a new version of the database. You do not need to download it more than
+once a month since the lite database is only updated once a month.
+
+You can also remove the file GeoIP.dat from the plugin directory and after removal go to
 the settings page of this plugin. When it sees the GeoIP database is missing it will
 try to download it for you.
 
