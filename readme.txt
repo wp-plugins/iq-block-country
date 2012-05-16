@@ -3,8 +3,8 @@ Contributors: iqpascal
 Donate link: http://www.unicef.org/
 Tags: spam, block, countries, country, comments, ban
 Requires at least: 2.9.2
-Tested up to: 3.0.1
-Stable tag: 1.0.4
+Tested up to: 3.3.2
+Stable tag: 1.0.6
 
 Block out the bad guys based on from which country the ip address is from.
 
@@ -77,7 +77,27 @@ If you are worried this plugin does not work you could try to block your own cou
 frontend website and see if it actually works. Also if you have access to the logfiles of the webserver that hosts 
 your website  you can see that these visitors are actually denied with a HTTP error 403.
 
+= Why does downloading the GeoIP.dat.gz fail? =
+
+For instance Maxmind limits the number of downloads per day. They probably do this by IP address so if you or somebody
+else who has a site at the same server your site is running on already downloaded the new database you may be blocked
+for 24 hours by MaxMind. No worries try a day later again.
+
+Other possible faults are your webhosting company not allowing downloads on HTTP port 80.
+
+If your download fails try to download it from home or work and upload it via FTP/sFTP to the location that is displayed.
+
 == Changelog ==
+
+= 1.0.6 =
+* Fixed error when not being able to download the GeoIP.dat.gz file from Maxmind it would not display the correct path.
+
+= 1.0.5 =
+* Corrected php opening tags (Reported by Phil from msiii.net)
+* Sorted list of countries (As suggested by Phil from msiii.net)
+* You can now customize the message that users get when they are blocked.
+* We moved from http://www.trinyx.nl/ to http://www.redeo.nl/. Please update your links :-)
+
 
 = 1.0.4 =
 * Added a button to download the new GeoIP database.
@@ -97,6 +117,10 @@ your website  you can see that these visitors are actually denied with a HTTP er
 * Initial release
 
 == Upgrade Notice ==
+
+= 1.0.5 =
+
+None, this is just a minor update
 
 = 1.0.4 = 
 
