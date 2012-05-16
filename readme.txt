@@ -77,7 +77,20 @@ If you are worried this plugin does not work you could try to block your own cou
 frontend website and see if it actually works. Also if you have access to the logfiles of the webserver that hosts 
 your website  you can see that these visitors are actually denied with a HTTP error 403.
 
+= Why does downloading the GeoIP.dat.gz fail? =
+
+For instance Maxmind limits the number of downloads per day. They probably do this by IP address so if you or somebody
+else who has a site at the same server your site is running on already downloaded the new database you may be blocked
+for 24 hours by MaxMind. No worries try a day later again.
+
+Other possible faults are your webhosting company not allowing downloads on HTTP port 80.
+
+If your download fails try to download it from home or work and upload it via FTP/sFTP to the location that is displayed.
+
 == Changelog ==
+
+= 1.0.6 =
+* Fixed error when not being able to download the GeoIP.dat.gz file from Maxmind it would not display the correct path.
 
 = 1.0.5 =
 * Corrected php opening tags (Reported by Phil from msiii.net)

@@ -2,7 +2,7 @@
 /*
 Plugin Name: iQ Block Country
 Plugin URI: http://www.redeo.nl/2010/03/iq-block-country-a-wordpress-plugin/
-Version: 1.0.5
+Version: 1.0.6
 Author: Pascal
 Author URI: http://www.redeo.nl/
 Description: Block out the bad guys based on from which country the ip address is from. This plugin uses the GeoLite data created by MaxMind for the ip-to-country lookups.
@@ -95,8 +95,9 @@ function iqblockcountry_downloadgeodatabase() {
 		$result = $request->request ( $url );
 		$content = array ();
 		
+		global $geodbfile;
 		if ((isset ( $result->errors )) || (! (in_array ( '200', $result ['response'] )))) {
-			print "<p>Error occured: Could not download the GeoIP database from $url.<br />";
+			print "<p>Error occured: Could not download the GeoIP database from $url<br />";
 			print "Please download this file yourself and unzip this file to $geodbfile</p>";
 		} else {
 
