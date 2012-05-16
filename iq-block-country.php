@@ -1,18 +1,18 @@
 <?php
 /*
 Plugin Name: iQ Block Country
-Plugin URI: http://www.trinyx.nl/2010/03/iq-block-country-a-wordpress-plugin/
-Version: 1.0.4
+Plugin URI: http://www.redeo.nl/2010/03/iq-block-country-a-wordpress-plugin/
+Version: 1.0.5
 Author: Pascal
-Author URI: http://www.trinyx.nl/
+Author URI: http://www.redeo.nl/
 Description: Block out the bad guys based on from which country the ip address is from. This plugin uses the GeoLite data created by MaxMind for the ip-to-country lookups.
-Author URI: http://www.trinyx.nl/
+Author URI: http://www.redeo.nl/
 License: GPL2
 */
 
 /* This script uses GeoLite Country from MaxMind (http://www.maxmind.com) which is available under terms of GPL/LGPL */
 
-/*  Copyright 2010  Pascal  (email : pascal@trinyx.nl)
+/*  Copyright 2010-2012  Pascal  (email : pascal@redeo.nl)
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License, version 2, as
@@ -82,6 +82,7 @@ function iqblockcountry_register_mysettings() {
 	register_setting ( 'iqblockcountry-settings-group', 'blockcountry_banlist' );
 	register_setting ( 'iqblockcountry-settings-group', 'blockcountry_blacklist' );
 	register_setting ( 'iqblockcountry-settings-group', 'blockcountry_whitelist' );
+	register_setting ( 'iqblockcountry-settings-group', 'blockcountry_blockmessage' );
 }
 
 function iqblockcountry_downloadgeodatabase() {
@@ -166,31 +167,46 @@ function iqblockcountry_settings_page() {
 			$countrylist [$key] = $countries [$value];
 			}
 		}
+		array_multisort($countrylist);
+		
 		/* Display this array on the admin page and select any country that was already set */
 		?>
     	    <table class="form-table">
+    	    <tr valign="top">
+    	    <th>Message to display when people are blocked:</th>
+    	    <td>
+    	    	<input type="text" size=75 name="blockcountry_blockmessage"
+    	    <?php
+				$blockmessage = get_option ( 'blockcountry_blockmessage' );
+				if (empty($blockmessage)) { $blockmessage = "Forbidden - Users from your country are not permitted to browse this site."; }
+				echo "value=\"" . $blockmessage . "\">";
+    	    ?>
+    	    </td></tr>
+    	    
 			<tr valign="top">
 				<th scope="row">Countries to block:<br />
 				Use the ctrl key to select multiple countries</th>
 				<td><select name="blockcountry_banlist[]" multiple="multiple" style="height: 450px;">
-    	        <?
+    	        <?php
 			$haystack = get_option ( 'blockcountry_banlist' );
 			foreach ( $countrylist as $key => $value ) {
 			print "<option value=\"$key\"";
 			if (is_array($haystack) && in_array ( $key, $haystack )) {
 				print " selected=\"selected\" ";
 			}
-			print ">$value</option>";
+			print ">$value</option>\n";
+			
 		}
 		
 		?>
     	        </select></td>
 			</tr>
-	
+			<tr><td></td><td>
+						<p class="submit"><input type="submit" class="button-primary"
+				value="<?php _e ( 'Save Changes' )?>" /></p>
+			</td></tr>	
 			</table>	
 	
-			<p class="submit"><input type="submit" class="button-primary"
-				value="<?php _e ( 'Save Changes' )?>" /></p>
 	
 	<?php 
 	} 
@@ -204,7 +220,7 @@ function iqblockcountry_settings_page() {
 	<p>This product includes GeoLite data created by MaxMind, available from
 	<a href="http://www.maxmind.com/">http://www.maxmind.com/</a>.</p>
 
-	<p>If you like this plugin please link back to <a href="http://www.trinyx.nl/">Trinyx.nl</a>! :-)</p>
+	<p>If you like this plugin please link back to <a href="http://www.redeo.nl/">redeo.nl</a>! :-)</p>
 
     <?php
 	global $geodbfile;
@@ -269,8 +285,9 @@ function iqblockcountry_CheckCountry() {
 
 		/* Check if we have one of those bad guys */
 		if (is_array ( $badcountries ) && in_array ( $country, $badcountries )) {
+			$blockmessage = get_option ( 'blockcountry_blockmessage' );
 			header ( 'HTTP/1.1 403 Forbidden' );
-			print "<p><strong>Forbidden - Users from your country are not permitted to browse this site.<strong></p>";
+			print "<p><strong>$blockmessage<strong></p>";
 			
 			exit ();
 		}
