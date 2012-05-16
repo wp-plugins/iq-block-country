@@ -3,8 +3,8 @@ Contributors: iqpascal
 Donate link: http://www.unicef.org/
 Tags: spam, block, countries, country, comments, ban
 Requires at least: 2.9.2
-Tested up to: 3.0.1
-Stable tag: 1.0.4
+Tested up to: 3.3.2
+Stable tag: 1.0.5
 
 Block out the bad guys based on from which country the ip address is from.
 
@@ -79,6 +79,13 @@ your website  you can see that these visitors are actually denied with a HTTP er
 
 == Changelog ==
 
+= 1.0.5 =
+* Corrected php opening tags (Reported by Phil from msiii.net)
+* Sorted list of countries (As suggested by Phil from msiii.net)
+* You can now customize the message that users get when they are blocked.
+* We moved from http://www.trinyx.nl/ to http://www.redeo.nl/. Please update your links :-)
+
+
 = 1.0.4 =
 * Added a button to download the new GeoIP database.
 
@@ -97,6 +104,10 @@ your website  you can see that these visitors are actually denied with a HTTP er
 * Initial release
 
 == Upgrade Notice ==
+
+= 1.0.5 =
+
+None, this is just a minor update
 
 = 1.0.4 = 
 
