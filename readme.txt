@@ -4,7 +4,7 @@ Donate link: http://www.unicef.org/
 Tags: spam, block, countries, country, comments, ban
 Requires at least: 2.9.2
 Tested up to: 3.3.2
-Stable tag: 1.0.5
+Stable tag: 1.0.6
 
 Block out the bad guys based on from which country the ip address is from.
 
