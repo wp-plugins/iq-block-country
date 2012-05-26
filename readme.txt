@@ -89,6 +89,9 @@ If your download fails try to download it from home or work and upload it via FT
 
 == Changelog ==
 
+= 1.0.7 =
+* The plugin now detects if your IP address is blocked by MaxMind when downloading the GeoIP database and if so has an adjusted error message.
+
 = 1.0.6 =
 * Fixed error when not being able to download the GeoIP.dat.gz file from Maxmind it would not display the correct path.
 

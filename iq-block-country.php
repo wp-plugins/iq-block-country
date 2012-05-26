@@ -2,7 +2,7 @@
 /*
 Plugin Name: iQ Block Country
 Plugin URI: http://www.redeo.nl/2010/03/iq-block-country-a-wordpress-plugin/
-Version: 1.0.6
+Version: 1.0.7
 Author: Pascal
 Author URI: http://www.redeo.nl/
 Description: Block out the bad guys based on from which country the ip address is from. This plugin uses the GeoLite data created by MaxMind for the ip-to-country lookups.
@@ -89,40 +89,61 @@ function iqblockcountry_downloadgeodatabase() {
 /*
  * Download the GeoIP database from MaxMind
  */
-		/* GeoLite URL */
-		$url = 'http://geolite.maxmind.com/download/geoip/database/GeoLiteCountry/GeoIP.dat.gz';
-		$request = new WP_Http ();
-		$result = $request->request ( $url );
-		$content = array ();
-		
-		global $geodbfile;
-		if ((isset ( $result->errors )) || (! (in_array ( '200', $result ['response'] )))) {
-			print "<p>Error occured: Could not download the GeoIP database from $url<br />";
-			print "Please download this file yourself and unzip this file to $geodbfile</p>";
-		} else {
+ /* GeoLite URL */
+	
+ if( !class_exists( 'WP_Http' ) )
+        include_once( ABSPATH . WPINC. '/class-http.php' );
+ 
+	
+ $url = 'http://geolite.maxmind.com/download/geoip/database/GeoLiteCountry/GeoIP.dat.gz';
+ $request = new WP_Http ();
+ $result = $request->request ( $url );
+ $content = array ();
 
-			global $geodbfile;
+ global $geodbfile;
+ if ((in_array ( '403', $result ['response'] )) && (preg_match('/Late limited exceeded, please try again in 24 hours./', $result['body'] )) )  {
+ ?>
+ 	<p>Error occured: Could not download the GeoIP database from <?php echo $url;?><br />
+	MaxMind has blocked requests from your IP address for 24 hours. Please check again in 24 hours or download this file from your own PC<br />
+    unzip this file and upload it (via FTP for instance) to:<br /> <strong><?php echo $geodbfile;?></strong></p>
+ <?php
+ }
+ elseif ((isset ( $result->errors )) || (! (in_array ( '200', $result ['response'] )))) {
+ ?>
+ 	<p>Error occured: Could not download the GeoIP database from <?php echo $url;?><br />
+	Please download this file from your own PC unzip this file and upload it (via FTP for instance) to:<br /> 
+	<strong><?php echo $geodbfile;?></strong></p>
+ <?php
+ } else {
+
+	global $geodbfile;
 			
-			/* Download file */
-			if (file_exists ( $geodbfile . ".gz" )) { unlink ( $geodbfile . ".gz" ); }
-			$content = $result ['body'];
-			$fp = fopen ( $geodbfile . ".gz", "w" );
-			fwrite ( $fp, "$content" );
-			fclose ( $fp );
+	/* Download file */
+	if (file_exists ( $geodbfile . ".gz" )) { unlink ( $geodbfile . ".gz" ); }
+	$content = $result ['body'];
+	$fp = fopen ( $geodbfile . ".gz", "w" );
+	fwrite ( $fp, "$content" );
+	fclose ( $fp );
+		
+	/* Unzip this file and throw it away afterwards*/
+	$zd = gzopen ( $geodbfile . ".gz", "r" );
+	$buffer = gzread ( $zd, 2000000 );
+	gzclose ( $zd );
+	if (file_exists ( $geodbfile . ".gz" )) { unlink ( $geodbfile . ".gz" ); }
 			
-			/* Unzip this file and throw it away afterwards*/
-			$zd = gzopen ( $geodbfile . ".gz", "r" );
-			$buffer = gzread ( $zd, 2000000 );
-			gzclose ( $zd );
-			if (file_exists ( $geodbfile . ".gz" )) { unlink ( $geodbfile . ".gz" ); }
-			
-			/* Write this file to the GeoIP database file */
-			if (file_exists ( $geodbfile )) { unlink ( $geodbfile ); } 
-			$fp = fopen ( $geodbfile, "w" );
-			fwrite ( $fp, "$buffer" );
-			fclose ( $fp );
-			print "<p>Finished downloading</p>";
-		}
+	/* Write this file to the GeoIP database file */
+	if (file_exists ( $geodbfile )) { unlink ( $geodbfile ); } 
+	$fp = fopen ( $geodbfile, "w" );
+	fwrite ( $fp, "$buffer" );
+	fclose ( $fp );
+	print "<p>Finished downloading</p>";
+	if (! (file_exists ( $geodbfile ))) {
+		?> 
+		<p>Fatal error: GeoIP database does not exists. This plugin will not work until the database file is present.</p>
+		<?php
+	}
+	
+ }
 }
 
 function iqblockcountry_settings_page() {
