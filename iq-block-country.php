@@ -83,6 +83,7 @@ function iqblockcountry_register_mysettings() {
 	register_setting ( 'iqblockcountry-settings-group', 'blockcountry_blacklist' );
 	register_setting ( 'iqblockcountry-settings-group', 'blockcountry_whitelist' );
 	register_setting ( 'iqblockcountry-settings-group', 'blockcountry_blockmessage' );
+	register_setting ( 'iqblockcountry-settings-group', 'blockcountry_blocklogin' );
 }
 
 function iqblockcountry_downloadgeodatabase() {
@@ -101,7 +102,7 @@ function iqblockcountry_downloadgeodatabase() {
  $content = array ();
 
  global $geodbfile;
- if ((in_array ( '403', $result ['response'] )) && (preg_match('/Late limited exceeded, please try again in 24 hours./', $result['body'] )) )  {
+ if ((in_array ( '403', $result ['response'] )) && (preg_match('/Rate limited exceeded, please try again in 24 hours./', $result['body'] )) )  {
  ?>
  	<p>Error occured: Could not download the GeoIP database from <?php echo $url;?><br />
 	MaxMind has blocked requests from your IP address for 24 hours. Please check again in 24 hours or download this file from your own PC<br />
@@ -201,9 +202,21 @@ function iqblockcountry_settings_page() {
     	    <?php
 				$blockmessage = get_option ( 'blockcountry_blockmessage' );
 				if (empty($blockmessage)) { $blockmessage = "Forbidden - Users from your country are not permitted to browse this site."; }
-				echo "value=\"" . $blockmessage . "\">";
+				echo "value=\"" . $blockmessage . "\" />";
     	    ?>
     	    </td></tr>
+
+    	    <tr valign="top">
+    	    <th>Do not block users who are logged in:</th>
+    	    <td>
+    	    	<input type="checkbox" name="blockcountry_blocklogin"
+    	    <?php
+				$blocklogin = get_option ( 'blockcountry_blocklogin' );
+				if ($blocklogin == "on") { print "checked"; }
+				echo " />";
+    	    ?>
+    	    </td></tr>
+
     	    
 			<tr valign="top">
 				<th scope="row">Countries to block:<br />
@@ -305,13 +318,17 @@ function iqblockcountry_CheckCountry() {
 		
 		$badcountries = get_option( 'blockcountry_banlist' );
 
-		/* Check if we have one of those bad guys */
-		if (is_array ( $badcountries ) && in_array ( $country, $badcountries )) {
-			$blockmessage = get_option ( 'blockcountry_blockmessage' );
-			header ( 'HTTP/1.1 403 Forbidden' );
-			print "<p><strong>$blockmessage<strong></p>";
+		$blocklogin = get_option ( 'blockcountry_blocklogin' );
+		if ( ((is_user_logged_in()) && ($blocklogin != "on")) || (!(is_user_logged_in())) )  {			
+			/* Check if we have one of those bad guys */
+			if (is_array ( $badcountries ) && in_array ( $country, $badcountries )) {
+				$blockmessage = get_option ( 'blockcountry_blockmessage' );
+				header ( 'HTTP/1.1 403 Forbidden' );
+				print "<p><strong>$blockmessage<strong></p>";
 			
-			exit ();
+				exit ();
+			}
+		
 		}
 	
 	}
