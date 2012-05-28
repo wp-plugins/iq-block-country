@@ -86,7 +86,7 @@ function iqblockcountry_register_mysettings() {
 	register_setting ( 'iqblockcountry-settings-group', 'blockcountry_blocklogin' );
 }
 
-function iqblockcountry_downloadgeodatabase() {
+function iqblockcountry_downloadgeodatabase($version) {
 /*
  * Download the GeoIP database from MaxMind
  */
@@ -94,57 +94,66 @@ function iqblockcountry_downloadgeodatabase() {
 	
  if( !class_exists( 'WP_Http' ) )
         include_once( ABSPATH . WPINC. '/class-http.php' );
+
+ global $geodbfile,$geodb6file;
+ if ($version == 6)
+ {
+ 	$url = 'http://geolite.maxmind.com/download/geoip/database/GeoIPv6.dat.gz';
+ 	$geofile = $geodb6file;
+ }
+ else 
+ {
+ 	$url = 'http://geolite.maxmind.com/download/geoip/database/GeoLiteCountry/GeoIP.dat.gz';
+ 	$geofile = $geodbfile;
+ }       
  
-	
- $url = 'http://geolite.maxmind.com/download/geoip/database/GeoLiteCountry/GeoIP.dat.gz';
  $request = new WP_Http ();
  $result = $request->request ( $url );
  $content = array ();
 
- global $geodbfile;
  if ((in_array ( '403', $result ['response'] )) && (preg_match('/Rate limited exceeded, please try again in 24 hours./', $result['body'] )) )  {
  ?>
  	<p>Error occured: Could not download the GeoIP database from <?php echo $url;?><br />
 	MaxMind has blocked requests from your IP address for 24 hours. Please check again in 24 hours or download this file from your own PC<br />
-    unzip this file and upload it (via FTP for instance) to:<br /> <strong><?php echo $geodbfile;?></strong></p>
+    unzip this file and upload it (via FTP for instance) to:<br /> <strong><?php echo $geofile;?></strong></p>
  <?php
  }
  elseif ((isset ( $result->errors )) || (! (in_array ( '200', $result ['response'] )))) {
  ?>
  	<p>Error occured: Could not download the GeoIP database from <?php echo $url;?><br />
 	Please download this file from your own PC unzip this file and upload it (via FTP for instance) to:<br /> 
-	<strong><?php echo $geodbfile;?></strong></p>
+	<strong><?php echo $geofile;?></strong></p>
  <?php
  } else {
 
-	global $geodbfile;
+//	global $geodbfile;
 			
 	/* Download file */
-	if (file_exists ( $geodbfile . ".gz" )) { unlink ( $geodbfile . ".gz" ); }
+	if (file_exists ( $geofile . ".gz" )) { unlink ( $geofile . ".gz" ); }
 	$content = $result ['body'];
-	$fp = fopen ( $geodbfile . ".gz", "w" );
+	$fp = fopen ( $geofile . ".gz", "w" );
 	fwrite ( $fp, "$content" );
 	fclose ( $fp );
 		
 	/* Unzip this file and throw it away afterwards*/
-	$zd = gzopen ( $geodbfile . ".gz", "r" );
+	$zd = gzopen ( $geofile . ".gz", "r" );
 	$buffer = gzread ( $zd, 2000000 );
 	gzclose ( $zd );
-	if (file_exists ( $geodbfile . ".gz" )) { unlink ( $geodbfile . ".gz" ); }
+	if (file_exists ( $geofile . ".gz" )) { unlink ( $geofile . ".gz" ); }
 			
 	/* Write this file to the GeoIP database file */
-	if (file_exists ( $geodbfile )) { unlink ( $geodbfile ); } 
-	$fp = fopen ( $geodbfile, "w" );
+	if (file_exists ( $geofile )) { unlink ( $geofile ); } 
+	$fp = fopen ( $geofile, "w" );
 	fwrite ( $fp, "$buffer" );
 	fclose ( $fp );
-	print "<p>Finished downloading</p>";
-	if (! (file_exists ( $geodbfile ))) {
-		?> 
-		<p>Fatal error: GeoIP database does not exists. This plugin will not work until the database file is present.</p>
-		<?php
-	}
-	
+	print "<p>Finished downloading</p>";	
  }
+ if (! (file_exists ( $geodbfile ))) {
+	?> 
+	<p>Fatal error: GeoIP $geodbfile database does not exists. This plugin will not work until the database file is present.</p>
+	<?php
+ }
+ print "<hr>";
 }
 
 function iqblockcountry_settings_page() {
@@ -160,12 +169,23 @@ function iqblockcountry_settings_page() {
         echo '<div class="submit"><input type="submit" name="test" value="' . __( 'Download new GeoIP Database', 'iq-block-country' ) . '" /></div>';
         wp_nonce_field('iq-block-country');
         echo '</form>';
-		
+?>		
+		<form name="download_geoip6" action="#download6" method="post">
+        <input type="hidden" name="action" value="download6" />
+<?php 
+        echo '<div class="submit"><input type="submit" name="test" value="' . __( 'Download new GeoIP IPv6 Database', 'iq-block-country' ) . '" /></div>';
+        wp_nonce_field('iq-block-country');
+        echo '</form>';
+        
         if ( $_POST[ 'action' ] == 'download') {
 			echo "Downloading....";	
-			iqblockcountry_downloadgeodatabase();	
+			iqblockcountry_downloadgeodatabase('4');	
 		}
-        
+        if ( $_POST[ 'action' ] == 'download6') {
+			echo "Downloading....";	
+			iqblockcountry_downloadgeodatabase('6');	
+		}
+		
         
         ?>
 
@@ -263,10 +283,11 @@ function iqblockcountry_settings_page() {
 	/* Check if the Geo Database exists otherwise try to download it */
 	if (! (file_exists ( $geodbfile ))) {
 		?> 
+		<hr>
 		<p>GeoIP database does not exists. Trying to download it...</p>
 		<?php
 		
-			iqblockcountry_downloadgeodatabase();	
+			iqblockcountry_downloadgeodatabase('4');	
 		}
 	
 	?>
@@ -287,7 +308,7 @@ function iqblockcountry_CheckCountry() {
 	{
 		include_once("geoip.inc");
 	}
-	global $geodbfile;
+	global $geodbfile,$geodb6file;
 	
 	if ((file_exists ( $geodbfile )) && function_exists(geoip_open)) {
 
@@ -312,8 +333,14 @@ function iqblockcountry_CheckCountry() {
 		}
 		elseif ($ipv6)
 		{
-			// Do nothing at all as we're not IPv6 compatible just yet.
-			$country = 'ipv6';
+			if (file_exists ( $geodb6file )) {				
+				$gi = geoip_open($geodb6file,GEOIP_STANDARD);
+				$country = geoip_country_code_by_addr_v6 ( $gi, $ip_address );
+	 			geoip_close($gi);
+			}
+			else {
+				$country = 'ipv6';				
+			}
 		}
 		
 		$badcountries = get_option( 'blockcountry_banlist' );
@@ -339,6 +366,7 @@ function iqblockcountry_CheckCountry() {
  * Main things
  */
 $geodbfile = WP_PLUGIN_DIR . "/" . dirname ( plugin_basename ( __FILE__ ) ) . "/GeoIP.dat";
+$geodb6file = WP_PLUGIN_DIR . "/" . dirname ( plugin_basename ( __FILE__ ) ) . "/GeoIPv6.dat";
 
 add_action ( "activated_plugin", "iq_this_plugin_first");
 add_action ( 'wp_head', 'iqblockcountry_checkCountry', 1 );
