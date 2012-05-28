@@ -150,7 +150,7 @@ function iqblockcountry_downloadgeodatabase($version) {
  }
  if (! (file_exists ( $geodbfile ))) {
 	?> 
-	<p>Fatal error: GeoIP $geodbfile database does not exists. This plugin will not work until the database file is present.</p>
+	<p>Fatal error: GeoIP <?php echo $geodbfile ?> database does not exists. This plugin will not work until the database file is present.</p>
 	<?php
  }
  print "<hr>";
@@ -351,7 +351,7 @@ function iqblockcountry_CheckCountry() {
 			if (is_array ( $badcountries ) && in_array ( $country, $badcountries )) {
 				$blockmessage = get_option ( 'blockcountry_blockmessage' );
 				header ( 'HTTP/1.1 403 Forbidden' );
-				print "<p><strong>$blockmessage<strong></p>";
+				print "<p><strong>$blockmessage</strong></p>";
 			
 				exit ();
 			}
