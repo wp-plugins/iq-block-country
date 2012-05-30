@@ -1,10 +1,10 @@
 === iQ Block Country ===
 Contributors: iqpascal
 Donate link: http://www.unicef.org/
-Tags: spam, block, countries, country, comments, ban
+Tags: spam, block, countries, country, comments, ban, geo, geo blocking
 Requires at least: 2.9.2
 Tested up to: 3.3.2
-Stable tag: 1.0.6
+Stable tag: 1.0.7
 
 Block out the bad guys based on from which country the ip address is from.
 
@@ -14,8 +14,8 @@ If you want to block people from certain (obscure) countries that have no busine
 blog and perhaps only leave spam comments or other harmful actions than this is the plugin for you.
 
 Choose which countries you want to ban from visiting your blog. Any visitors from that country get 
-a HTTP/403 error with the message "Forbidden - Users from your country are not permitted to browse 
-this site."
+a HTTP/403 error with the standard message "Forbidden - Users from your country are not permitted 
+to browse this site." The message is customizable.
 
 They will not be able to do harmful things to your blog like post comment spam.
 
@@ -36,10 +36,14 @@ multiple countries
 
 = Does this plugin also work with IPv6? =
 
-No not yet. Maxmind has a GeoIPv6 database though just no support for PHP yet. 
-And as my blog is also reachable on IPv6 I might incoporate this database as soon this is possible.
+A first version of IPv6 is implemented since v1.0.7. But as IPv6 is still scarce it may not
+work as well as IPv4. Some IPv6 blocks may not be in the right country in the MaxMind database.
 
-However: We need more IPv6 out there so please DO ask your hosting provider for IPv6!
+There are no guarantees blocking IPv6 works but as far as I was able to test IPv6 blocking it
+works just fine.
+
+If you want IPv6 support be sure to press the "Download new GeoIP IPv6 database" button. At this
+time the IPv6 database is not downloaded automatically.
 
 = How can I get a new version of the GeoIP database? =
 
@@ -56,16 +60,6 @@ the existing database.
 
 Maxmind updates the GeoLite database every month.
 
-= Help it gives some error about not being able to download the GeoIP database? =
-
-Follow the instructions on screen. It will probably tell you that you have to manually
-download the GeoIP database from Maxmind from the following url:
-
-http://geolite.maxmind.com/download/geoip/database/GeoLiteCountry/GeoIP.dat.gz
-
-It will also give you the location it expects the GeoIP.dat file. So go ahead and
-download it and unzip the file to this specific location.
-
 = How come that I still see visitors from countries that I blocked in Statpress or other statistics software? =
 
 It’s true that you might see hits from countries that you have blocked in your statistics software. 
@@ -77,17 +71,45 @@ If you are worried this plugin does not work you could try to block your own cou
 frontend website and see if it actually works. Also if you have access to the logfiles of the webserver that hosts 
 your website  you can see that these visitors are actually denied with a HTTP error 403.
 
+= Help it gives some error about not being able to download the GeoIP database? =
+
+Follow the instructions on screen. It will probably tell you that you have to manually
+download the GeoIP database from Maxmind from the following url:
+
+http://geolite.maxmind.com/download/geoip/database/GeoLiteCountry/GeoIP.dat.gz
+
+It will also give you the location it expects the GeoIP.dat file. So go ahead and download  it and unzip the file. 
+Afterwards upload it to this specific location with for instance FTP or SFTP.
+
 = Why does downloading the GeoIP.dat.gz fail? =
 
-For instance Maxmind limits the number of downloads per day. They probably do this by IP address so if you or somebody
-else who has a site at the same server your site is running on already downloaded the new database you may be blocked
-for 24 hours by MaxMind. No worries try a day later again.
+For instance Maxmind limits the number of downloads per day. They do this by IP address so if you or somebody
+else who has a website at the same server your site is running on already downloaded the new database you may be blocked
+for 24 hours by MaxMind. If you are blocked because of too many requests this plugin tries to detect it and display
+an error message that you should try again later. So no worries try a day later again.
 
 Other possible faults are your webhosting company not allowing downloads on HTTP port 80.
 
 If your download fails try to download it from home or work and upload it via FTP/sFTP to the location that is displayed.
 
+= This plugin does not work, I blocked a country and still see visitors! =
+
+Well, this plugin does in fact work but is limited to the data MaxMind provides. Also in your statistics software or
+logfiles you probably will see log entries from countries that you have blocked. See the "How come I still see visitors..."
+FAQ for that.
+
+If you think you have a visitor from a country you have blocked lookup that specific IP address on the MaxMind website
+(http://www.maxmind.com/app/locate_demo_ip) and see which country MaxMind thinks it is. If this is not the same country
+you may wish to block the country that MaxMind thinks it is.
+
+
 == Changelog ==
+
+= 1.0.7 =
+* The plugin now detects if your IP address is blocked by MaxMind when downloading the GeoIP database and if so has an adjusted error message.
+* New option: New checkbox to allow you to not block users that are logged in despite if they come from a blocked country. Use wisely :-)
+* First version of IPv6 support.
+* New Download IPv6 database button. Press "Download new GeoIP IPv6 database" if you need IPv6 support.
 
 = 1.0.6 =
 * Fixed error when not being able to download the GeoIP.dat.gz file from Maxmind it would not display the correct path.
@@ -117,6 +139,11 @@ If your download fails try to download it from home or work and upload it via FT
 * Initial release
 
 == Upgrade Notice ==
+
+= 1.0.7 =
+
+You can now use the "Do not block users who are logged in" checkbox if you like. Also if you need IPv6 support you need 
+to press the "Download new GeoIP IPv6 database".
 
 = 1.0.5 =
 
