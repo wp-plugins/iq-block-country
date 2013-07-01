@@ -2,17 +2,17 @@
 /*
 Plugin Name: iQ Block Country
 Plugin URI: http://www.redeo.nl/2010/03/iq-block-country-a-wordpress-plugin/
-Version: 1.0.7
+Version: 1.0.9
 Author: Pascal
 Author URI: http://www.redeo.nl/
-Description: Block out the bad guys based on from which country the ip address is from. This plugin uses the GeoLite data created by MaxMind for the ip-to-country lookups.
+Description: Block visitors from visiting your website and backend website based on which country their IP address is from. The Maxmind GeoIP lite database is used for looking up from which country an ip address is from.
 Author URI: http://www.redeo.nl/
 License: GPL2
 */
 
 /* This script uses GeoLite Country from MaxMind (http://www.maxmind.com) which is available under terms of GPL/LGPL */
 
-/*  Copyright 2010-2012  Pascal  (email : pascal@redeo.nl)
+/*  Copyright 2010-2013  Pascal  (email : pascal@redeo.nl)
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License, version 2, as
@@ -35,26 +35,36 @@ License: GPL2
  * 
  */
 
-function iq_is_valid_ipv4($ipv4) {
+/*
+ * Check of an IP address is a valid IPv4 address
+ */
+function iq_is_valid_ipv4($ipv4) 
+{
+    if(filter_var($ipv4, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) === FALSE) {
+        return false;
+    }
 
-	if(filter_var($ipv4, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) === FALSE) {
-		return false;
-	}
-
-	return true;
+    return true;
 }
 
-function iq_is_valid_ipv6($ipv6) {
+/*
+ * Check of an IP address is a valid IPv6 address
+ */
+function iq_is_valid_ipv6($ipv6) 
+{
+    if(filter_var($ipv6, FILTER_VALIDATE_IP,FILTER_FLAG_IPV6) === FALSE) {
+	return false;
+    }
 
-	if(filter_var($ipv6, FILTER_VALIDATE_IP,FILTER_FLAG_IPV6) === FALSE) {
-		return false;
-	}
-
-	return true;
+    return true;
 }
 
-function iq_this_plugin_first() {
-	// ensure path to this file is via main wp plugin path
+/*
+ * Try to make this plugin the first plugin that is loaded.
+ * Because we output header info we don't want other plugins to send output first.
+ */
+function iq_this_plugin_first() 
+{
 	$wp_path_to_this_file = preg_replace('/(.*)plugins\/(.*)$/', WP_PLUGIN_DIR."/$2", __FILE__);
 	$this_plugin = plugin_basename(trim($wp_path_to_this_file));
 	$active_plugins = get_option('active_plugins');
@@ -63,34 +73,54 @@ function iq_this_plugin_first() {
 		array_splice($active_plugins, $this_plugin_key, 1);
 		array_unshift($active_plugins, $this_plugin);
 		update_option('active_plugins', $active_plugins);
-	}
+	}     
 }
 
 	
 /*
- * Admin menu stuff
+ * Create the wp-admin menu for iQ Block Country
  */
-function iqblockcountry_create_menu() {
+function iqblockcountry_create_menu() 
+{
 	//create new menu option in the settings department
 	add_submenu_page ( 'options-general.php', 'iQ Block Country', 'iQ Block Country', 'administrator', __FILE__, 'iqblockcountry_settings_page' );
 	//call register settings function
 	add_action ( 'admin_init', 'iqblockcountry_register_mysettings' );
 }
 
-function iqblockcountry_register_mysettings() {
+/*
+ * Register all settings.
+ */
+function iqblockcountry_register_mysettings() 
+{
 	//register our settings
 	register_setting ( 'iqblockcountry-settings-group', 'blockcountry_banlist' );
 	register_setting ( 'iqblockcountry-settings-group', 'blockcountry_blacklist' );
 	register_setting ( 'iqblockcountry-settings-group', 'blockcountry_whitelist' );
 	register_setting ( 'iqblockcountry-settings-group', 'blockcountry_blockmessage' );
 	register_setting ( 'iqblockcountry-settings-group', 'blockcountry_blocklogin' );
+	register_setting ( 'iqblockcountry-settings-group', 'blockcountry_blockfrontend' );
+	register_setting ( 'iqblockcountry-settings-group', 'blockcountry_blockbackend' );
+        register_setting ( 'iqblockcountry-settings-group', 'blockcountry_lastupdate');
+        register_setting ( 'iqblockcountry-settings-group', 'blockcountry_version');
+        
 }
 
-function iqblockcountry_downloadgeodatabase($version) {
+/*
+ * Set default values when activating this plugin.
+ */
+function iq_set_defaults() 
+{
+        update_option('blockcountry_version',$version);
+        update_option('blockcountry_lastupdate' , 0);
+        update_option('blockcountry_blockfrontend' , 'on');
+}
+
 /*
  * Download the GeoIP database from MaxMind
  */
- /* GeoLite URL */
+function iqblockcountry_downloadgeodatabase($version, $displayerror) 
+                {
 	
  if( !class_exists( 'WP_Http' ) )
         include_once( ABSPATH . WPINC. '/class-http.php' );
@@ -112,18 +142,22 @@ function iqblockcountry_downloadgeodatabase($version) {
  $content = array ();
 
  if ((in_array ( '403', $result ['response'] )) && (preg_match('/Rate limited exceeded, please try again in 24 hours./', $result['body'] )) )  {
+    if($displayerror){
  ?>
  	<p>Error occured: Could not download the GeoIP database from <?php echo $url;?><br />
 	MaxMind has blocked requests from your IP address for 24 hours. Please check again in 24 hours or download this file from your own PC<br />
     unzip this file and upload it (via FTP for instance) to:<br /> <strong><?php echo $geofile;?></strong></p>
  <?php
+    }
  }
  elseif ((isset ( $result->errors )) || (! (in_array ( '200', $result ['response'] )))) {
+    if($displayerror){
  ?>
  	<p>Error occured: Could not download the GeoIP database from <?php echo $url;?><br />
 	Please download this file from your own PC unzip this file and upload it (via FTP for instance) to:<br /> 
 	<strong><?php echo $geofile;?></strong></p>
  <?php
+    }
  } else {
 
 //	global $geodbfile;
@@ -146,22 +180,37 @@ function iqblockcountry_downloadgeodatabase($version) {
 	$fp = fopen ( $geofile, "w" );
 	fwrite ( $fp, "$buffer" );
 	fclose ( $fp );
-	print "<p>Finished downloading</p>";	
+    update_option('blockcountry_lastupdate' , time());
+    if($displayerror){
+	   print "<p>Finished downloading</p>";
+    }
  }
  if (! (file_exists ( $geodbfile ))) {
+    if($displayerror){
 	?> 
 	<p>Fatal error: GeoIP <?php echo $geodbfile ?> database does not exists. This plugin will not work until the database file is present.</p>
 	<?php
+    }
  }
  print "<hr>";
 }
 
+/*
+ * Create the settings page.
+ */
 function iqblockcountry_settings_page() {
 	?>
 <div class="wrap">
 <h2>iQ Block Countries</h2>
-
-		<strong>The GeoIP database is updated once a month. Be sure to update this file every now and then by clicking the following button:</strong>
+        <?php
+        $dateformat = get_option('date_format');
+        $time = get_option('blockcountry_lastupdate');
+        
+        $lastupdated = date($dateformat,$time);
+        
+	echo "<strong>The GeoIP database is updated once a month. Last update: " . $lastupdated . ".</strong>.<br /> 
+            If you need a manual update please press buttons below to update.";
+        ?>
         
 		<form name="download_geoip" action="#download" method="post">
         <input type="hidden" name="action" value="download" />
@@ -177,13 +226,13 @@ function iqblockcountry_settings_page() {
         wp_nonce_field('iq-block-country');
         echo '</form>';
         
-        if ( $_POST[ 'action' ] == 'download') {
+        if ( isset($_POST['action']) && $_POST[ 'action' ] == 'download') {
 			echo "Downloading....";	
-			iqblockcountry_downloadgeodatabase('4');	
+			iqblockcountry_downloadgeodatabase('4', true);	
 		}
-        if ( $_POST[ 'action' ] == 'download6') {
+        if ( isset($_POST['action']) && $_POST[ 'action' ] == 'download6') {
 			echo "Downloading....";	
-			iqblockcountry_downloadgeodatabase('6');	
+			iqblockcountry_downloadgeodatabase('6', true);	
 		}
 		
         
@@ -192,11 +241,11 @@ function iqblockcountry_settings_page() {
 <form method="post" action="options.php">
     <?php
 	settings_fields ( 'iqblockcountry-settings-group' );
-    if (!class_exists(GeoIP))
+    if (!class_exists('GeoIP'))
 	{
 		include_once("geoip.inc");
 	}
-	if (class_exists(GeoIP))
+	if (class_exists('GeoIP'))
 	{
 		
 		/* Create an array with all countries that the database knows */
@@ -214,7 +263,17 @@ function iqblockcountry_settings_page() {
 		
 		/* Display this array on the admin page and select any country that was already set */
 		?>
-    	    <table class="form-table">
+            <input type="hidden" name="blockcountry_lastupdate" value="
+            <?php
+                echo get_option('blockcountry_lastupdate');
+            ?>" />
+            <input type="hidden" name="blockcountry_version" value="
+            <?php
+                global $version;
+                echo $version;
+            ?>" />
+
+            <table class="form-table">
     	    <tr valign="top">
     	    <th>Message to display when people are blocked:</th>
     	    <td>
@@ -237,10 +296,31 @@ function iqblockcountry_settings_page() {
     	    ?>
     	    </td></tr>
 
+    	    <tr valign="top">
+    	    <th>Block users on the frontend of your website:</th>
+    	    <td>
+    	    	<input type="checkbox" name="blockcountry_blockfrontend"
+    	    <?php
+				$blockfrontend = get_option ( 'blockcountry_blockfrontend' );
+				if ($blockfrontend == "on") { print "checked"; }
+				echo " />";
+    	    ?>
+    	    </td></tr>
+            
+    	    <tr valign="top">
+    	    <th>Block users of the backend (administrator) of your site:</th>
+    	    <td>
+    	    	<input type="checkbox" name="blockcountry_blockbackend"
+    	    <?php
+				$blockbackend = get_option ( 'blockcountry_blockbackend' );
+				if ($blockbackend == "on") { print "checked"; }
+				echo " />";
+    	    ?>
+    	    </td></tr>
     	    
 			<tr valign="top">
 				<th scope="row">Countries to block:<br />
-				Use the ctrl key to select multiple countries</th>
+				Use the CTRL key to select multiple countries</th>
 				<td><select name="blockcountry_banlist[]" multiple="multiple" style="height: 450px;">
     	        <?php
 			$haystack = get_option ( 'blockcountry_banlist' );
@@ -287,7 +367,8 @@ function iqblockcountry_settings_page() {
 		<p>GeoIP database does not exists. Trying to download it...</p>
 		<?php
 		
-			iqblockcountry_downloadgeodatabase('4');	
+			iqblockcountry_downloadgeodatabase('4', true);	
+			iqblockcountry_downloadgeodatabase('6', true);	
 		}
 	
 	?>
@@ -300,17 +381,18 @@ function iqblockcountry_settings_page() {
 }
 
 /*
-  * Country check stuff that happens at the frontpage
+  * Does the real check of visitor IP against MaxMind database.
+ * Looks up country in the Maxmind database and if needed blocks IP.
  */
-
 function iqblockcountry_CheckCountry() {
-	if (!class_exists(GeoIP))
+	if (!class_exists('GeoIP'))
 	{
 		include_once("geoip.inc");
 	}
 	global $geodbfile,$geodb6file;
+        
 	
-	if ((file_exists ( $geodbfile )) && function_exists(geoip_open)) {
+	if ((file_exists ( $geodbfile )) && function_exists('geoip_open')) {
 
 		if (empty($_SERVER["HTTP_X_FORWARDED_FOR"])) {
 			$ip_address = $_SERVER["REMOTE_ADDR"];
@@ -318,8 +400,6 @@ function iqblockcountry_CheckCountry() {
 			$ip_address = $_SERVER["HTTP_X_FORWARDED_FOR"];
 		}
 
-		// First steps into being IPv6 compatible.
-		
 		$ipv4 = FALSE;
 		$ipv6 = FALSE;
 		if (iq_is_valid_ipv4($ip_address)) { $ipv4 = TRUE; }
@@ -350,6 +430,14 @@ function iqblockcountry_CheckCountry() {
 			/* Check if we have one of those bad guys */
 			if (is_array ( $badcountries ) && in_array ( $country, $badcountries )) {
 				$blockmessage = get_option ( 'blockcountry_blockmessage' );
+                                
+                                // Prevent as much as possible that this error message is cached:
+                        	header("Cache-Control: no-store, no-cache, must-revalidate");
+                                header("Cache-Control: post-check=0, pre-check=0", false);
+                                header("Pragma: no-cache");
+                                header("Expires: Sat, 26 Jul 2012 05:00:00 GMT"); 
+                                
+                                // Display block message
 				header ( 'HTTP/1.1 403 Forbidden' );
 				print "<p><strong>$blockmessage</strong></p>";
 			
@@ -363,13 +451,72 @@ function iqblockcountry_CheckCountry() {
 }
 
 /*
- * Main things
+ * Check if Geo databases needs to be updated.
  */
+function iqblockcountry_checkupdatedb()
+{
+    $lastupdate = get_option('blockcountry_lastupdate');
+    if (empty($lastupdate)) { $lastupdate = 0; }
+    $time = $lastupdate + 86400 * 31;
+  
+    if(time() > $time)
+    {
+        iqblockcountry_downloadgeodatabase("4", false);
+        iqblockcountry_downloadgeodatabase("6", false);
+        update_option('blockcountry_lastupdate' , time());
+
+    }
+}
+
+/*
+ * Check if page is the login page
+ */
+function iq_is_login_page() {
+    return !strncmp($_SERVER['REQUEST_URI'], '/wp-login.php', strlen('/wp-login.php'));
+}
+
+
+/*
+ * Main plugin works.
+ */
+
 $geodbfile = WP_PLUGIN_DIR . "/" . dirname ( plugin_basename ( __FILE__ ) ) . "/GeoIP.dat";
 $geodb6file = WP_PLUGIN_DIR . "/" . dirname ( plugin_basename ( __FILE__ ) ) . "/GeoIPv6.dat";
+$version = "1.0.9";
 
 add_action ( "activated_plugin", "iq_this_plugin_first");
-add_action ( 'wp_head', 'iqblockcountry_checkCountry', 1 );
+add_action ( "activated_plugin", "iq_set_defaults");
+
+/* Check if update is necessary */
+$dbversion = get_option( 'blockcountry_version' );
+if ($dbversion == "1.0.8")
+{
+            update_option('blockcountry_version',$version);
+}
+elseif ($dbversion != $version)
+{
+            update_option('blockcountry_lastupdate' , 0); 
+            update_option('blockcountry_blockfrontend' , 'on');
+            update_option('blockcountry_version',$version);
+}    
+
+
+/*
+ * Check first if users want to block the backend.
+ */
+if (iq_is_login_page() && get_option('blockcountry_blockbackend'))
+{
+    add_action ( 'login_head', 'iqblockcountry_checkCountry', 1 );
+}
+/*
+ * Check first if users want to block the frontend.
+ */
+if (get_option('blockcountry_blockfrontend'))
+{
+    add_action ( 'wp_head', 'iqblockcountry_checkCountry', 1 );
+}
+
 add_action ( 'admin_menu', 'iqblockcountry_create_menu' );
+add_action ( 'admin_init', 'iqblockcountry_checkupdatedb' );
 
 ?>

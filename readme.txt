@@ -1,12 +1,14 @@
 === iQ Block Country ===
-Contributors: iqpascal
+Contributors: iqpascal,williewonka
 Donate link: http://www.unicef.org/
-Tags: spam, block, countries, country, comments, ban, geo, geo blocking
+Tags: spam, block, countries, country, comments, ban, geo, geo blocking, geo ip, block country, block countries, ban countries, ban country
 Requires at least: 2.9.2
-Tested up to: 3.3.2
-Stable tag: 1.0.7
+Tested up to: 3.5.2
+Stable tag: 1.0.9
+License: GPLv2 or later
+License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Block out the bad guys based on from which country the ip address is from.
+Block visitors from countries you don't want on your website. Based on which country an ip address is from.
 
 == Description ==
 
@@ -34,6 +36,27 @@ multiple countries
 
 == Frequently Asked Questions ==
 
+= How come that I still see visitors from countries that I blocked in Statpress or other statistics software? =
+
+It’s true that you might see hits from countries that you have blocked in your statistics software. 
+That is the way it works, certain plugins may be run before iQ Block Country is run so it may log visitors to pages. 
+This however does not mean this plugin does not work, it just means somebody tried to access a certain page or pages 
+and that that fact is logged.
+
+If you are worried this plugin does not work you could try to block your own country and afterwards visit your 
+frontend website and see if it actually works. Also if you have access to the logfiles of the webserver that hosts 
+your website  you can see that these visitors are actually denied with a HTTP error 403.
+
+= This plugin does not work, I blocked a country and still see visitors! =
+
+Well, this plugin does in fact work but is limited to the data MaxMind provides. Also in your statistics software or
+logfiles you probably will see log entries from countries that you have blocked. See the "How come I still see visitors..."
+FAQ for that.
+
+If you think you have a visitor from a country you have blocked lookup that specific IP address on the MaxMind website
+(http://www.maxmind.com/app/locate_demo_ip) and see which country MaxMind thinks it is. If this is not the same country
+you may wish to block the country that MaxMind thinks it is.
+
 = Does this plugin also work with IPv6? =
 
 A first version of IPv6 is implemented since v1.0.7. But as IPv6 is still scarce it may not
@@ -44,6 +67,17 @@ works just fine.
 
 If you want IPv6 support be sure to press the "Download new GeoIP IPv6 database" button. At this
 time the IPv6 database is not downloaded automatically.
+
+= Does this plugin work with caching? =
+
+In some circumstances: No
+
+The plugin does it best to prevent caching of the "You are blocked" message. However most caching 
+software can be forced to cache anyway. You may or may not be able to control the behaviour of
+the caching method.
+
+The plugin does it bests to avoid caching but under circumstances the message does get cached.
+Either change the behaviour of your caching software or disable the plugin.
 
 = How can I get a new version of the GeoIP database? =
 
@@ -60,17 +94,6 @@ the existing database.
 
 Maxmind updates the GeoLite database every month.
 
-= How come that I still see visitors from countries that I blocked in Statpress or other statistics software? =
-
-It’s true that you might see hits from countries that you have blocked in your statistics software. 
-That is the way it works, certain plugins may be run before iQ Block Country is run so it may log visitors to pages. 
-This however does not mean this plugin does not work, it just means somebody tried to access a certain page or pages 
-and that that fact is logged.
-
-If you are worried this plugin does not work you could try to block your own country and afterwards visit your 
-frontend website and see if it actually works. Also if you have access to the logfiles of the webserver that hosts 
-your website  you can see that these visitors are actually denied with a HTTP error 403.
-
 = Help it gives some error about not being able to download the GeoIP database? =
 
 Follow the instructions on screen. It will probably tell you that you have to manually
@@ -78,8 +101,12 @@ download the GeoIP database from Maxmind from the following url:
 
 http://geolite.maxmind.com/download/geoip/database/GeoLiteCountry/GeoIP.dat.gz
 
+If you also need IPv6 you can download the IPv6 database on the following url:
+
+http://geolite.maxmind.com/download/geoip/database/GeoIPv6.dat.gz
+
 It will also give you the location it expects the GeoIP.dat file. So go ahead and download  it and unzip the file. 
-Afterwards upload it to this specific location with for instance FTP or SFTP.
+Afterwards upload it to this specific location with for instance FTP,SFTP or FTPS.
 
 = Why does downloading the GeoIP.dat.gz fail? =
 
@@ -90,20 +117,23 @@ an error message that you should try again later. So no worries try a day later 
 
 Other possible faults are your webhosting company not allowing downloads on HTTP port 80.
 
-If your download fails try to download it from home or work and upload it via FTP/sFTP to the location that is displayed.
+If your download fails try to download it from home or work and upload it via FTP,sFTP or FTPS to the location that is displayed.
 
-= This plugin does not work, I blocked a country and still see visitors! =
+= I select "Block users from the backend of your site option and ban my own country and nothing happens =
 
-Well, this plugin does in fact work but is limited to the data MaxMind provides. Also in your statistics software or
-logfiles you probably will see log entries from countries that you have blocked. See the "How come I still see visitors..."
-FAQ for that.
-
-If you think you have a visitor from a country you have blocked lookup that specific IP address on the MaxMind website
-(http://www.maxmind.com/app/locate_demo_ip) and see which country MaxMind thinks it is. If this is not the same country
-you may wish to block the country that MaxMind thinks it is.
-
+This is "as-designed" as long as you are logged in you will not be blocked. Open another browser and see if you can login to your
+backend. By designing it this way you can fix a whoops without you having to alter your database.
 
 == Changelog ==
+
+= 1.0.9 =
+
+* Bugfix release. The backend was not blocked in multi-site (network) setup.
+
+= 1.0.8 =
+* Automaticly download new GeoIP updates from Maxmind. This is checked each time you login on the Wordpress admin site (williewonka)
+* Also block login attempts to the wp-admin site (williewonka)
+* Send no cache headers with the output.
 
 = 1.0.7 =
 * The plugin now detects if your IP address is blocked by MaxMind when downloading the GeoIP database and if so has an adjusted error message.
@@ -119,7 +149,6 @@ you may wish to block the country that MaxMind thinks it is.
 * Sorted list of countries (As suggested by Phil from msiii.net)
 * You can now customize the message that users get when they are blocked.
 * We moved from http://www.trinyx.nl/ to http://www.redeo.nl/. Please update your links :-)
-
 
 = 1.0.4 =
 * Added a button to download the new GeoIP database.
@@ -139,6 +168,16 @@ you may wish to block the country that MaxMind thinks it is.
 * Initial release
 
 == Upgrade Notice ==
+
+= 1.0.9 =
+
+See upgrade notice from 1.0.8 if you upgrade from a release prior to 1.0.8.
+
+= 1.0.8 =
+
+This plugin adds some new checkbox settings so you can choose if you want to block users from your frontend website,
+your backend website or both. By default only the frontend site is blocked. If you wish to alter this behaviour go
+to your settings page.
 
 = 1.0.7 =
 
