@@ -1,10 +1,10 @@
 === iQ Block Country ===
 Contributors: iqpascal,williewonka
 Donate link: http://www.unicef.org/
-Tags: spam, block, countries, country, comments, ban, geo, geo blocking
+Tags: spam, block, countries, country, comments, ban, geo, geo blocking, geo ip, block country, block countries, ban countries, ban country
 Requires at least: 2.9.2
 Tested up to: 3.5.2
-Stable tag: 1.0.8
+Stable tag: 1.0.9
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -119,7 +119,16 @@ Other possible faults are your webhosting company not allowing downloads on HTTP
 
 If your download fails try to download it from home or work and upload it via FTP,sFTP or FTPS to the location that is displayed.
 
+= I select "Block users from the backend of your site option and ban my own country and nothing happens =
+
+This is "as-designed" as long as you are logged in you will not be blocked. Open another browser and see if you can login to your
+backend. By designing it this way you can fix a whoops without you having to alter your database.
+
 == Changelog ==
+
+= 1.0.9 =
+
+* Bugfix release. The backend was not blocked in multi-site (network) setup.
 
 = 1.0.8 =
 * Automaticly download new GeoIP updates from Maxmind. This is checked each time you login on the Wordpress admin site (williewonka)
@@ -159,6 +168,10 @@ If your download fails try to download it from home or work and upload it via FT
 * Initial release
 
 == Upgrade Notice ==
+
+= 1.0.9 =
+
+See upgrade notice from 1.0.8 if you upgrade from a release prior to 1.0.8.
 
 = 1.0.8 =
 
