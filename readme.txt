@@ -4,7 +4,7 @@ Donate link: http://www.unicef.org/
 Tags: spam, block, countries, country, comments, ban, geo, geo blocking, geo ip, block country, block countries, ban countries, ban country
 Requires at least: 2.9.2
 Tested up to: 3.5.2
-Stable tag: 1.0.9
+Stable tag: 1.0.10
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -19,12 +19,20 @@ Choose which countries you want to ban from visiting your blog. Any visitors fro
 a HTTP/403 error with the standard message "Forbidden - Users from your country are not permitted 
 to browse this site." The message is customizable.
 
-They will not be able to do harmful things to your blog like post comment spam.
+If you only want to block other countries from visiting your backend (administrator) website than this
+plugin is also something for you.
 
-This plugin uses the GeoLite database from Maxmind. It has a 99.5% accuracy so that is pretty good.
+If you want to block users from both your frontend website as well as your backend website than this plugin
+is really something for you!
+
+Users that are blocked will not be able to do harmful things to your blog like post comment spam.
+
+This plugin uses the GeoLite database from Maxmind. It has a 99.5% accuracy so that is pretty good for a free
+database. If you need higher accuracy you can buy a license from MaxMind directly.
 
 Once you setup this plugin it will try to download the GeoIP database from Maxmind so you will 
 always have a recent version of the database when installing this plugin.
+
 
 == Installation ==
 
@@ -56,6 +64,26 @@ FAQ for that.
 If you think you have a visitor from a country you have blocked lookup that specific IP address on the MaxMind website
 (http://www.maxmind.com/app/locate_demo_ip) and see which country MaxMind thinks it is. If this is not the same country
 you may wish to block the country that MaxMind thinks it is.
+
+= I select "Block users from visiting the backend (administrator) of your website" and blocked my own country and nothing happens =
+
+This is "as-designed" as long as you are logged in you will not be blocked. Open another browser and see if you can login to your
+backend. By designing it this way you can fix a whoops without you having to alter your database.
+
+= Whoops I made a whoops and blocked my own country from visiting the backend. Now I cannot login... HELP! =
+
+I am afraid this can only be solved by editing your MySQL database,directly editing the rows in the wp_options table. You can
+use a tool like PHPMyAdmin for that.
+
+If you don't know how to do this please ask your hosting provider if they can help, or ask me if I can help you out!
+
+= Why do you not make something that can override that it blocks my country from the backend. =
+
+Well, if you can use a manual override so can the people that want to 'visit' your backend. 
+
+This plugin is meant to keep people out. Perhaps you keep a key to your house somewhere hidden in your garden but 
+this plugin does not have a key somewhere hidden... So if you locked yourself out you need to call a locksmith (or pick the lock
+yourself of course!)
 
 = Does this plugin also work with IPv6? =
 
@@ -119,20 +147,22 @@ Other possible faults are your webhosting company not allowing downloads on HTTP
 
 If your download fails try to download it from home or work and upload it via FTP,sFTP or FTPS to the location that is displayed.
 
-= I select "Block users from the backend of your site option and ban my own country and nothing happens =
-
-This is "as-designed" as long as you are logged in you will not be blocked. Open another browser and see if you can login to your
-backend. By designing it this way you can fix a whoops without you having to alter your database.
-
 == Changelog ==
+
+= 1.0.10 =
+
+* You can select different countries to block from your frontend website and your backend website.
+* Made it more visible what IP you are logged in from, which country it is from and that you should not block your own country from your backend site.
+* Minor changes to the settings page.
+* A bit of code cleanup for future improvements.
 
 = 1.0.9 =
 
 * Bugfix release. The backend was not blocked in multi-site (network) setup.
 
 = 1.0.8 =
-* Automaticly download new GeoIP updates from Maxmind. This is checked each time you login on the Wordpress admin site (williewonka)
-* Also block login attempts to the wp-admin site (williewonka)
+* Automaticly download new GeoIP updates from Maxmind. This is checked each time you login on the Wordpress admin site (Code by williewonka)
+* Also block login attempts to the wp-admin site (Code by williewonka)
 * Send no cache headers with the output.
 
 = 1.0.7 =
@@ -168,6 +198,10 @@ backend. By designing it this way you can fix a whoops without you having to alt
 * Initial release
 
 == Upgrade Notice ==
+
+= 1.0.10 =
+
+When upgrading from v1.0.8 or v1.0.9 the current value of your block list is copied to the block list of your backend site.
 
 = 1.0.9 =
 
