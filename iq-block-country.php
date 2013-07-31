@@ -2,7 +2,7 @@
 /*
 Plugin Name: iQ Block Country
 Plugin URI: http://www.redeo.nl/2010/03/iq-block-country-a-wordpress-plugin/
-Version: 1.0.10
+Version: 1.0.11
 Author: Pascal
 Author URI: http://www.redeo.nl/
 Description: Block visitors from visiting your website and backend website based on which country their IP address is from. The Maxmind GeoIP lite database is used for looking up from which country an ip address is from.
@@ -38,7 +38,7 @@ License: GPL2
 /*
  * Check of an IP address is a valid IPv4 address
  */
-function iq_is_valid_ipv4($ipv4) 
+function iqblockcountry_is_valid_ipv4($ipv4) 
 {
     if(filter_var($ipv4, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) === FALSE) {
         return false;
@@ -50,7 +50,7 @@ function iq_is_valid_ipv4($ipv4)
 /*
  * Check of an IP address is a valid IPv6 address
  */
-function iq_is_valid_ipv6($ipv6) 
+function iqblockcountry_is_valid_ipv6($ipv6) 
 {
     if(filter_var($ipv6, FILTER_VALIDATE_IP,FILTER_FLAG_IPV6) === FALSE) {
 	return false;
@@ -63,7 +63,7 @@ function iq_is_valid_ipv6($ipv6)
  * Try to make this plugin the first plugin that is loaded.
  * Because we output header info we don't want other plugins to send output first.
  */
-function iq_this_plugin_first() 
+function iqblockcountry_this_plugin_first() 
 {
 	$wp_path_to_this_file = preg_replace('/(.*)plugins\/(.*)$/', WP_PLUGIN_DIR."/$2", __FILE__);
 	$this_plugin = plugin_basename(trim($wp_path_to_this_file));
@@ -96,27 +96,50 @@ function iqblockcountry_register_mysettings()
 	//register our settings
 	register_setting ( 'iqblockcountry-settings-group', 'blockcountry_banlist' );
 	register_setting ( 'iqblockcountry-settings-group', 'blockcountry_backendbanlist' );
-	register_setting ( 'iqblockcountry-settings-group', 'blockcountry_backendblacklist' );
-	register_setting ( 'iqblockcountry-settings-group', 'blockcountry_backendwhitelist' );
-	register_setting ( 'iqblockcountry-settings-group', 'blockcountry_frontendblacklist' );
-	register_setting ( 'iqblockcountry-settings-group', 'blockcountry_frontendwhitelist' );
+	register_setting ( 'iqblockcountry-settings-group', 'blockcountry_backendblacklist');
+	register_setting ( 'iqblockcountry-settings-group', 'blockcountry_backendwhitelist');
+	register_setting ( 'iqblockcountry-settings-group', 'blockcountry_frontendblacklist');
+	register_setting ( 'iqblockcountry-settings-group', 'blockcountry_frontendwhitelist');
 	register_setting ( 'iqblockcountry-settings-group', 'blockcountry_blockmessage' );
 	register_setting ( 'iqblockcountry-settings-group', 'blockcountry_blocklogin' );
 	register_setting ( 'iqblockcountry-settings-group', 'blockcountry_blockfrontend' );
 	register_setting ( 'iqblockcountry-settings-group', 'blockcountry_blockbackend' );
-        register_setting ( 'iqblockcountry-settings-group', 'blockcountry_lastupdate');
-        register_setting ( 'iqblockcountry-settings-group', 'blockcountry_version');
-        
+        register_setting ( 'iqblockcountry-settings-group', 'blockcountry_header');
 }
 
 /*
  * Set default values when activating this plugin.
  */
-function iq_set_defaults() 
+function iqblockcountry_set_defaults() 
 {
-        update_option('blockcountry_version',$version);
+    
+        update_option('blockcountry_version',VERSION);
         update_option('blockcountry_lastupdate' , 0);
         update_option('blockcountry_blockfrontend' , 'on');
+	update_option('blockcountry_backendnrblocks', 0);
+	update_option('blockcountry_frontendnrblocks', 0);
+	update_option('blockcountry_header', 'on');
+        
+}
+
+
+function iqblockcountry_uninstall() //deletes all the database entries that the plugin has created
+{
+    	delete_option('blockcountry_banlist' );
+	delete_option('blockcountry_backendbanlist' );
+	delete_option('blockcountry_backendblacklist' );
+	delete_option('blockcountry_backendwhitelist' );
+	delete_option('blockcountry_frontendblacklist' );
+	delete_option('blockcountry_frontendwhitelist' );
+	delete_option('blockcountry_blockmessage' );
+	delete_option('blockcountry_backendnrblocks' );
+	delete_option('blockcountry_frontendnrblocks' );
+	delete_option('blockcountry_blocklogin' );
+	delete_option('blockcountry_blockfrontend' );
+	delete_option('blockcountry_blockbackend' );
+        delete_option('blockcountry_lastupdate');
+        delete_option('blockcountry_version');
+        delete_option('blockcountry_header');
 }
 
 /*
@@ -128,16 +151,15 @@ function iqblockcountry_downloadgeodatabase($version, $displayerror)
  if( !class_exists( 'WP_Http' ) )
         include_once( ABSPATH . WPINC. '/class-http.php' );
 
- global $geodbfile,$geodb6file;
  if ($version == 6)
  {
- 	$url = 'http://geolite.maxmind.com/download/geoip/database/GeoIPv6.dat.gz';
- 	$geofile = $geodb6file;
+ 	$url = IPV6DB;
+ 	$geofile = IPV6DBFILE;
  }
  else 
  {
- 	$url = 'http://geolite.maxmind.com/download/geoip/database/GeoLiteCountry/GeoIP.dat.gz';
- 	$geofile = $geodbfile;
+ 	$url = IPV4DB;
+ 	$geofile = IPV4DBFILE;
  }       
  
  $request = new WP_Http ();
@@ -186,20 +208,19 @@ function iqblockcountry_downloadgeodatabase($version, $displayerror)
 	   print "<p>Finished downloading</p>";
         }
  }
- if (! (file_exists ( $geodbfile ))) {
+ if (! (file_exists ( IPV4DBFILE ))) {
     if($displayerror){
 	?> 
-	<p>Fatal error: GeoIP <?php echo $geodbfile ?> database does not exists. This plugin will not work until the database file is present.</p>
+	<p>Fatal error: GeoIP <?php echo IPV4DBFILE ?> database does not exists. This plugin will not work until the database file is present.</p>
 	<?php
     }
  }
- print "<hr />";
 }
 
 /*
  * Get list of countries from Geo Database
  */
-function iq_get_countries()
+function iqblockcountry_get_countries()
 {
     global $countrylist;
     
@@ -235,8 +256,179 @@ function iq_get_countries()
  */
 function iqblockcountry_settings_page() {
 	?>
-<div class="wrap">
+        <div class="wrap">
 <h2>iQ Block Countries</h2>
+
+        <hr />
+        <h3>Check which country belongs to an IP Address according to the current database.</h3>
+   
+	<form name="ipcheck" action="#ipcheck" method="post">
+        <input type="hidden" name="action" value="ipcheck" />
+        IP Address to check: <input type="text" name="ipaddress" lenth="50" />
+<?php 
+        if ( isset($_POST['action']) && $_POST[ 'action' ] == 'ipcheck') {
+                    if (isset($_POST['ipaddress']) && !empty($_POST['ipaddress']))
+                    {
+                        $ip_address = $_POST['ipaddress'];
+                        $country = iqblockcountry_check_ipaddress($ip_address);
+                        $countrylist = iqblockcountry_get_countries();
+                        if ($country == "Unknown" || $country == "ipv6" || $country == "")
+                        {
+                            echo "<p>No country for $ip_address could be found. Or $ip_address is not a valid IPv4 or IPv6 IP address</p>";
+                        }
+                        else {
+                            $displaycountry = $countrylist[$country];
+                            echo "<p>IP Adress $ip_address belongs to $displaycountry.</p>";
+                            $haystack = get_option('blockcountry_banlist');
+                            if (is_array($haystack) && in_array ( $country, $haystack )) {
+				print "This country is not permitted to visit the frontend of this website.<br />";
+                            }
+                            $haystack = get_option('blockcountry_backendbanlist');
+                            if (is_array($haystack) && in_array ( $country, $haystack )) {
+				print "This country is not permitted to visit the backend of this website.<br />";
+                            }
+                        }
+                    }    
+		}
+        echo '<div class="submit"><input type="submit" name="test" value="' . __( 'Check IP address', 'iq-block-country' ) . '" /></div>';
+        wp_nonce_field('iq-block-country');
+?>		
+        </form>
+        
+        
+        
+<hr />
+<h3>Statistics</h3>
+
+<?php                     $blocked = get_option('blockcountry_backendnrblocks'); ?>
+<p><?php echo $blocked; ?> visitors blocked from the backend.</p>
+<?php                     $blocked = get_option('blockcountry_frontendnrblocks'); ?>
+<p><?php echo $blocked; ?> visitors blocked from the frontend.</p>
+
+<hr />
+
+<h3>Basic Options</h3>
+        
+<form method="post" action="options.php">
+    <?php
+	settings_fields ( 'iqblockcountry-settings-group' );
+    if (!class_exists('GeoIP'))
+	{
+		include_once("geoip.inc");
+	}
+	if (class_exists('GeoIP'))
+	{
+		
+            $countrylist = iqblockcountry_get_countries();
+
+            $ip_address = iqblockcountry_get_ipaddress();
+            $country = iqblockcountry_check_ipaddress($ip_address);
+            if ($country == "Unknown" || $country == "ipv6" || $country == "")
+            { $displaycountry = "Unknown"; }
+            else { $displaycountry = $countrylist[$country]; }
+            
+            
+	?>
+
+            <script language="javascript" type="text/javascript" src=<?php echo "\"" . CHOSENJS . "\""?>></script>
+            <link rel="stylesheet" href=<?php echo "\"" . CHOSENCSS . "\""?> type="text/css" />
+            <script>
+                        jQuery(document).ready(function(){
+			jQuery(".chosen").data("placeholder","Select country...").chosen();
+                       });
+            </script>
+    
+
+            <table class="form-table" cellspacing="2" cellpadding="5" width="100%">    	    
+
+            <tr valign="top">
+    	    <th width="30%">Message to display when people are blocked:</th>
+    	    <td width="70%">
+    	    	<input type="text" size=75 name="blockcountry_blockmessage"
+    	    <?php
+				$blockmessage = get_option ( 'blockcountry_blockmessage' );
+				if (empty($blockmessage)) { $blockmessage = "Forbidden - Users from your country are not permitted to browse this site."; }
+				echo "value=\"" . $blockmessage . "\" />";
+    	    ?>
+    	    </td></tr>
+
+    	    <tr valign="top">
+    	    <th width="30%">Do not block users that are logged in from visiting frontend website:</th>
+    	    <td width="70%">
+    	    	<input type="checkbox" name="blockcountry_blocklogin" <?php checked('on', get_option('blockcountry_blocklogin'), true); ?> />
+    	    </td></tr>
+
+            <tr valign="top">
+            <th width="30%">Block users from visiting the frontend of your website:</th>
+            <td width="70%">
+    	    	<input type="checkbox" name="blockcountry_blockfrontend" <?php checked('on', get_option('blockcountry_blockfrontend'), true); ?> />
+            </td></tr>
+            
+            <tr valign="top">
+		<th scope="row" width="30%">Select the countries that should be blocked from visiting your frontend:<br />
+				Use the CTRL key to select multiple countries</th>
+		<td width="70%">
+                     <select class="chosen" name="blockcountry_banlist[]" multiple="true" style="width:600px;">
+                    <?php
+			$haystack = get_option('blockcountry_banlist');
+			foreach ( $countrylist as $key => $value ) {
+			print "<option value=\"$key\"";
+			if (is_array($haystack) && in_array ( $key, $haystack )) {
+				print " selected=\"selected\" ";
+			}
+                            print ">$value</option>\n";
+                        }   
+                        ?>
+                     </select>
+                </td></tr>
+    	    <tr valign="top">
+    	    <th width="30%">Block users from visiting the backend (administrator) of your website:</th>
+    	    <td width="70%">
+    	    	<input type="checkbox" name="blockcountry_blockbackend" <?php checked('on', get_option('blockcountry_blockbackend'), true); ?> />
+            </td></tr>    
+            <tr>
+                <th width="30%"></th>
+                <th width="70%">
+                   Your IP address is <i><?php echo $ip_address ?></i>. The country that is listed for this IP address is <em><?php echo $displaycountry ?></em>.<br />  
+                      Do <strong>NOT</strong> set the 'Block users from visiting the backend (administrator) of your website' and also select <?php echo $displaycountry ?> below.<br /> 
+                      <strong>You will NOT be able to login the next time if you DO block your own country from visiting the backend.</strong>
+                </th>
+            </tr>
+    	    </td></tr>
+            <tr valign="top">
+		<th scope="row" width="30%">Select the countries that should be blocked from visiting your backend:<br />
+                Use the x behind the country to remove a country from this blocklist.</th>
+		<td width="70%">
+        
+                    <select class="chosen" name="blockcountry_backendbanlist[]" multiple="true" style="width:600px;">
+                    <?php
+			$haystack = get_option ( 'blockcountry_backendbanlist' );
+			foreach ( $countrylist as $key => $value ) {
+			print "<option value=\"$key\"";
+			if (is_array($haystack) && in_array ( $key, $haystack )) {
+				print " selected=\"selected\" ";
+			}
+                            print ">$value</option>\n";
+                        }   
+                        ?>
+                     </select>
+                </td></tr>
+    	    <tr valign="top">
+    	    <th width="30%">Send headers when user is blocked:<br />
+                <em>Under normal circumstances you should keep this selected! Only if you have "Cannot modify header information - headers already sent" errors or if you know what you are doing uncheck this.</em></th>
+    	    <td width="70%">
+    	    	<input type="checkbox" name="blockcountry_header" <?php checked('on', get_option('blockcountry_header'), true); ?> />
+    	    </td></tr>
+                        
+		<tr><td></td><td>
+						<p class="submit"><input type="submit" class="button-primary"
+				value="<?php _e ( 'Save Changes' )?>" /></p>
+		</td></tr>	
+		</table>	
+        </form>
+        
+        <hr />
+        <h3>Download GeoIP database</h3>
         <?php
         $dateformat = get_option('date_format');
         $time = get_option('blockcountry_lastupdate');
@@ -271,140 +463,6 @@ function iqblockcountry_settings_page() {
 		}
 		
         
-        ?>
-
-        
-<hr />
-<h3>Basic Options</h3>
-        
-<form method="post" action="options.php">
-    <?php
-	settings_fields ( 'iqblockcountry-settings-group' );
-    if (!class_exists('GeoIP'))
-	{
-		include_once("geoip.inc");
-	}
-	if (class_exists('GeoIP'))
-	{
-		
-            $countrylist = iq_get_countries();
-
-            $ip_address = iq_get_ipaddress();
-            $country = iq_check_ipaddress($ip_address);
-            $displaycountry = $countrylist[$country];
-            
-           
-	?>
-    
-            <input type="hidden" name="blockcountry_lastupdate" value="
-            <?php
-                echo get_option('blockcountry_lastupdate');
-            ?>" />
-            <input type="hidden" name="blockcountry_version" value="
-            <?php
-                global $version;
-                echo $version;
-            ?>" />
-
-            <table class="form-table" cellspacing="2" cellpadding="5" width="100%">    	    
-            <tr valign="top">
-    	    <th width="30%">Message to display when people are blocked:</th>
-    	    <td width="70%">
-    	    	<input type="text" size=75 name="blockcountry_blockmessage"
-    	    <?php
-				$blockmessage = get_option ( 'blockcountry_blockmessage' );
-				if (empty($blockmessage)) { $blockmessage = "Forbidden - Users from your country are not permitted to browse this site."; }
-				echo "value=\"" . $blockmessage . "\" />";
-    	    ?>
-    	    </td></tr>
-
-    	    <tr valign="top">
-    	    <th width="30%">Do not block users that are logged in from visiting frontend website:</th>
-    	    <td width="70%">
-    	    	<input type="checkbox" name="blockcountry_blocklogin"
-    	    <?php
-				$blocklogin = get_option ( 'blockcountry_blocklogin' );
-				if ($blocklogin == "on") { print "checked"; }
-				echo " />";
-    	    ?>
-    	    </td></tr>
-
-    	    <tr valign="top">
-    	    <th width="30%">Block users from visiting the frontend of your website:</th>
-    	    <td width="70%">
-    	    	<input type="checkbox" name="blockcountry_blockfrontend"
-    	    <?php
-				$blockfrontend = get_option ( 'blockcountry_blockfrontend' );
-				if ($blockfrontend == "on") { print "checked"; }
-				echo " />";
-    	    ?>
-    	    </td></tr>
-            
-    	    
-            <tr valign="top">
-		<th scope="row" width="30%">Select the countries that should be blocked from visiting your frontend:<br />
-				Use the CTRL key to select multiple countries</th>
-		<td width="70%"><select name="blockcountry_banlist[]" multiple="multiple" style="height: 300px;">
-    	        <?php
-			$haystack = get_option ( 'blockcountry_banlist' );
-			foreach ( $countrylist as $key => $value ) {
-			print "<option value=\"$key\"";
-			if (is_array($haystack) && in_array ( $key, $haystack )) {
-				print " selected=\"selected\" ";
-			}
-			print ">$value</option>\n";
-			
-		}
-		
-		?>
-    	        </select></td>
-			</tr>
-    	    <tr valign="top">
-    	    <th width="30%">Block users from visiting the backend (administrator) of your website:</th>
-    	    <td width="70%">
-    	    	<input type="checkbox" name="blockcountry_blockbackend"
-    	    <?php
-				$blockbackend = get_option ( 'blockcountry_blockbackend' );
-				if ($blockbackend == "on") { print "checked"; }
-				echo " />";
-                                
-            ?>                    
-            <tr>
-                <th width="30%"></th>
-                <th width="70%">
-                   Your IP address is <i><?php echo $ip_address ?></i>. The country that is listed for this IP address is <em><?php echo $displaycountry ?></em>.<br />  
-                      Do <strong>NOT</strong> set the 'Block users from visiting the backend (administrator) of your website' and also select <?php echo $displaycountry ?> below.<br /> 
-                      <strong>You will NOT be able to login the next time if you DO block your own country from visiting the backend.</strong>
-                </th>
-            </tr>
-    	    </td></tr>
-            <tr valign="top">
-		<th scope="row" width="30%">Select the countries that should be blocked from visiting your backend:<br />
-				Use the CTRL key to select multiple countries</th>
-		<td width="70%"><select name="blockcountry_backendbanlist[]" multiple="multiple" style="height: 300px;">
-    	        <?php
-			$haystack = get_option ( 'blockcountry_backendbanlist' );
-			foreach ( $countrylist as $key => $value ) {
-			print "<option value=\"$key\"";
-			if (is_array($haystack) && in_array ( $key, $haystack )) {
-				print " selected=\"selected\" ";
-			}
-			print ">$value</option>\n";
-			
-		}
-		
-		?>
-    	        </select></td>
-			</tr>
-                        
-		<tr><td></td><td>
-						<p class="submit"><input type="submit" class="button-primary"
-				value="<?php _e ( 'Save Changes' )?>" /></p>
-		</td></tr>	
-		</table>	
-	
-	
-	<?php 
 	} 
 	else
 	{
@@ -419,10 +477,8 @@ function iqblockcountry_settings_page() {
 	<p>If you like this plugin please link back to <a href="http://www.redeo.nl/">redeo.nl</a>! :-)</p>
 
     <?php
-	global $geodbfile;
-	
 	/* Check if the Geo Database exists otherwise try to download it */
-	if (! (file_exists ( $geodbfile ))) {
+	if (! (file_exists ( IPV4DBFILE ))) {
 		?> 
 		<hr>
 		<p>GeoIP database does not exists. Trying to download it...</p>
@@ -433,39 +489,36 @@ function iqblockcountry_settings_page() {
 		}
 	
 	?>
+        
+        
 
-
-
-</form>
-</div>
 <?php
 }
 
-function iq_check_ipaddress($ip_address)
+function iqblockcountry_check_ipaddress($ip_address)
 {
-    global $country,$geodbfile,$geodb6file;
     if (!class_exists('GeoIP'))
     {
 	include_once("geoip.inc");
     }
     
-    if ((file_exists ( $geodbfile )) && function_exists('geoip_open')) {
+    if ((file_exists ( IPV4DBFILE )) && function_exists('geoip_open')) {
 
 	$ipv4 = FALSE;
 	$ipv6 = FALSE;
-	if (iq_is_valid_ipv4($ip_address)) { $ipv4 = TRUE; }
-	if (iq_is_valid_ipv6($ip_address)) { $ipv6 = TRUE; }
+	if (iqblockcountry_is_valid_ipv4($ip_address)) { $ipv4 = TRUE; }
+	if (iqblockcountry_is_valid_ipv6($ip_address)) { $ipv6 = TRUE; }
 	
 	if ($ipv4) 
 	{ 	
-		$gi = geoip_open ( $geodbfile, GEOIP_STANDARD );
+		$gi = geoip_open ( IPV4DBFILE, GEOIP_STANDARD );
 		$country = geoip_country_code_by_addr ( $gi, $ip_address );
 		geoip_close ( $gi );
 	}
 	elseif ($ipv6)
 	{
-		if (file_exists ( $geodb6file )) {				
-			$gi = geoip_open($geodb6file,GEOIP_STANDARD);
+		if (file_exists ( IPV6DBFILE )) {				
+			$gi = geoip_open(IPV6DBFILE,GEOIP_STANDARD);
 			$country = geoip_country_code_by_addr_v6 ( $gi, $ip_address );
  			geoip_close($gi);
 		}
@@ -484,7 +537,7 @@ function iq_check_ipaddress($ip_address)
   * Retrieves the IP address from the HTTP Headers
  */
 
-function iq_get_ipaddress() {
+function iqblockcountry_get_ipaddress() {
     global $ip_address;
     
     $ip_address = "";
@@ -510,10 +563,10 @@ function iqblockcountry_CheckCountry() {
         $ip_address = $_SERVER["HTTP_X_FORWARDED_FOR"];
     }
     
-    $ip_address = iq_get_ipaddress();
-    $country = iq_check_ipaddress($ip_address);
+    $ip_address = iqblockcountry_get_ipaddress();
+    $country = iqblockcountry_check_ipaddress($ip_address);
     
-    if ((iq_is_login_page() || is_admin()) && get_option('blockcountry_blockbackend'))
+    if ((iqblockcountry_is_login_page() || is_admin()) && get_option('blockcountry_blockbackend'))
     { 
         $badcountries = get_option( 'blockcountry_backendbanlist' );
     }
@@ -526,16 +579,35 @@ function iqblockcountry_CheckCountry() {
 	/* Check if we have one of those bad guys */
 	if (is_array ( $badcountries ) && in_array ( $country, $badcountries )) {
         	$blockmessage = get_option ( 'blockcountry_blockmessage' );
+                $header = get_option('blockcountry_header');
+                if (!empty($header) && ($header))
+                {
+                    // Prevent as much as possible that this error message is cached:
+                    header("Cache-Control: no-store, no-cache, must-revalidate");
+                    header("Cache-Control: post-check=0, pre-check=0", false);
+                    header("Pragma: no-cache");
+                    header("Expires: Sat, 26 Jul 2012 05:00:00 GMT"); 
                                 
-                // Prevent as much as possible that this error message is cached:
-                header("Cache-Control: no-store, no-cache, must-revalidate");
-                header("Cache-Control: post-check=0, pre-check=0", false);
-                header("Pragma: no-cache");
-                header("Expires: Sat, 26 Jul 2012 05:00:00 GMT"); 
-                                
-                // Display block message
-		header ( 'HTTP/1.1 403 Forbidden' );
+                    // Display block message
+                    header ( 'HTTP/1.1 403 Forbidden' );
+                }
 		print "<p><strong>$blockmessage</strong></p>";
+                
+                if ((iqblockcountry_is_login_page() || is_admin()) && get_option('blockcountry_blockbackend'))
+                {
+                    $blocked = get_option('blockcountry_backendnrblocks');
+                    if (empty($blocked)) { $blocked = 0; }
+                    $blocked++;
+                    update_option('blockcountry_backendnrblocks', $blocked);
+                }
+                else
+                {
+                    $blocked = get_option('blockcountry_frontendnrblocks');
+                    if (empty($blocked)) { $blocked = 0; }
+                    $blocked++;
+                    update_option('blockcountry_frontendnrblocks', $blocked);
+                }
+
 		exit ();
 	}
 		
@@ -564,44 +636,70 @@ function iqblockcountry_checkupdatedb()
 /*
  * Check if page is the login page
  */
-function iq_is_login_page() {
+function iqblockcountry_is_login_page() {
     return !strncmp($_SERVER['REQUEST_URI'], '/wp-login.php', strlen('/wp-login.php'));
 }
 
+function iqblockcountry_upgrade()
+{
+
+    /* Check if update is necessary */
+    $dbversion = get_option( 'blockcountry_version' );
+
+    if ($dbversion != "" && version_compare($dbversion, "1.0.10", '<') )
+    {
+        // Get banlist option and convert to backend banlist
+        update_option('blockcountry_version',VERSION);
+        $frontendbanlist = get_option('blockcountry_banlist');
+        update_option('blockcountry_backendbanlist',$frontendbanlist);
+        update_option('blockcountry_backendnrblocks', 0);
+        update_option('blockcountry_frontendnrblocks', 0);
+        update_option('blockcountry_header', 'on');
+    }
+    elseif ($dbversion != "" && version_compare($dbversion, "1.0.10", '=') )
+    {
+        update_option('blockcountry_backendnrblocks', 0);
+        update_option('blockcountry_frontendnrblocks', 0);
+        update_option('blockcountry_header', 'on');
+        update_option('blockcountry_version',VERSION);
+    }        
+    elseif ($dbversion != VERSION)
+    {
+        update_option('blockcountry_lastupdate' , 0); 
+        update_option('blockcountry_blockfrontend' , 'on');
+        update_option('blockcountry_version',VERSION);
+        update_option('blockcountry_backendnrblocks', 0);
+        update_option('blockcountry_frontendnrblocks', 0);
+        update_option('blockcountry_header', 'on');
+        $frontendbanlist = get_option('blockcountry_banlist');
+        update_option('blockcountry_backendbanlist',$frontendbanlist);
+    }    
+   
+}
 
 /*
  * Main plugin works.
  */
 
-$geodbfile = WP_PLUGIN_DIR . "/" . dirname ( plugin_basename ( __FILE__ ) ) . "/GeoIP.dat";
-$geodb6file = WP_PLUGIN_DIR . "/" . dirname ( plugin_basename ( __FILE__ ) ) . "/GeoIPv6.dat";
-$version = "1.0.10";
+define("CHOSENJS", plugins_url('/chosen.jquery.js', __FILE__));
+define("CHOSENCSS", plugins_url('/chosen.css', __FILE__));
+define("IPV6DB","http://geolite.maxmind.com/download/geoip/database/GeoIPv6.dat.gz");
+define("IPV4DB","http://geolite.maxmind.com/download/geoip/database/GeoLiteCountry/GeoIP.dat.gz");
+define("IPV4DBFILE",WP_PLUGIN_DIR . "/" . dirname ( plugin_basename ( __FILE__ ) ) . "/GeoIP.dat");
+define("IPV6DBFILE",WP_PLUGIN_DIR . "/" . dirname ( plugin_basename ( __FILE__ ) ) . "/GeoIPv6.dat");
+define("VERSION","1.0.11");
 
-add_action ( "activated_plugin", "iq_this_plugin_first");
-add_action ( "activated_plugin", "iq_set_defaults");
+register_activation_hook(__file__, 'iqblockcountry_this_plugin_first');
+register_activation_hook(__file__, 'iqblockcountry_set_defaults');
+register_uninstall_hook(__file__, 'iqblockcountry_uninstall');
 
-/* Check if update is necessary */
-$dbversion = get_option( 'blockcountry_version' );
-
-if ($dbversion != "" && version_compare($dbversion, "1.0.9", '<=') )
-{
-            // Get banlist option and convert to backend banlist
-            update_option('blockcountry_version',$version);
-            $frontendbanlist = get_option('blockcountry_banlist');
-            update_option('blockcountry_backendbanlist',$frontendbanlist);
-}
-elseif ($dbversion != $version)
-{
-            update_option('blockcountry_lastupdate' , 0); 
-            update_option('blockcountry_blockfrontend' , 'on');
-            update_option('blockcountry_version',$version);
-}    
-
+ // Check if upgrade is necessary
+ iqblockcountry_upgrade();
 
 /*
  * Check first if users want to block the backend.
  */
-if ((iq_is_login_page() || is_admin()) && get_option('blockcountry_blockbackend'))
+if ((iqblockcountry_is_login_page() || is_admin()) && get_option('blockcountry_blockbackend'))
 {
     add_action ( 'login_head', 'iqblockcountry_checkCountry', 1 );
 }

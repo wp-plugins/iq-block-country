@@ -2,9 +2,9 @@
 Contributors: iqpascal,williewonka
 Donate link: http://www.unicef.org/
 Tags: spam, block, countries, country, comments, ban, geo, geo blocking, geo ip, block country, block countries, ban countries, ban country
-Requires at least: 2.9.2
+Requires at least: 3.5.2
 Tested up to: 3.5.2
-Stable tag: 1.0.10
+Stable tag: 1.0.11
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -147,7 +147,20 @@ Other possible faults are your webhosting company not allowing downloads on HTTP
 
 If your download fails try to download it from home or work and upload it via FTP,sFTP or FTPS to the location that is displayed.
 
+= I get "Cannot modify header information - headers already sent" errors =
+
+This is possible if another plugin or your template sends out header information before this plugin does. You can deactivate and reactivate this plugin, it will try to load as the first plugin upon activation.
+If this does not help you out deselect "Send headers when user is blocked". This will no longer send headers but only display the block message. This however will mess up your website if you use caching software for your website.
+
 == Changelog ==
+
+= 1.0.11 =
+
+* You are now able to lookup which country belongs to an ip address in the backend. If the IP address is from a country that is banned this will be displayed.
+* New way of selecting countries you wish to block upon multiple request. The selection box is now in sort of facebook style.
+* Choose if you want to sent out headers or not. For people who get "Cannot modify header information - headers already sent" errors.
+* Counter added for how many visitors where blocked from frontend and backend website.
+* Code cleanup
 
 = 1.0.10 =
 
@@ -198,6 +211,10 @@ If your download fails try to download it from home or work and upload it via FT
 * Initial release
 
 == Upgrade Notice ==
+
+= 1.0.11 =
+
+None.
 
 = 1.0.10 =
 
