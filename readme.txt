@@ -3,7 +3,7 @@ Contributors: iqpascal,williewonka
 Donate link: http://www.unicef.org/
 Tags: spam, block, countries, country, comments, ban, geo, geo blocking, geo ip, block country, block countries, ban countries, ban country
 Requires at least: 3.5.2
-Tested up to: 3.5.2
+Tested up to: 3.7.1
 Stable tag: 1.0.11
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -51,8 +51,8 @@ That is the way it works, certain plugins may be run before iQ Block Country is 
 This however does not mean this plugin does not work, it just means somebody tried to access a certain page or pages 
 and that that fact is logged.
 
-If you are worried this plugin does not work you could try to block your own country and afterwards visit your 
-frontend website and see if it actually works. Also if you have access to the logfiles of the webserver that hosts 
+If you are worried this plugin does not work you could try to block your own country or your own ip address and afterwards 
+visit your frontend website and see if it actually works. Also if you have access to the logfiles of the webserver that hosts 
 your website  you can see that these visitors are actually denied with a HTTP error 403.
 
 = This plugin does not work, I blocked a country and still see visitors! =
@@ -64,11 +64,6 @@ FAQ for that.
 If you think you have a visitor from a country you have blocked lookup that specific IP address on the MaxMind website
 (http://www.maxmind.com/app/locate_demo_ip) and see which country MaxMind thinks it is. If this is not the same country
 you may wish to block the country that MaxMind thinks it is.
-
-= I select "Block users from visiting the backend (administrator) of your website" and blocked my own country and nothing happens =
-
-This is "as-designed" as long as you are logged in you will not be blocked. Open another browser and see if you can login to your
-backend. By designing it this way you can fix a whoops without you having to alter your database.
 
 = Whoops I made a whoops and blocked my own country from visiting the backend. Now I cannot login... HELP! =
 
@@ -85,10 +80,18 @@ This plugin is meant to keep people out. Perhaps you keep a key to your house so
 this plugin does not have a key somewhere hidden... So if you locked yourself out you need to call a locksmith (or pick the lock
 yourself of course!)
 
+= How can I style the banned message? =
+
+You can style the message by using CSS in the textbox. You are also able to include images, so you could visualize that people
+are banned from your site.
+
+You can also provide a link to another page explaining why they might be banned. Only culprit is that it cannot be a page on
+the same domainname as people would be banned from that page as well.
+
 = Does this plugin also work with IPv6? =
 
-A first version of IPv6 is implemented since v1.0.7. But as IPv6 is still scarce it may not
-work as well as IPv4. Some IPv6 blocks may not be in the right country in the MaxMind database.
+Since v1.0.7 this plugin supports IPv6. But as IPv6 is still scarce it may not work as well as IPv4. 
+Some IPv6 blocks may not be in the right country in the MaxMind database.
 
 There are no guarantees blocking IPv6 works but as far as I was able to test IPv6 blocking it
 works just fine.
@@ -107,11 +110,21 @@ the caching method.
 The plugin does it bests to avoid caching but under circumstances the message does get cached.
 Either change the behaviour of your caching software or disable the plugin.
 
+= How can I select multiple countries at once? =
+
+You can press the ctrl key and select several countries.
+
+Perhaps also a handy function is that you can type in a part of the name of the country!
+
 = How can I get a new version of the GeoIP database? =
 
-Since version 1.0.4 you can press the "Download new GeoIP database" from the admin page
-to download a new version of the database. You do not need to download it more than
-once a month since the lite database is only updated once a month.
+Since v1.0.9 every time you login to the backend of your website the plugin checks if the current
+databases are over a month old. If they are they will be automaticly updated to the current
+version of Maxmind.
+
+If this is not soon enough for you you can also press the two buttons "Download new GeoIP database" 
+on the bottom of the options page. This will download them instantly. However you do not need to 
+download  the databases more than once a month since the lite database is only updated once a month.
 
 You can also remove the file GeoIP.dat from the plugin directory and after removal go to
 the settings page of this plugin. When it sees the GeoIP database is missing it will
@@ -153,6 +166,12 @@ This is possible if another plugin or your template sends out header information
 If this does not help you out deselect "Send headers when user is blocked". This will no longer send headers but only display the block message. This however will mess up your website if you use caching software for your website.
 
 == Changelog ==
+
+= 1.0.12 =
+
+* The block message size box is now larger so there is more room for styling the message.
+* Whitelist of IPvX IP addresses for the frontend. Use a semicolon to seperate IP addresses.
+* Blacklist of IPvX IP addresses for the frontend. Use a semicolon to seperate IP addresses.
 
 = 1.0.11 =
 
@@ -211,6 +230,10 @@ If this does not help you out deselect "Send headers when user is blocked". This
 * Initial release
 
 == Upgrade Notice ==
+
+= 1.0.12 =
+
+None. If you wish to fill up the blacklist or whitelist option fill those boxes.
 
 = 1.0.11 =
 
