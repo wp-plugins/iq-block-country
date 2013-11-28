@@ -104,11 +104,11 @@ time the IPv6 database is not downloaded automatically.
 In some circumstances: No
 
 The plugin does it best to prevent caching of the "You are blocked" message. However most caching 
-software can be forced to cache anyway. You may or may not be able to control the behaviour of
+software can be forced to cache anyway. You may or may not be able to control the behavior of
 the caching method.
 
 The plugin does it bests to avoid caching but under circumstances the message does get cached.
-Either change the behaviour of your caching software or disable the plugin.
+Either change the behavior of your caching software or disable the plugin.
 
 = How can I select multiple countries at once? =
 
@@ -170,8 +170,8 @@ If this does not help you out deselect "Send headers when user is blocked". This
 = 1.0.12 =
 
 * The block message size box is now larger so there is more room for styling the message.
-* Whitelist of IPvX IP addresses for the frontend. Use a semicolon to seperate IP addresses.
-* Blacklist of IPvX IP addresses for the frontend. Use a semicolon to seperate IP addresses.
+* Whitelist of IPvX IP addresses for the frontend. Use a semicolon to separate IP addresses.
+* Blacklist of IPvX IP addresses for the frontend. Use a semicolon to separate IP addresses.
 
 = 1.0.11 =
 
