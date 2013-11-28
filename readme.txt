@@ -1,10 +1,10 @@
 === iQ Block Country ===
 Contributors: iqpascal,williewonka
 Donate link: http://www.unicef.org/
-Tags: spam, block, countries, country, comments, ban, geo, geo blocking, geo ip, block country, block countries, ban countries, ban country
+Tags: spam, block, countries, country, comments, ban, geo, geo blocking, geo ip, block country, block countries, ban countries, ban country, blacklist, whitelist
 Requires at least: 3.5.2
 Tested up to: 3.7.1
-Stable tag: 1.0.11
+Stable tag: 1.0.12
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -17,7 +17,7 @@ blog and perhaps only leave spam comments or other harmful actions than this is 
 
 Choose which countries you want to ban from visiting your blog. Any visitors from that country get 
 a HTTP/403 error with the standard message "Forbidden - Users from your country are not permitted 
-to browse this site." The message is customizable.
+to browse this site." The message is customizable an can be styled with CSS.
 
 If you only want to block other countries from visiting your backend (administrator) website than this
 plugin is also something for you.
@@ -112,7 +112,7 @@ Either change the behaviour of your caching software or disable the plugin.
 
 = How can I select multiple countries at once? =
 
-You can press the ctrl key and select several countries.
+You can press the CTRL key and select several countries.
 
 Perhaps also a handy function is that you can type in a part of the name of the country!
 
