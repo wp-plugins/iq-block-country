@@ -42,12 +42,14 @@ function iqblockcountry_set_defaults()
 	update_option('blockcountry_backendnrblocks', 0);
 	update_option('blockcountry_frontendnrblocks', 0);
 	update_option('blockcountry_header', 'on');
+        iqblockcountry_install_db();
         
 }
 
 
 function iqblockcountry_uninstall() //deletes all the database entries that the plugin has created
 {
+        iqblockcountry_uninstall_db();
     	delete_option('blockcountry_banlist' );
 	delete_option('blockcountry_backendbanlist' );
 	delete_option('blockcountry_backendblacklist' );
@@ -66,16 +68,8 @@ function iqblockcountry_uninstall() //deletes all the database entries that the 
 }
 
 
-
-/*
- * Create the settings page.
- */
-function iqblockcountry_settings_page() {
-	?>
-        <div class="wrap">
-<h2>iQ Block Countries</h2>
-
-        <hr />
+function iqblockcountry_settings_tools() {
+    ?>
         <h3>Check which country belongs to an IP Address according to the current database.</h3>
    
 	<form name="ipcheck" action="#ipcheck" method="post">
@@ -111,9 +105,49 @@ function iqblockcountry_settings_page() {
 ?>		
         </form>
         
+        <hr />
+        <h3>Download GeoIP database</h3>
+        <?php
+        $dateformat = get_option('date_format');
+        $time = get_option('blockcountry_lastupdate');
         
+        $lastupdated = date($dateformat,$time);
         
-<hr />
+	echo "<strong>The GeoIP database is updated once a month. Last update: " . $lastupdated . ".</strong>.<br /> 
+            If you need a manual update please press buttons below to update.";
+        ?>
+        
+	<form name="download_geoip" action="#download" method="post">
+        <input type="hidden" name="action" value="download" />
+<?php 
+        echo '<div class="submit"><input type="submit" name="test" value="' . __( 'Download new GeoIP Database', 'iq-block-country' ) . '" /></div>';
+        wp_nonce_field('iq-block-country');
+        echo '</form>';
+?>		
+		<form name="download_geoip6" action="#download6" method="post">
+        <input type="hidden" name="action" value="download6" />
+<?php 
+        echo '<div class="submit"><input type="submit" name="test" value="' . __( 'Download new GeoIP IPv6 Database', 'iq-block-country' ) . '" /></div>';
+        wp_nonce_field('iq-block-country');
+        echo '</form>';
+        
+        if ( isset($_POST['action']) && $_POST[ 'action' ] == 'download') {
+			echo "Downloading....";	
+			iqblockcountry_downloadgeodatabase('4', true);	
+		}
+        if ( isset($_POST['action']) && $_POST[ 'action' ] == 'download6') {
+			echo "Downloading....";	
+			iqblockcountry_downloadgeodatabase('6', true);	
+		}
+    
+}
+
+/*
+ * Settings home
+ */
+function iqblockcountry_settings_home()
+{
+?>
 <h3>Statistics</h3>
 
 <?php                     $blocked = get_option('blockcountry_backendnrblocks'); ?>
@@ -128,7 +162,7 @@ function iqblockcountry_settings_page() {
 <form method="post" action="options.php">
     <?php
 	settings_fields ( 'iqblockcountry-settings-group' );
-    if (!class_exists('GeoIP'))
+        if (!class_exists('GeoIP'))
 	{
 		include_once("geoip.inc");
 	}
@@ -257,55 +291,129 @@ function iqblockcountry_settings_page() {
 		</td></tr>	
 		</table>	
         </form>
-        
-        <hr />
-        <h3>Download GeoIP database</h3>
-        <?php
-        $dateformat = get_option('date_format');
-        $time = get_option('blockcountry_lastupdate');
-        
-        $lastupdated = date($dateformat,$time);
-        
-	echo "<strong>The GeoIP database is updated once a month. Last update: " . $lastupdated . ".</strong>.<br /> 
-            If you need a manual update please press buttons below to update.";
-        ?>
-        
-	<form name="download_geoip" action="#download" method="post">
-        <input type="hidden" name="action" value="download" />
-<?php 
-        echo '<div class="submit"><input type="submit" name="test" value="' . __( 'Download new GeoIP Database', 'iq-block-country' ) . '" /></div>';
-        wp_nonce_field('iq-block-country');
-        echo '</form>';
-?>		
-		<form name="download_geoip6" action="#download6" method="post">
-        <input type="hidden" name="action" value="download6" />
-<?php 
-        echo '<div class="submit"><input type="submit" name="test" value="' . __( 'Download new GeoIP IPv6 Database', 'iq-block-country' ) . '" /></div>';
-        wp_nonce_field('iq-block-country');
-        echo '</form>';
-        
-        if ( isset($_POST['action']) && $_POST[ 'action' ] == 'download') {
-			echo "Downloading....";	
-			iqblockcountry_downloadgeodatabase('4', true);	
-		}
-        if ( isset($_POST['action']) && $_POST[ 'action' ] == 'download6') {
-			echo "Downloading....";	
-			iqblockcountry_downloadgeodatabase('6', true);	
-		}
-		
-        
-	} 
-	else
-	{
+<?php
+        }
+        else
+        {
 		print "<p>You are missing the GeoIP class. Perhaps geoip.inc is missing?</p>";	
-	
-	}
+        }
+        
+        echo '<p>This product includes GeoLite data created by MaxMind, available from ';
+	echo '<a href="http://www.maxmind.com/">http://www.maxmind.com/</a>.</p>';
+
+	echo '<p>If you like this plugin please link back to <a href="http://www.redeo.nl/">redeo.nl</a>! :-)</p>';
+
+}
+
+/*
+ * Function: Display logging
+ */
+function iqblockcountry_settings_logging()
+{    
+    ?>
+   <h3>Last 15 blocked visits</h3>
+   <?php
+   global $wpdb;
+
+   $table_name = $wpdb->prefix . "iqblock_logging";
+   $format = get_option('date_format') . ' ' . get_option('time_format');
+   $countrylist = iqblockcountry_get_countries();
+   echo '<table class="widefat">';
+   echo '<thead><tr><th>Date / time</th><th>IP Address</th><th>Hostname</th><th>URL</th><th>Country</th><th>Frontend/backend</th></tr></thead>';
+   
+   foreach ($wpdb->get_results( "SELECT * FROM $table_name ORDER BY datetime DESC LIMIT 15" ) as $row)
+   {
+       $countryimage = "icons/" . strtolower($row->country) . ".png";
+       $countryurl = '<img src="' . plugins_url( $countryimage , dirname(__FILE__) ) . '" > ';
+       echo "<tbody><tr><td>";
+       $datetime = strtotime($row->datetime);
+       $mysqldate = date($format, $datetime);
+       echo $mysqldate . '</td><td>' . $row->ipaddress . '</td><td>' . gethostbyaddr( $row->ipaddress ) . '</td><td>' . $row->url . '</td><td>' . $countryurl . $countrylist[$row->country] . '<td>';
+       if ($row->banned == "F") echo "Frontend"; else { echo "Backend"; }
+       echo "</td></tr></tbody>";
+   }
+   echo '</table>';
+   
+   
+   echo '<hr>';
+   echo '<h3>Top countries that are blocked</h3>';
+   echo '<table class="widefat">';
+   echo '<thead><tr><th>Country</th><th># of blocked attempts</th></tr></thead>';
+
+   foreach ($wpdb->get_results( "SELECT count(country) AS count,country FROM $table_name GROUP BY country ORDER BY count(country) DESC LIMIT 15" ) as $row)
+   {
+       $countryimage = "icons/" . strtolower($row->country) . ".png";
+       $countryurl = '<img src="' . plugins_url( $countryimage , dirname(__FILE__) ) . '" > ';
+       echo "<tbody><tr><td>" . $countryurl . $countrylist[$row->country] . "</td><td>" . $row->count . "</td></tr></tbody>";
+   }
+   echo '</table>';
+   
+   echo '<hr>';
+   echo '<h3>Top hosts that are blocked</h3>';
+   echo '<table class="widefat">';
+   echo '<thead><tr><th>IP Adress</th><th>Hostname</th><th># of blocked attempts</th></tr></thead>';
+
+   foreach ($wpdb->get_results( "SELECT count(ipaddress) AS count,ipaddress FROM $table_name GROUP BY ipaddress ORDER BY count(ipaddress) DESC LIMIT 15" ) as $row)
+   {
+       echo "<tbody><tr><td>" . $row->ipaddress . "</td><td>" . gethostbyaddr($row->ipaddress) . "</td><td>" . $row->count . "</td></tr></tbody>";
+   }
+   echo '</table>';
+
+   echo '<hr>';
+   echo '<h3>Top URLs that are blocked</h3>';
+   echo '<table class="widefat">';
+   echo '<thead><tr><th>URL</th><th># of blocked attempts</th></tr></thead>';
+
+   foreach ($wpdb->get_results( "SELECT count(url) AS count,url FROM $table_name GROUP BY url ORDER BY count(url) DESC LIMIT 15" ) as $row)
+   {
+       echo "<tbody><tr><td>" . $row->url . "</td><td>" . $row->count . "</td></tr></tbody>";
+   }
+   echo '</table>';
+   
+}
+
+
+/*
+ * Create the settings page.
+ */
+function iqblockcountry_settings_page() {
+    
+    
+            if( isset( $_GET[ 'tab' ] ) ) {  
+                $active_tab = isset( $_GET[ 'tab' ] ) ? $_GET[ 'tab' ] : 'home';              
+            }
+            else
+            {
+                $active_tab = 'home';
+            }
+        ?>  
+          
+        <h2 class="nav-tab-wrapper">  
+            <a href="?page=iq-block-country/libs/blockcountry-settings.php&tab=home" class="nav-tab <?php echo $active_tab == 'home' ? 'nav-tab-active' : ''; ?>">Home</a>  
+            <a href="?page=iq-block-country/libs/blockcountry-settings.php&tab=tools" class="nav-tab <?php echo $active_tab == 'tools' ? 'nav-tab-active' : ''; ?>">Tools</a>  
+            <a href="?page=iq-block-country/libs/blockcountry-settings.php&tab=logging" class="nav-tab <?php echo $active_tab == 'logging' ? 'nav-tab-active' : ''; ?>">Logging</a>  
+        </h2>  
+  
+    
+        <div class="wrap">
+<h2>iQ Block Country</h2>
+
+        <hr />
+        <?php
+        if ($active_tab == "tools")
+        { 
+            iqblockcountry_settings_tools();
+        }
+        elseif ($active_tab == "logging")
+        {    
+            iqblockcountry_settings_logging();
+        }
+        else
+        {
+             iqblockcountry_settings_home();
+        }
 	?>	
 
-	<p>This product includes GeoLite data created by MaxMind, available from
-	<a href="http://www.maxmind.com/">http://www.maxmind.com/</a>.</p>
-
-	<p>If you like this plugin please link back to <a href="http://www.redeo.nl/">redeo.nl</a>! :-)</p>
 
     <?php
 	/* Check if the Geo Database exists otherwise try to download it */

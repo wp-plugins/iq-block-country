@@ -49,7 +49,7 @@ function iqblockcountry_check($country,$badcountries,$ip_address)
         $blocked = TRUE;
     }
     
-    if ((!iqblockcountry_is_login_page() || !is_admin()))
+    if (!iqblockcountry_is_login_page() )
     {    
         $frontendwhitelist = get_option ( 'blockcountry_frontendwhitelist' );
         if (preg_match('/;/',$frontendwhitelist))
@@ -122,6 +122,7 @@ function iqblockcountry_CheckCountry() {
                     if (empty($blocked)) { $blocked = 0; }
                     $blocked++;
                     update_option('blockcountry_backendnrblocks', $blocked);
+                    iqblockcountry_logging($ip_address, $country, "B");
                 }
                 else
                 {
@@ -129,6 +130,7 @@ function iqblockcountry_CheckCountry() {
                     if (empty($blocked)) { $blocked = 0; }
                     $blocked++;
                     update_option('blockcountry_frontendnrblocks', $blocked);
+                    iqblockcountry_logging($ip_address, $country, "F");
                 }
 
 		exit ();

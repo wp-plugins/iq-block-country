@@ -3,7 +3,7 @@ Contributors: iqpascal,williewonka
 Donate link: http://www.unicef.org/
 Tags: spam, block, countries, country, comments, ban, geo, geo blocking, geo ip, block country, block countries, ban countries, ban country, blacklist, whitelist
 Requires at least: 3.5.2
-Tested up to: 3.7.1
+Tested up to: 3.8
 Stable tag: 1.0.12
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -19,16 +19,13 @@ Choose which countries you want to ban from visiting your blog. Any visitors fro
 a HTTP/403 error with the standard message "Forbidden - Users from your country are not permitted 
 to browse this site." The message is customizable an can be styled with CSS.
 
-If you only want to block other countries from visiting your backend (administrator) website than this
-plugin is also something for you.
+If you only want to block other countries from visiting your backend (administrator) website than this plugin is also something for you.
 
-If you want to block users from both your frontend website as well as your backend website than this plugin
-is really something for you!
+If you want to block users from both your frontend website as well as your backend website than this plugin is really something for you!
 
 Users that are blocked will not be able to do harmful things to your blog like post comment spam.
 
-This plugin uses the GeoLite database from Maxmind. It has a 99.5% accuracy so that is pretty good for a free
-database. If you need higher accuracy you can buy a license from MaxMind directly.
+This plugin uses the GeoLite database from Maxmind. It has a 99.5% accuracy so that is pretty good for a free database. If you need higher accuracy you can buy a license from MaxMind directly.
 
 Once you setup this plugin it will try to download the GeoIP database from Maxmind so you will 
 always have a recent version of the database when installing this plugin.
@@ -48,27 +45,20 @@ multiple countries
 
 It’s true that you might see hits from countries that you have blocked in your statistics software. 
 That is the way it works, certain plugins may be run before iQ Block Country is run so it may log visitors to pages. 
-This however does not mean this plugin does not work, it just means somebody tried to access a certain page or pages 
-and that that fact is logged.
 
-If you are worried this plugin does not work you could try to block your own country or your own ip address and afterwards 
-visit your frontend website and see if it actually works. Also if you have access to the logfiles of the webserver that hosts 
-your website  you can see that these visitors are actually denied with a HTTP error 403.
+This however does not mean this plugin does not work, it just means somebody tried to access a certain page or pages and that that fact is logged.
+
+If you are worried this plugin does not work you could try to block your own country or your own ip address and afterwards visit your frontend website and see if it actually works. Also if you have access to the logfiles of the webserver that hosts your website  you can see that these visitors are actually denied with a HTTP error 403.
 
 = This plugin does not work, I blocked a country and still see visitors! =
 
-Well, this plugin does in fact work but is limited to the data MaxMind provides. Also in your statistics software or
-logfiles you probably will see log entries from countries that you have blocked. See the "How come I still see visitors..."
-FAQ for that.
+Well, this plugin does in fact work but is limited to the data MaxMind provides. Also in your statistics software or logfiles you probably will see log entries from countries that you have blocked. See the "How come I still see visitors..." FAQ for that.
 
-If you think you have a visitor from a country you have blocked lookup that specific IP address on the MaxMind website
-(http://www.maxmind.com/app/locate_demo_ip) and see which country MaxMind thinks it is. If this is not the same country
-you may wish to block the country that MaxMind thinks it is.
+If you think you have a visitor from a country you have blocked lookup that specific IP address on the MaxMind website (http://www.maxmind.com/app/locate_demo_ip) and see which country MaxMind thinks it is. If this is not the same country you may wish to block the country that MaxMind thinks it is.
 
 = Whoops I made a whoops and blocked my own country from visiting the backend. Now I cannot login... HELP! =
 
-I am afraid this can only be solved by editing your MySQL database,directly editing the rows in the wp_options table. You can
-use a tool like PHPMyAdmin for that.
+I am afraid this can only be solved by editing your MySQL database,directly editing the rows in the wp_options table. You can use a tool like PHPMyAdmin for that.
 
 If you don't know how to do this please ask your hosting provider if they can help, or ask me if I can help you out!
 
@@ -76,17 +66,13 @@ If you don't know how to do this please ask your hosting provider if they can he
 
 Well, if you can use a manual override so can the people that want to 'visit' your backend. 
 
-This plugin is meant to keep people out. Perhaps you keep a key to your house somewhere hidden in your garden but 
-this plugin does not have a key somewhere hidden... So if you locked yourself out you need to call a locksmith (or pick the lock
-yourself of course!)
+This plugin is meant to keep people out. Perhaps you keep a key to your house somewhere hidden in your garden but this plugin does not have a key somewhere hidden... So if you locked yourself out you need to call a locksmith (or pick the lock yourself of course!)
 
 = How can I style the banned message? =
 
-You can style the message by using CSS in the textbox. You are also able to include images, so you could visualize that people
-are banned from your site.
+You can style the message by using CSS in the textbox. You are also able to include images, so you could visualize that people are banned from your site.
 
-You can also provide a link to another page explaining why they might be banned. Only culprit is that it cannot be a page on
-the same domainname as people would be banned from that page as well.
+You can also provide a link to another page explaining why they might be banned. Only culprit is that it cannot be a page on the same domain name as people would be banned from that page as well.
 
 = Does this plugin also work with IPv6? =
 
@@ -103,9 +89,7 @@ time the IPv6 database is not downloaded automatically.
 
 In some circumstances: No
 
-The plugin does it best to prevent caching of the "You are blocked" message. However most caching 
-software can be forced to cache anyway. You may or may not be able to control the behavior of
-the caching method.
+The plugin does it best to prevent caching of the "You are blocked" message. However most caching software can be forced to cache anyway. You may or may not be able to control the behavior of the caching method.
 
 The plugin does it bests to avoid caching but under circumstances the message does get cached.
 Either change the behavior of your caching software or disable the plugin.
@@ -119,12 +103,10 @@ Perhaps also a handy function is that you can type in a part of the name of the 
 = How can I get a new version of the GeoIP database? =
 
 Since v1.0.9 every time you login to the backend of your website the plugin checks if the current
-databases are over a month old. If they are they will be automaticly updated to the current
+databases are over a month old. If they are they will be automatically updated to the current
 version of Maxmind.
 
-If this is not soon enough for you you can also press the two buttons "Download new GeoIP database" 
-on the bottom of the options page. This will download them instantly. However you do not need to 
-download  the databases more than once a month since the lite database is only updated once a month.
+If this is not soon enough for you you can also press the two buttons "Download new GeoIP database" on the bottom of the options page. This will download them instantly. However you do not need to download  the databases more than once a month since the lite database is only updated once a month.
 
 You can also remove the file GeoIP.dat from the plugin directory and after removal go to
 the settings page of this plugin. When it sees the GeoIP database is missing it will
@@ -147,14 +129,12 @@ If you also need IPv6 you can download the IPv6 database on the following url:
 http://geolite.maxmind.com/download/geoip/database/GeoIPv6.dat.gz
 
 It will also give you the location it expects the GeoIP.dat file. So go ahead and download  it and unzip the file. 
+
 Afterwards upload it to this specific location with for instance FTP,SFTP or FTPS.
 
 = Why does downloading the GeoIP.dat.gz fail? =
 
-For instance Maxmind limits the number of downloads per day. They do this by IP address so if you or somebody
-else who has a website at the same server your site is running on already downloaded the new database you may be blocked
-for 24 hours by MaxMind. If you are blocked because of too many requests this plugin tries to detect it and display
-an error message that you should try again later. So no worries try a day later again.
+For instance Maxmind limits the number of downloads per day. They do this by IP address so if you or somebody else who has a website at the same server your site is running on already downloaded the new database you may be blocked for 24 hours by MaxMind. If you are blocked because of too many requests this plugin tries to detect it and display an error message that you should try again later. So no worries try a day later again.
 
 Other possible faults are your webhosting company not allowing downloads on HTTP port 80.
 
@@ -163,9 +143,18 @@ If your download fails try to download it from home or work and upload it via FT
 = I get "Cannot modify header information - headers already sent" errors =
 
 This is possible if another plugin or your template sends out header information before this plugin does. You can deactivate and reactivate this plugin, it will try to load as the first plugin upon activation.
+
 If this does not help you out deselect "Send headers when user is blocked". This will no longer send headers but only display the block message. This however will mess up your website if you use caching software for your website.
 
 == Changelog ==
+
+= 1.1 =
+
+* Added statistics to the plugin.
+* You can view the last 15 hosts that were blocked including the url they visited.
+* You can view the top 15 of countries that were blocked in the past 30 days.
+* You can view the top 15 of hosts that were blocked in the past 30 days.
+* You can view the top URL's that were most blocked in the past 30 days.
 
 = 1.0.12 =
 
@@ -193,7 +182,7 @@ If this does not help you out deselect "Send headers when user is blocked". This
 * Bugfix release. The backend was not blocked in multi-site (network) setup.
 
 = 1.0.8 =
-* Automaticly download new GeoIP updates from Maxmind. This is checked each time you login on the Wordpress admin site (Code by williewonka)
+* Automatically download new GeoIP updates from Maxmind. This is checked each time you login on the Wordpress admin site (Code by williewonka)
 * Also block login attempts to the wp-admin site (Code by williewonka)
 * Send no cache headers with the output.
 
@@ -231,6 +220,10 @@ If this does not help you out deselect "Send headers when user is blocked". This
 
 == Upgrade Notice ==
 
+= 1.1 =
+
+An additional database table was added for the statistics.
+
 = 1.0.12 =
 
 None. If you wish to fill up the blacklist or whitelist option fill those boxes.
@@ -249,14 +242,11 @@ See upgrade notice from 1.0.8 if you upgrade from a release prior to 1.0.8.
 
 = 1.0.8 =
 
-This plugin adds some new checkbox settings so you can choose if you want to block users from your frontend website,
-your backend website or both. By default only the frontend site is blocked. If you wish to alter this behaviour go
-to your settings page.
+This plugin adds some new checkbox settings so you can choose if you want to block users from your frontend website, your backend website or both. By default only the frontend site is blocked. If you wish to alter this behaviour go to your settings page.
 
 = 1.0.7 =
 
-You can now use the "Do not block users who are logged in" checkbox if you like. Also if you need IPv6 support you need 
-to press the "Download new GeoIP IPv6 database".
+You can now use the "Do not block users who are logged in" checkbox if you like. Also if you need IPv6 support you need to press the "Download new GeoIP IPv6 database".
 
 = 1.0.5 =
 
@@ -268,14 +258,14 @@ None, this is just a minor update.
 
 = 1.0.3 = 
 
-This baby should just upgrade fine. You may want to deactivate and reactivate this plugin to make (pretty) sure this
-plugin is loaded first. This especially recommended if you have problems with 'headers already sent' notices.
+This baby should just upgrade fine. You may want to deactivate and reactivate this plugin to make (pretty) sure this plugin is loaded first. This especially recommended if you have problems with 'headers already sent' notices.
 
 = 1.0.2 =
+
 PHP 5.2 or higher is now required.
 
 Just upgrade if you have PHP 5.2 or higher.
 
 = 1.0.1 =
-Critical upgrade for this plugin to work as it was missing a necessary file.
 
+Critical upgrade for this plugin to work as it was missing a necessary file.

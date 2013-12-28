@@ -2,7 +2,7 @@
 /*
 Plugin Name: iQ Block Country
 Plugin URI: http://www.redeo.nl/2010/03/iq-block-country-a-wordpress-plugin/
-Version: 1.0.12
+Version: 1.1d
 Author: Pascal
 Author URI: http://www.redeo.nl/
 Description: Block visitors from visiting your website and backend website based on which country their IP address is from. The Maxmind GeoIP lite database is used for looking up from which country an ip address is from.
@@ -136,7 +136,7 @@ function iqblockcountry_get_countries()
     $countrylist = array();
     if (!class_exists('GeoIP'))
     {
-	include_once("geoip.inc");
+	include_once("libs/geoip.inc");
     }
     if (class_exists('GeoIP'))
     {
@@ -177,12 +177,13 @@ function iqblockcountry_get_ipaddress() {
 
 function iqblockcountry_upgrade()
 {
-
     /* Check if update is necessary */
     $dbversion = get_option( 'blockcountry_version' );
 
     if ($dbversion != "" && version_compare($dbversion, "1.0.10", '<') )
     {
+        iqblockcountry_install_db();
+        add_option( "blockcountry_dbversion", DBVERSION );
         // Get banlist option and convert to backend banlist
         update_option('blockcountry_version',VERSION);
         $frontendbanlist = get_option('blockcountry_banlist');
@@ -193,13 +194,23 @@ function iqblockcountry_upgrade()
     }
     elseif ($dbversion != "" && version_compare($dbversion, "1.0.10", '=') )
     {
+        iqblockcountry_install_db();
+        add_option( "blockcountry_dbversion", DBVERSION );
         update_option('blockcountry_backendnrblocks', 0);
         update_option('blockcountry_frontendnrblocks', 0);
         update_option('blockcountry_header', 'on');
         update_option('blockcountry_version',VERSION);
     }        
-    elseif ($dbversion != VERSION)
+    elseif ($dbversion != "" && version_compare($dbversion, "1.0.11", '=') )
     {
+        iqblockcountry_install_db();
+        add_option( "blockcountry_dbversion", DBVERSION );
+        update_option('blockcountry_version',VERSION);
+    }        
+    elseif ($dbversion == "")
+    {
+        iqblockcountry_install_db();
+        add_option( "blockcountry_dbversion", DBVERSION );
         update_option('blockcountry_lastupdate' , 0); 
         update_option('blockcountry_blockfrontend' , 'on');
         update_option('blockcountry_version',VERSION);
@@ -209,28 +220,31 @@ function iqblockcountry_upgrade()
         $frontendbanlist = get_option('blockcountry_banlist');
         update_option('blockcountry_backendbanlist',$frontendbanlist);
     }    
+    iqblockcountry_update_db_check();
    
 }
 
 /*
  * Include libraries
  */
-
 require_once('libs/blockcountry-checks.php');
 require_once('libs/blockcountry-settings.php');
 require_once('libs/blockcountry-validation.php');
+require_once('libs/blockcountry-logging.php');
 
 /*
  * Main plugin works.
  */
-
 define("CHOSENJS", plugins_url('/chosen.jquery.js', __FILE__));
 define("CHOSENCSS", plugins_url('/chosen.css', __FILE__));
 define("IPV6DB","http://geolite.maxmind.com/download/geoip/database/GeoIPv6.dat.gz");
 define("IPV4DB","http://geolite.maxmind.com/download/geoip/database/GeoLiteCountry/GeoIP.dat.gz");
 define("IPV4DBFILE",WP_PLUGIN_DIR . "/" . dirname ( plugin_basename ( __FILE__ ) ) . "/GeoIP.dat");
 define("IPV6DBFILE",WP_PLUGIN_DIR . "/" . dirname ( plugin_basename ( __FILE__ ) ) . "/GeoIPv6.dat");
-define("VERSION","1.0.11");
+define("VERSION","1.1d");
+define("DBVERSION","110");
+define("PLUGINPATH",plugin_dir_path( __FILE__ )); 
+
 
 register_activation_hook(__file__, 'iqblockcountry_this_plugin_first');
 register_activation_hook(__file__, 'iqblockcountry_set_defaults');
@@ -239,6 +253,9 @@ register_uninstall_hook(__file__, 'iqblockcountry_uninstall');
  // Check if upgrade is necessary
  iqblockcountry_upgrade();
 
+ /* Clean logging database */
+ iqblockcountry_clean_db();
+ 
 /*
  * Check first if users want to block the backend.
  */
