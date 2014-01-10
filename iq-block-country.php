@@ -246,8 +246,8 @@ require_once('libs/blockcountry-logging.php');
  */
 define("CHOSENJS", plugins_url('/chosen.jquery.js', __FILE__));
 define("CHOSENCSS", plugins_url('/chosen.css', __FILE__));
-define("IPV6DB","http://geolite.maxmind.com/1download/geoip/database/GeoIPv6.dat.gz");
-define("IPV4DB","http://geolite.maxmind.com/1download/geoip/database/GeoLiteCountry/GeoIP.dat.gz");
+define("IPV6DB","http://geolite.maxmind.com/download/geoip/database/GeoIPv6.dat.gz");
+define("IPV4DB","http://geolite.maxmind.com/download/geoip/database/GeoLiteCountry/GeoIP.dat.gz");
 define("IPV4DBFILE",WP_PLUGIN_DIR . "/" . dirname ( plugin_basename ( __FILE__ ) ) . "/GeoIP.dat");
 define("IPV6DBFILE",WP_PLUGIN_DIR . "/" . dirname ( plugin_basename ( __FILE__ ) ) . "/GeoIPv6.dat");
 define("VERSION","1.1d");
