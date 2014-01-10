@@ -4,7 +4,7 @@ Donate link: http://www.unicef.org/
 Tags: spam, block, countries, country, comments, ban, geo, geo blocking, geo ip, block country, block countries, ban countries, ban country, blacklist, whitelist
 Requires at least: 3.5.2
 Tested up to: 3.8
-Stable tag: 1.1
+Stable tag: 1.1.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -73,6 +73,21 @@ This plugin is meant to keep people out. Perhaps you keep a key to your house so
 You can style the message by using CSS in the textbox. You are also able to include images, so you could visualize that people are banned from your site.
 
 You can also provide a link to another page explaining why they might be banned. Only culprit is that it cannot be a page on the same domain name as people would be banned from that page as well.
+
+You can use for instance:
+
+<style type="text/css">
+  body {
+    color: red;
+    background-color: #ffffff; }
+    h1 {
+    font-family: Helvetica, Geneva, Arial,
+          SunSans-Regular, sans-serif }
+  </style>
+
+<h1>Go away!</h1>
+
+you basicly can use everything as within a normal HTML page. Including images for instance.
 
 = Does this plugin also work with IPv6? =
 
@@ -148,6 +163,11 @@ If this does not help you out deselect "Send headers when user is blocked". This
 
 == Changelog ==
 
+= 1.1.1 =
+
+* You can now choose to block individual pages. Leaving other pages open for visitors from blocked countries. You can for instance use this feature to block countries from visiting specific pages due to content rights etc.
+* Source now supports localization. Included is the English and Dutch language. I'd be happy to include other translations if anyone can supply those to me.
+
 = 1.1 =
 
 * Added statistics to the plugin.
@@ -219,6 +239,10 @@ If this does not help you out deselect "Send headers when user is blocked". This
 * Initial release
 
 == Upgrade Notice ==
+
+= 1.1.1 = 
+
+There are no specific upgrade notices other than the those already mentioned in the changelog.
 
 = 1.1 =
 
