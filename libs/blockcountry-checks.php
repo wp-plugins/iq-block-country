@@ -45,6 +45,7 @@ function iqblockcountry_check_ipaddress($ip_address)
 function iqblockcountry_check($country,$badcountries,$ip_address)
 {
     $blocked = FALSE;
+    $blockedpage = get_option('blockcountry_blockpages');
     if (is_array ( $badcountries ) && in_array ( $country, $badcountries )) {
         $blocked = TRUE;
     }
@@ -68,6 +69,19 @@ function iqblockcountry_check($country,$badcountries,$ip_address)
             }
         }
     }
+    if (is_page() && $blockedpage == "on")
+    {
+        $blockedpages = get_option('blockcountry_pages');
+        if (is_page($blockedpages))
+        {
+            $blocked = TRUE;
+        }
+        else
+        {
+            $blocked = FALSE;
+        }
+    }
+    
     return $blocked;
 }
 
