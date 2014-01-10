@@ -1,8 +1,8 @@
-<?php
+<?php   
 /*
 Plugin Name: iQ Block Country
 Plugin URI: http://www.redeo.nl/2013/12/iq-block-country-wordpress-plugin-blocks-countries/
-Version: 1.1
+Version: 1.1.1
 Author: Pascal
 Author URI: http://www.redeo.nl/
 Description: Block visitors from visiting your website and backend website based on which country their IP address is from. The Maxmind GeoIP lite database is used for looking up from which country an ip address is from.
@@ -75,21 +75,22 @@ function iqblockcountry_downloadgeodatabase($version, $displayerror)
  $result = $request->request ( $url );
  $content = array ();
 
- if ((in_array ( '403', $result ['response'] )) && (preg_match('/Rate limited exceeded, please try again in 24 hours./', $result['body'] )) )  {
+    if (is_array($result) && array_key_exists('response',$result) && (in_array ( '403', $result ['response'] )) && (preg_match('/Rate limited exceeded, please try again in 24 hours./', $result['body'] )) )  {
     if($displayerror){
  ?>
- 	<p>Error occured: Could not download the GeoIP database from <?php echo $url;?><br />
-	MaxMind has blocked requests from your IP address for 24 hours. Please check again in 24 hours or download this file from your own PC<br />
-    unzip this file and upload it (via FTP for instance) to:<br /> <strong><?php echo $geofile;?></strong></p>
+ 	<p><?php _e('Error occured: Could not download the GeoIP database from'); ?> <?php echo " " . $url;?><br />
+	<?php _e('MaxMind has blocked requests from your IP address for 24 hours. Please check again in 24 hours or download this file from your own PC'); ?><br />
+	<?php _e('Unzip this file and upload it (via FTP for instance) to:'); ?>
+	<strong> <?php echo $geofile;?></strong></p>
  <?php
     }
  }
  elseif ((isset ( $result->errors )) || (! (in_array ( '200', $result ['response'] )))) {
     if($displayerror){
  ?>
- 	<p>Error occured: Could not download the GeoIP database from <?php echo $url;?><br />
-	Please download this file from your own PC unzip this file and upload it (via FTP for instance) to:<br /> 
-	<strong><?php echo $geofile;?></strong></p>
+ 	<p><?php _e('Error occured: Could not download the GeoIP database from'); ?> <?php echo " " . $url;?><br />
+	<?php _e('Please download this file from your own PC unzip this file and upload it (via FTP for instance) to:'); ?> 
+	<strong> <?php echo $geofile;?></strong></p>
  <?php
     }
  } else {
@@ -114,16 +115,24 @@ function iqblockcountry_downloadgeodatabase($version, $displayerror)
 	fclose ( $fp );
         update_option('blockcountry_lastupdate' , time());
         if($displayerror){
-	   print "<p>Finished downloading</p>";
+	   print "<p>" . _e('Finished downloading', 'iqblockcountry') . "</p>";
         }
  }
  if (! (file_exists ( IPV4DBFILE ))) {
     if($displayerror){
 	?> 
-	<p>Fatal error: GeoIP <?php echo IPV4DBFILE ?> database does not exists. This plugin will not work until the database file is present.</p>
+	<p><?php echo __('Fatal error: GeoIP') . " " . IPV4DBFILE . " " . __('database does not exists. This plugin will not work until the database file is present.'); ?></p>
 	<?php
     }
  }
+}
+
+/*
+ * Localization
+ */
+function iqblockcountry_localization()
+{
+    load_plugin_textdomain( 'iqblockcountry', false, dirname( plugin_basename( __FILE__ ) ) . '/lang' );
 }
 
 /*
@@ -271,7 +280,10 @@ if (get_option('blockcountry_blockfrontend'))
     add_action ( 'wp_head', 'iqblockcountry_checkCountry', 1 );
 }
 
+add_action ( 'admin_init', 'iqblockcountry_localization');
 add_action ( 'admin_menu', 'iqblockcountry_create_menu' );
 add_action ( 'admin_init', 'iqblockcountry_checkupdatedb' );
+
+
 
 ?>
