@@ -383,7 +383,7 @@ function iqblockcountry_settings_logging()
        $datetime = strtotime($row->datetime);
        $mysqldate = date($format, $datetime);
        echo $mysqldate . '</td><td>' . $row->ipaddress . '</td><td>' . gethostbyaddr( $row->ipaddress ) . '</td><td>' . $row->url . '</td><td>' . $countryurl . $countrylist[$row->country] . '<td>';
-       if ($row->banned == "F") _e('Voorkant', 'iqblockcountry'); else { _e('Achterkant', 'iqblockcountry'); }
+       if ($row->banned == "F") _e('Frontend', 'iqblockcountry'); else { _e('Backend', 'iqblockcountry'); }
        echo "</td></tr></tbody>";
    }
    echo '</table>';

@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: iQ Block Country\n"
-"POT-Creation-Date: 2014-01-08 16:23+0100\n"
-"PO-Revision-Date: 2014-01-08 16:23+0100\n"
+"POT-Creation-Date: 2014-01-12 10:59+0100\n"
+"PO-Revision-Date: 2014-01-12 10:59+0100\n"
 "Last-Translator: \n"
 "Language-Team: iQ Block Country <info@redeo.nl>\n"
 "Language: English\n"
@@ -222,11 +222,11 @@ msgid "Frontend/Backend"
 msgstr ""
 
 #: libs/blockcountry-settings.php:386
-msgid "Voorkant"
+msgid "Frontend"
 msgstr ""
 
 #: libs/blockcountry-settings.php:386
-msgid "Achterkant"
+msgid "Backend"
 msgstr ""
 
 #: libs/blockcountry-settings.php:393
