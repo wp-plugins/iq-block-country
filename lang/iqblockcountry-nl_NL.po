@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: iQ Block Country\n"
-"POT-Creation-Date: 2014-01-08 16:21+0100\n"
-"PO-Revision-Date: 2014-01-08 16:21+0100\n"
+"POT-Creation-Date: 2014-01-12 10:57+0100\n"
+"PO-Revision-Date: 2014-01-12 10:58+0100\n"
 "Last-Translator: \n"
 "Language-Team: iQ Block Country <info@redeo.nl>\n"
 "Language: English\n"
@@ -245,11 +245,11 @@ msgid "Frontend/Backend"
 msgstr "Voorkant/Achterkant"
 
 #: libs/blockcountry-settings.php:386
-msgid "Voorkant"
+msgid "Frontend"
 msgstr "Voorkant"
 
 #: libs/blockcountry-settings.php:386
-msgid "Achterkant"
+msgid "Backend"
 msgstr "Achterkant"
 
 #: libs/blockcountry-settings.php:393
@@ -328,3 +328,9 @@ msgid ""
 msgstr ""
 "database bestaat niet. Deze plugin kan niet werken totdat deze database "
 "beschikbaar is."
+
+#~ msgid "Voorkant"
+#~ msgstr "Voorkant"
+
+#~ msgid "Achterkant"
+#~ msgstr "Achterkant"
