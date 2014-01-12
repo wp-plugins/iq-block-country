@@ -163,6 +163,10 @@ If this does not help you out deselect "Send headers when user is blocked". This
 
 == Changelog ==
 
+= 1.1.2 =
+
+* Fixed localization error. (Thanks to Lisa for reporting)
+
 = 1.1.1 =
 
 * You can now choose to block individual pages. Leaving other pages open for visitors from blocked countries. You can for instance use this feature to block countries from visiting specific pages due to content rights etc.
