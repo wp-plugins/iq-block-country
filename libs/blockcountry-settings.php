@@ -172,6 +172,7 @@ function iqblockcountry_settings_pages() {
     <?php
         $selectedpages = get_option('blockcountry_pages'); 
         $pages = get_pages(); 
+        $selected = "";
     foreach ( $pages as $page ) {
       if (is_array($selectedpages)) {
                                 if ( in_array( $page->ID,$selectedpages) ) {

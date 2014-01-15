@@ -163,6 +163,10 @@ If this does not help you out deselect "Send headers when user is blocked". This
 
 == Changelog ==
 
+= 1.1.3 = 
+
+* Fixed error that when using the option to block individual pages all visitors would be blocked. (Thanks to apostlepoe for reporting)
+
 = 1.1.2 =
 
 * Fixed localization error. (Thanks to Lisa for reporting)
@@ -248,52 +252,3 @@ If this does not help you out deselect "Send headers when user is blocked". This
 
 There are no specific upgrade notices other than the those already mentioned in the changelog.
 
-= 1.1 =
-
-An additional database table was added for the statistics.
-
-= 1.0.12 =
-
-None. If you wish to fill up the blacklist or whitelist option fill those boxes.
-
-= 1.0.11 =
-
-None.
-
-= 1.0.10 =
-
-When upgrading from v1.0.8 or v1.0.9 the current value of your block list is copied to the block list of your backend site.
-
-= 1.0.9 =
-
-See upgrade notice from 1.0.8 if you upgrade from a release prior to 1.0.8.
-
-= 1.0.8 =
-
-This plugin adds some new checkbox settings so you can choose if you want to block users from your frontend website, your backend website or both. By default only the frontend site is blocked. If you wish to alter this behaviour go to your settings page.
-
-= 1.0.7 =
-
-You can now use the "Do not block users who are logged in" checkbox if you like. Also if you need IPv6 support you need to press the "Download new GeoIP IPv6 database".
-
-= 1.0.5 =
-
-None, this is just a minor update
-
-= 1.0.4 = 
-
-None, this is just a minor update.
-
-= 1.0.3 = 
-
-This baby should just upgrade fine. You may want to deactivate and reactivate this plugin to make (pretty) sure this plugin is loaded first. This especially recommended if you have problems with 'headers already sent' notices.
-
-= 1.0.2 =
-
-PHP 5.2 or higher is now required.
-
-Just upgrade if you have PHP 5.2 or higher.
-
-= 1.0.1 =
-
-Critical upgrade for this plugin to work as it was missing a necessary file.

@@ -49,32 +49,38 @@ function iqblockcountry_check($country,$badcountries,$ip_address)
     if (is_array ( $badcountries ) && in_array ( $country, $badcountries )) {
         $blocked = TRUE;
     }
+    $frontendblacklist = get_option ( 'blockcountry_frontendblacklist' );
+    $frontendblacklistip = array();
+    if (preg_match('/;/',$frontendblacklist))
+    {
+        $frontendblacklistip = explode(";", $frontendblacklist);
+    }
+    $frontendwhitelistip = array();
+    $frontendwhitelist = get_option ( 'blockcountry_frontendwhitelist' );
+    if (preg_match('/;/',$frontendwhitelist))
+    {
+            $frontendwhitelistip = explode(";", $frontendwhitelist);
+    }
     
     if (!iqblockcountry_is_login_page() )
     {    
-        $frontendwhitelist = get_option ( 'blockcountry_frontendwhitelist' );
-        if (preg_match('/;/',$frontendwhitelist))
-        {
-            $arr = explode(";", $frontendwhitelist);
-            if (is_array ( $arr ) && in_array ( $ip_address, $arr)) {
+        if (is_array ( $frontendwhitelistip ) && in_array ( $ip_address, $frontendwhitelistip)) {
                 $blocked = FALSE;
             }
-        }
-        $frontendblacklist = get_option ( 'blockcountry_frontendblacklist' );
-        if (preg_match('/;/',$frontendblacklist))
-        {
-            $arr = explode(";", $frontendblacklist);
-            if (is_array ( $arr ) && in_array ( $ip_address, $arr)) {
+        if (is_array ( $frontendblacklistip ) && in_array ( $ip_address, $frontendblacklistip)) {
              $blocked = TRUE;
             }
-        }
     }
     if (is_page() && $blockedpage == "on")
     {
         $blockedpages = get_option('blockcountry_pages');
-        if (is_page($blockedpages))
+        $frontendblacklist = get_option ( 'blockcountry_frontendblacklist' );
+        if (is_page($blockedpages) && (is_array ( $badcountries ) && in_array ( $country, $badcountries ) || (is_array ( $frontendblacklistip ) && in_array ( $ip_address, $frontendblacklistip))))
         {
             $blocked = TRUE;
+            if (is_array ( $frontendwhitelistip ) && in_array ( $ip_address, $frontendwhitelistip)) {
+                $blocked = FALSE;
+            }
         }
         else
         {
