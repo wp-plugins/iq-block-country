@@ -75,7 +75,7 @@ function iqblockcountry_check($country,$badcountries,$ip_address)
     {
         $blockedpages = get_option('blockcountry_pages');
         $frontendblacklist = get_option ( 'blockcountry_frontendblacklist' );
-        if (is_page($blockedpages) && (is_array ( $badcountries ) && in_array ( $country, $badcountries ) || (is_array ( $frontendblacklistip ) && in_array ( $ip_address, $frontendblacklistip))))
+        if (is_page($blockedpages) && !empty($blockedpages) && ((is_array ( $badcountries ) && in_array ( $country, $badcountries ) || (is_array ( $frontendblacklistip ) && in_array ( $ip_address, $frontendblacklistip)))))
         {
             $blocked = TRUE;
             if (is_array ( $frontendwhitelistip ) && in_array ( $ip_address, $frontendwhitelistip)) {
