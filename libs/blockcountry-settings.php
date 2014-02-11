@@ -32,6 +32,19 @@ function iqblockcountry_register_mysettings()
         register_setting ( 'iqblockcountry-settings-group2', 'blockcountry_pages');
 }
 
+/**
+ * Retrieve an array of all the options the plugin uses. It can't use only one due to limitations of the options API.
+ *
+ * @return array of options.
+ */
+function iqblockcountry_get_options_arr() {
+        $optarr = array( 'blockcountry_banlist', 'blockcountry_backendbanlist','blockcountry_backendblacklist','blockcountry_backendwhitelist', 
+            'blockcountry_frontendblacklist','blockcountry_frontendwhitelist','blockcountry_blockmessage','blockcountry_blocklogin','blockcountry_blockfrontend',
+            'blockcountry_blockbackend','blockcountry_header','blockcountry_blockpages','blockcountry_pages');
+        return apply_filters( 'iqblockcountry_options', $optarr );
+}
+
+
 /*
  * Set default values when activating this plugin.
  */
@@ -150,6 +163,120 @@ function iqblockcountry_settings_tools() {
     
 }
 
+/*
+ * Function: Import/Export settings
+ */
+function iqblockcountry_settings_importexport() {
+    if (!isset($_POST['export']) && !isset($_POST['import'])) {  
+        ?>  
+        <div class="wrap">  
+            <div id="icon-tools" class="icon32"><br /></div>  
+            <h2><?php _e('Export', 'iqblockcountry'); ?></h2>  
+            <p><?php _e('When you click on <tt>Backup all settings</tt> button a backup of the iQ Block Country configuration will be created.', 'iqblockcountry'); ?></p>  
+            <p><?php _e('After exporting, you can either use the backup file to restore your settings on this site again or copy the settings to another WordPress site.', 'iqblockcountry'); ?></p>  
+            <form method='post'>  
+                <p class="submit">  
+                    <?php wp_nonce_field('iqblockexport'); ?>  
+                    <input type='submit' name='export' value='<?php _e('Backup all settings', 'iqblockcountry'); ?>'/>  
+                </p>  
+            </form>  
+        </div>  
+
+        <div class="wrap">  
+        <div id="icon-tools" class="icon32"><br /></div>  
+        <h2><?php _e('Import', 'iqblockcountry'); ?></h2>  
+        <p><?php _e('Click the browse button and choose a zip file that you exported before.', 'iqblockcountry'); ?></p>  
+        <p><?php _e('Press Restore settings button, and let WordPress do the magic for you.', 'iqblockcountry'); ?></p>  
+        <form method='post' enctype='multipart/form-data'>  
+            <p class="submit">  
+                <?php wp_nonce_field('iqblockimport'); ?>  
+                <input type='file' name='import' />  
+                <input type='submit' name='import' value='<?php _e('Restore settings', 'iqblockcountry'); ?>'/>  
+            </p>  
+        </form>  
+        </div>
+        <?php  
+    }  
+    elseif (isset($_POST['export'])) {  
+  
+        $blogname = str_replace(" ", "", get_option('blogname'));  
+        $date = date("d-m-Y");  
+        $json_name = $blogname."-".$date; // Namming the filename will be generated.  
+  
+        $optarr = iqblockcountry_get_options_arr();
+        foreach ( $optarr as $options ) {
+
+            $value = get_option($options);  
+            $need_options[$options] = $value;  
+            }  
+       
+        $json_file = json_encode($need_options); // Encode data into json data  
+  
+        $dir = wp_upload_dir();
+
+        if ( !$handle = fopen( $dir['path'] . '/' . 'iqblockcountry.ini', 'w' ) )
+                        wp_die(__("Something went wrong exporting this file", 'iqblockcountry'));
+
+        if ( !fwrite( $handle, $json_file ) )
+                        wp_die(__("Something went wrong exporting this file", 'iqblockcountry'));
+
+        fclose( $handle );
+
+        require_once( ABSPATH . 'wp-admin/includes/class-pclzip.php' );
+
+        chdir( $dir['path'] );
+        $zip = new PclZip( './' . $json_name . '-iqblockcountry.zip' );
+        if ( $zip->create( './' . 'iqblockcountry.ini' ) == 0 )
+        wp_die(__("Something went wrong exporting this file", 'iqblockcountry'));
+
+        $url = $dir['url'] . '/' . $json_name . '-iqblockcountry.zip';
+        $content = "<div class='updated'><p>" . __("Exporting settings...", 'iqblockcountry') . "</p></div>";
+
+        if ( $url ) {
+                $content .= '<script type="text/javascript">
+                        document.location = \'' . $url . '\';
+                </script>';
+        } else {
+                $content .= 'Error: ' . $url;
+        }
+        echo $content;
+    }  
+    elseif (isset($_POST['import'])) { 
+        $optarr = iqblockcountry_get_options_arr();
+        if (isset($_FILES['import']) && check_admin_referer('iqblockimport')) {  
+            if ($_FILES['import']['error'] > 0) {  
+                    wp_die(__("Something went wrong importing this file", 'iqblockcountry'));  
+            }  
+            else {
+                require_once( ABSPATH . 'wp-admin/includes/class-pclzip.php' );
+                $zip      = new PclZip( $_FILES['import']['tmp_name'] );
+                $unzipped = $zip->extract( $p_path = WP_CONTENT_DIR . '/iqblockcountry-import/' );
+                if ( $unzipped[0]['stored_filename'] == 'iqblockcountry.ini' ) {
+                        $encode_options = file_get_contents(WP_CONTENT_DIR . '/iqblockcountry-import/iqblockcountry.ini');  
+                        $options = json_decode($encode_options, true);  
+                        foreach ($options as $key => $value) {  
+                            if (in_array($key,$optarr)) { 
+                                update_option($key, $value);  
+                            }
+                        }
+                        unlink(WP_CONTENT_DIR . '/iqblockcountry-import/iqblockcountry.ini');
+                        // check if file exists first.
+                        
+                        echo "<div class='updated'><p>" . __("All options are restored successfully.", 'iqblockcountry') . "</p></div>";  
+                        }  
+                        else {  
+                        echo "<div class='error'><p>" . __("Invalid file.", 'iqblockcountry') ."</p></div>";  
+                        }  
+                }  
+            }
+    } 
+    else { wp_die(__("No correct import or export option given.", 'iqblockcountry')); }
+
+}
+
+/*
+ * Function: Page settings
+ */
 function iqblockcountry_settings_pages() {
     ?>
     <h3><?php _e('Select which pages are blocked.', 'iqblockcountry'); ?></h3>
@@ -448,6 +575,7 @@ function iqblockcountry_settings_page() {
             <a href="?page=iq-block-country/libs/blockcountry-settings.php&tab=pages" class="nav-tab <?php echo $active_tab == 'pages' ? 'nav-tab-active' : ''; ?>"><?php _e('Pages', 'iqblockcountry'); ?></a>  
             <a href="?page=iq-block-country/libs/blockcountry-settings.php&tab=tools" class="nav-tab <?php echo $active_tab == 'tools' ? 'nav-tab-active' : ''; ?>"><?php _e('Tools.', 'iqblockcountry'); ?></a>  
             <a href="?page=iq-block-country/libs/blockcountry-settings.php&tab=logging" class="nav-tab <?php echo $active_tab == 'logging' ? 'nav-tab-active' : ''; ?>"><?php _e('Logging', 'iqblockcountry'); ?></a>  
+            <a href="?page=iq-block-country/libs/blockcountry-settings.php&tab=export" class="nav-tab <?php echo $active_tab == 'export' ? 'nav-tab-active' : ''; ?>"><?php _e('Import/Export', 'iqblockcountry'); ?></a>  
         </h2>  
   
     
@@ -467,6 +595,10 @@ function iqblockcountry_settings_page() {
         elseif ($active_tab == "pages")
         {    
             iqblockcountry_settings_pages();
+        }
+        elseif ($active_tab == "export")
+        {    
+            iqblockcountry_settings_importexport();
         }
         else
         {

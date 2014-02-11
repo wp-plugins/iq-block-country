@@ -2,7 +2,7 @@
 /*
 Plugin Name: iQ Block Country
 Plugin URI: http://www.redeo.nl/2013/12/iq-block-country-wordpress-plugin-blocks-countries/
-Version: 1.1.3
+Version: 1.1.4f
 Author: Pascal
 Author URI: http://www.redeo.nl/
 Description: Block visitors from visiting your website and backend website based on which country their IP address is from. The Maxmind GeoIP lite database is used for looking up from which country an ip address is from.
@@ -11,7 +11,7 @@ License: GPL2
 
 /* This script uses GeoLite Country from MaxMind (http://www.maxmind.com) which is available under terms of GPL/LGPL */
 
-/*  Copyright 2010-2013  Pascal  (email : pascal@redeo.nl)
+/*  Copyright 2010-2014  Pascal  (email : pascal@redeo.nl)
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License, version 2, as
