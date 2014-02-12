@@ -4,7 +4,7 @@ Donate link: http://www.unicef.org/
 Tags: spam, block, countries, country, comments, ban, geo, geo blocking, geo ip, block country, block countries, ban countries, ban country, blacklist, whitelist
 Requires at least: 3.5.2
 Tested up to: 3.8.1
-Stable tag: 1.1.3
+Stable tag: 1.1.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -250,9 +250,3 @@ If this does not help you out deselect "Send headers when user is blocked". This
 
 = 1.0 =
 * Initial release
-
-== Upgrade Notice ==
-
-= 1.1.3 = 
-
-* 1.1.3 Fix for page blocking problem. No further upgrade notices.
