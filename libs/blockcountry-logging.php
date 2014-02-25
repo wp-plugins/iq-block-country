@@ -52,7 +52,6 @@ function iqblockcountry_update_db_check() {
 
 function iqblockcountry_logging($ipaddress,$country,$banend)
 {
-    require_once( ABSPATH . 'wp-config.php');
     global $wpdb;
 
     $urlRequested = (isset($_SERVER["REQUEST_URI"]) ? $_SERVER["REQUEST_URI"] : '/' );
