@@ -167,6 +167,7 @@ function iqblockcountry_settings_tools() {
  * Function: Import/Export settings
  */
 function iqblockcountry_settings_importexport() {
+    $dir = wp_upload_dir();
     if (!isset($_POST['export']) && !isset($_POST['import'])) {  
         ?>  
         <div class="wrap">  
@@ -212,7 +213,6 @@ function iqblockcountry_settings_importexport() {
        
         $json_file = json_encode($need_options); // Encode data into json data  
   
-        $dir = wp_upload_dir();
 
         if ( !$handle = fopen( $dir['path'] . '/' . 'iqblockcountry.ini', 'w' ) )
                         wp_die(__("Something went wrong exporting this file", 'iqblockcountry'));
@@ -250,16 +250,16 @@ function iqblockcountry_settings_importexport() {
             else {
                 require_once( ABSPATH . 'wp-admin/includes/class-pclzip.php' );
                 $zip      = new PclZip( $_FILES['import']['tmp_name'] );
-                $unzipped = $zip->extract( $p_path = WP_CONTENT_DIR . '/iqblockcountry-import/' );
+                $unzipped = $zip->extract( $p_path = $dir['path'] );
                 if ( $unzipped[0]['stored_filename'] == 'iqblockcountry.ini' ) {
-                        $encode_options = file_get_contents(WP_CONTENT_DIR . '/iqblockcountry-import/iqblockcountry.ini');  
+                        $encode_options = file_get_contents($dir['path'] . '/iqblockcountry.ini');  
                         $options = json_decode($encode_options, true);  
                         foreach ($options as $key => $value) {  
                             if (in_array($key,$optarr)) { 
                                 update_option($key, $value);  
                             }
                         }
-                        unlink(WP_CONTENT_DIR . '/iqblockcountry-import/iqblockcountry.ini');
+                        unlink($dir['path'] . '/iqblockcountry.ini');
                         // check if file exists first.
                         
                         echo "<div class='updated'><p>" . __("All options are restored successfully.", 'iqblockcountry') . "</p></div>";  
