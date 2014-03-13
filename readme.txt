@@ -25,6 +25,8 @@ If you want to block users from both your frontend website as well as your backe
 
 Users that are blocked will not be able to do harmful things to your blog like post comment spam.
 
+You can block all visitors from a certain country accessing your site but you can also limit access to some pages, or some blog categories.
+
 This plugin uses the GeoLite database from Maxmind. It has a 99.5% accuracy so that is pretty good for a free database. If you need higher accuracy you can buy a license from MaxMind directly.
 
 Once you setup this plugin it will try to download the GeoIP database from Maxmind so you will 

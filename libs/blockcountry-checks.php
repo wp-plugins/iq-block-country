@@ -46,6 +46,7 @@ function iqblockcountry_check($country,$badcountries,$ip_address)
 {
     $blocked = FALSE;
     $blockedpage = get_option('blockcountry_blockpages');
+    $blockedcategory = get_option('blockcountry_blockcategories');
     if (is_array ( $badcountries ) && in_array ( $country, $badcountries )) {
         $blocked = TRUE;
     }
@@ -87,7 +88,28 @@ function iqblockcountry_check($country,$badcountries,$ip_address)
             $blocked = FALSE;
         }
     }
-    
+    if (is_single() && $blockedcategory == "on")
+    {
+        global $post;
+        $blockedcategories = get_option('blockcountry_categories');
+        $post_categories = wp_get_post_categories( $post->ID );
+        $flagged = FALSE;
+        foreach ($post_categories as $key => $value)
+        {
+            if (in_array($value,$blockedcategories))
+            {
+                if (is_single() && ((is_array ( $badcountries ) && in_array ( $country, $badcountries ) || (is_array ( $frontendblacklistip ) && in_array ( $ip_address, $frontendblacklistip)))))
+                {
+                    $flagged = TRUE;
+                    if (is_array ( $frontendwhitelistip ) && in_array ( $ip_address, $frontendwhitelistip)) {
+                        $flagged = FALSE;
+                    }
+                }
+            }            
+        }
+        if ($flagged) { $blocked = TRUE; } else { $blocked = FALSE; }
+    }
+   
     return $blocked;
 }
 

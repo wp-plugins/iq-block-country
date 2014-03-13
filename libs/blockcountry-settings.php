@@ -30,6 +30,8 @@ function iqblockcountry_register_mysettings()
         register_setting ( 'iqblockcountry-settings-group', 'blockcountry_header');
         register_setting ( 'iqblockcountry-settings-group2', 'blockcountry_blockpages');
         register_setting ( 'iqblockcountry-settings-group2', 'blockcountry_pages');
+        register_setting ( 'iqblockcountry-settings-group3', 'blockcountry_blockcategories');
+        register_setting ( 'iqblockcountry-settings-group3', 'blockcountry_categories');
 }
 
 /**
@@ -40,7 +42,7 @@ function iqblockcountry_register_mysettings()
 function iqblockcountry_get_options_arr() {
         $optarr = array( 'blockcountry_banlist', 'blockcountry_backendbanlist','blockcountry_backendblacklist','blockcountry_backendwhitelist', 
             'blockcountry_frontendblacklist','blockcountry_frontendwhitelist','blockcountry_blockmessage','blockcountry_blocklogin','blockcountry_blockfrontend',
-            'blockcountry_blockbackend','blockcountry_header','blockcountry_blockpages','blockcountry_pages');
+            'blockcountry_blockbackend','blockcountry_header','blockcountry_blockpages','blockcountry_pages','blockcountry_blockcategories','blockcountry_categories');
         return apply_filters( 'iqblockcountry_options', $optarr );
 }
 
@@ -50,15 +52,13 @@ function iqblockcountry_get_options_arr() {
  */
 function iqblockcountry_set_defaults() 
 {
-    
         update_option('blockcountry_version',VERSION);
         update_option('blockcountry_lastupdate' , 0);
         update_option('blockcountry_blockfrontend' , 'on');
 	update_option('blockcountry_backendnrblocks', 0);
 	update_option('blockcountry_frontendnrblocks', 0);
 	update_option('blockcountry_header', 'on');
-        iqblockcountry_install_db();
-        
+        iqblockcountry_install_db();       
 }
 
 
@@ -81,7 +81,9 @@ function iqblockcountry_uninstall() //deletes all the database entries that the 
         delete_option('blockcountry_version');
         delete_option('blockcountry_header');
         delete_option('blockcountry_blockpages');        
-        delete_option('blockcountry_pages');        
+        delete_option('blockcountry_pages');
+        delete_option('blockcountry_blockcategories');
+        delete_option('blockcountry_categories');
 }
 
 
@@ -127,7 +129,7 @@ function iqblockcountry_settings_tools() {
         </form>
         
         <hr />
-        <h3>Download GeoIP database</h3>
+        <h3><?php _e('Download GeoIP database', 'iqblockcountry'); ?></h3>
         <?php
         $dateformat = get_option('date_format');
         $time = get_option('blockcountry_lastupdate');
@@ -161,6 +163,29 @@ function iqblockcountry_settings_tools() {
 			iqblockcountry_downloadgeodatabase('6', true);	
 		}
     
+?>		
+        <hr />
+        <h3><?php _e('Active plugins', 'iqblockcountry'); ?></h3>
+        <?php
+                       
+        $plugins = get_plugins();
+        $plugins_string = '';
+        
+        echo '<table class="widefat">';
+        echo '<thead><tr><th>' . __('Plugin name', 'iqblockcountry') . '</th><th>' . __('Version', 'iqblockcountry') . '</th><th>' . __('URL', 'iqblockcountry') . '</th></tr></thead>';
+        
+       foreach( array_keys($plugins) as $key ) {
+            if ( is_plugin_active( $key ) ) {
+              $plugin =& $plugins[$key];
+              echo "<tbody><tr>";
+                    echo '<td>' . $plugin['Name'] . '</td>';
+                    echo '<td>' . $plugin['Version'] . '</td>';
+                    echo '<td>' . $plugin['PluginURI'] . '</td>';
+                echo "</tr></tbody>";
+            }
+        }
+        echo '</table>';
+        echo $plugins_string;
 }
 
 /*
@@ -322,6 +347,53 @@ function iqblockcountry_settings_pages() {
   <?php
 }    
 
+/*
+ * Function: Categories settings
+ */
+function iqblockcountry_settings_categories() {
+    ?>
+    <h3><?php _e('Select which categories are blocked.', 'iqblockcountry'); ?></h3>
+    <form method="post" action="options.php">
+<?php
+    settings_fields ( 'iqblockcountry-settings-group3' );
+?>
+    <table class="form-table" cellspacing="2" cellpadding="5" width="100%">    	    
+    <tr valign="top">
+        <th width="30%"><?php _e('Do you want to block individual categories:', 'iqblockcountry'); ?><br />
+        <?php _e('If you do not select this option all blog articles will be blocked.', 'iqblockcountry'); ?></th>
+    <td width="70%">
+	<input type="checkbox" name="blockcountry_blockcategories" value="on" <?php checked('on', get_option('blockcountry_blockcategories'), true); ?> /> 	
+    </td></tr>
+    <tr valign="top">
+    <th width="30%"><?php _e('Select categories you want to block:', 'iqblockcountry'); ?></th>
+    <td width="70%">
+     
+ 	<ul>
+    <?php
+        $selectedcategories = get_option('blockcountry_categories'); 
+        $categories = get_categories(array("hide_empty"=>0));
+        $selected = "";
+    foreach ( $categories as $category ) {
+      if (is_array($selectedcategories)) {
+                                if ( in_array( $category->term_id,$selectedcategories) ) {
+                                        $selected = " checked=\"checked\"";
+                                } else {
+                                        $selected = "";
+                                }
+                        }
+	echo "<li><input type=\"checkbox\" " . $selected . " name=\"blockcountry_categories[]\" value=\"" . $category->term_id . "\" id=\"" . $category->name . "\" /> <label for=\"" . $category->name . "\">" . $category->name . "</label></li>"; 	
+  }
+        ?>
+    </td></tr>
+    <tr><td></td><td>
+	<p class="submit"><input type="submit" class="button-primary"
+	value="<?php _e ( 'Save Changes' )?>" /></p>
+    </td></tr>	
+    </table>	
+    </form>
+
+  <?php
+}    
 
                 
 /*
@@ -573,7 +645,8 @@ function iqblockcountry_settings_page() {
         <h2 class="nav-tab-wrapper">  
             <a href="?page=iq-block-country/libs/blockcountry-settings.php&tab=home" class="nav-tab <?php echo $active_tab == 'home' ? 'nav-tab-active' : ''; ?>"><?php _e('Home', 'iqblockcountry'); ?></a>  
             <a href="?page=iq-block-country/libs/blockcountry-settings.php&tab=pages" class="nav-tab <?php echo $active_tab == 'pages' ? 'nav-tab-active' : ''; ?>"><?php _e('Pages', 'iqblockcountry'); ?></a>  
-            <a href="?page=iq-block-country/libs/blockcountry-settings.php&tab=tools" class="nav-tab <?php echo $active_tab == 'tools' ? 'nav-tab-active' : ''; ?>"><?php _e('Tools.', 'iqblockcountry'); ?></a>  
+            <a href="?page=iq-block-country/libs/blockcountry-settings.php&tab=categories" class="nav-tab <?php echo $active_tab == 'categories' ? 'nav-tab-active' : ''; ?>"><?php _e('Categories', 'iqblockcountry'); ?></a>  
+            <a href="?page=iq-block-country/libs/blockcountry-settings.php&tab=tools" class="nav-tab <?php echo $active_tab == 'tools' ? 'nav-tab-active' : ''; ?>"><?php _e('Tools', 'iqblockcountry'); ?></a>  
             <a href="?page=iq-block-country/libs/blockcountry-settings.php&tab=logging" class="nav-tab <?php echo $active_tab == 'logging' ? 'nav-tab-active' : ''; ?>"><?php _e('Logging', 'iqblockcountry'); ?></a>  
             <a href="?page=iq-block-country/libs/blockcountry-settings.php&tab=export" class="nav-tab <?php echo $active_tab == 'export' ? 'nav-tab-active' : ''; ?>"><?php _e('Import/Export', 'iqblockcountry'); ?></a>  
         </h2>  
@@ -595,6 +668,10 @@ function iqblockcountry_settings_page() {
         elseif ($active_tab == "pages")
         {    
             iqblockcountry_settings_pages();
+        }
+        elseif ($active_tab == "categories")
+        {    
+            iqblockcountry_settings_categories();
         }
         elseif ($active_tab == "export")
         {    
