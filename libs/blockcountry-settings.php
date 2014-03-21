@@ -17,19 +17,20 @@ function iqblockcountry_create_menu()
 function iqblockcountry_register_mysettings() 
 {
 	//register our settings
-	register_setting ( 'iqblockcountry-settings-group', 'blockcountry_banlist' );
-	register_setting ( 'iqblockcountry-settings-group', 'blockcountry_backendbanlist' );
-	register_setting ( 'iqblockcountry-settings-group', 'blockcountry_backendblacklist','iqblockcountry_validate_ip');
-	register_setting ( 'iqblockcountry-settings-group', 'blockcountry_backendwhitelist','iqblockcountry_validate_ip');
-	register_setting ( 'iqblockcountry-settings-group', 'blockcountry_frontendblacklist','iqblockcountry_validate_ip');
-	register_setting ( 'iqblockcountry-settings-group', 'blockcountry_frontendwhitelist','iqblockcountry_validate_ip');
 	register_setting ( 'iqblockcountry-settings-group', 'blockcountry_blockmessage' );
-	register_setting ( 'iqblockcountry-settings-group', 'blockcountry_blocklogin' );
-	register_setting ( 'iqblockcountry-settings-group', 'blockcountry_blockfrontend' );
-	register_setting ( 'iqblockcountry-settings-group', 'blockcountry_blockbackend' );
         register_setting ( 'iqblockcountry-settings-group', 'blockcountry_header');
-        register_setting ( 'iqblockcountry-settings-group2', 'blockcountry_blockpages');
-        register_setting ( 'iqblockcountry-settings-group2', 'blockcountry_pages');
+        register_setting ( 'iqblockcountry-settings-group', 'blockcountry_tracking');
+	register_setting ( 'iqblockcountry-settings-group-backend', 'blockcountry_blockbackend' );
+	register_setting ( 'iqblockcountry-settings-group-backend', 'blockcountry_backendbanlist' );
+	register_setting ( 'iqblockcountry-settings-group-backend', 'blockcountry_backendblacklist','iqblockcountry_validate_ip');
+	register_setting ( 'iqblockcountry-settings-group-backend', 'blockcountry_backendwhitelist','iqblockcountry_validate_ip');
+	register_setting ( 'iqblockcountry-settings-group-frontend', 'blockcountry_banlist' );
+	register_setting ( 'iqblockcountry-settings-group-frontend', 'blockcountry_frontendblacklist','iqblockcountry_validate_ip');
+	register_setting ( 'iqblockcountry-settings-group-frontend', 'blockcountry_frontendwhitelist','iqblockcountry_validate_ip');
+	register_setting ( 'iqblockcountry-settings-group-frontend', 'blockcountry_blocklogin' );
+	register_setting ( 'iqblockcountry-settings-group-frontend', 'blockcountry_blockfrontend' );
+        register_setting ( 'iqblockcountry-settings-group-pages', 'blockcountry_blockpages');
+        register_setting ( 'iqblockcountry-settings-group-pages', 'blockcountry_pages');
         register_setting ( 'iqblockcountry-settings-group3', 'blockcountry_blockcategories');
         register_setting ( 'iqblockcountry-settings-group3', 'blockcountry_categories');
 }
@@ -42,7 +43,8 @@ function iqblockcountry_register_mysettings()
 function iqblockcountry_get_options_arr() {
         $optarr = array( 'blockcountry_banlist', 'blockcountry_backendbanlist','blockcountry_backendblacklist','blockcountry_backendwhitelist', 
             'blockcountry_frontendblacklist','blockcountry_frontendwhitelist','blockcountry_blockmessage','blockcountry_blocklogin','blockcountry_blockfrontend',
-            'blockcountry_blockbackend','blockcountry_header','blockcountry_blockpages','blockcountry_pages','blockcountry_blockcategories','blockcountry_categories');
+            'blockcountry_blockbackend','blockcountry_header','blockcountry_blockpages','blockcountry_pages','blockcountry_blockcategories','blockcountry_categories',
+            'blockcountry_tracking');
         return apply_filters( 'iqblockcountry_options', $optarr );
 }
 
@@ -84,6 +86,8 @@ function iqblockcountry_uninstall() //deletes all the database entries that the 
         delete_option('blockcountry_pages');
         delete_option('blockcountry_blockcategories');
         delete_option('blockcountry_categories');
+        delete_option('blockcountry_lasttrack');
+        delete_option('blockcountry_tracking');
 }
 
 
@@ -307,7 +311,7 @@ function iqblockcountry_settings_pages() {
     <h3><?php _e('Select which pages are blocked.', 'iqblockcountry'); ?></h3>
     <form method="post" action="options.php">
 <?php
-    settings_fields ( 'iqblockcountry-settings-group2' );
+    settings_fields ( 'iqblockcountry-settings-group-pages' );
 ?>
     <table class="form-table" cellspacing="2" cellpadding="5" width="100%">    	    
     <tr valign="top">
@@ -395,6 +399,195 @@ function iqblockcountry_settings_categories() {
   <?php
 }    
 
+/*
+ * Settings frontend
+ */
+function iqblockcountry_settings_frontend()
+{
+?>
+<h3><?php _e('Frontend options', 'iqblockcountry'); ?></h3>
+        
+<form method="post" action="options.php">
+    <?php
+	settings_fields ( 'iqblockcountry-settings-group-frontend' );
+        if (!class_exists('GeoIP'))
+	{
+		include_once("geoip.inc");
+	}
+	if (class_exists('GeoIP'))
+	{
+		
+            $countrylist = iqblockcountry_get_countries();
+
+            $ip_address = iqblockcountry_get_ipaddress();
+            $country = iqblockcountry_check_ipaddress($ip_address);
+            if ($country == "Unknown" || $country == "ipv6" || $country == "")
+            { $displaycountry = "Unknown"; }
+            else { $displaycountry = $countrylist[$country]; }
+            
+            
+	?>
+
+            <script language="javascript" type="text/javascript" src=<?php echo "\"" . CHOSENJS . "\""?>></script>
+            <link rel="stylesheet" href=<?php echo "\"" . CHOSENCSS . "\""?> type="text/css" />
+            <script>
+                        jQuery(document).ready(function(){
+			jQuery(".chosen").data("placeholder","Select country...").chosen();
+                       });
+            </script>
+    
+
+            <table class="form-table" cellspacing="2" cellpadding="5" width="100%">    	    
+
+    	    <tr valign="top">
+    	    <th width="30%"><?php _e('Do not block visitors that are logged in from visiting frontend website:', 'iqblockcountry'); ?></th>
+    	    <td width="70%">
+    	    	<input type="checkbox" name="blockcountry_blocklogin" <?php checked('on', get_option('blockcountry_blocklogin'), true); ?> />
+    	    </td></tr>
+
+            <tr valign="top">
+            <th width="30%"><?php _e('Block visitors from visiting the frontend of your website:', 'iqblockcountry'); ?></th>
+            <td width="70%">
+    	    	<input type="checkbox" name="blockcountry_blockfrontend" <?php checked('on', get_option('blockcountry_blockfrontend'), true); ?> />
+            </td></tr>
+            
+            <tr valign="top">
+		<th scope="row" width="30%"><?php _e('Select the countries that should be blocked from visiting your frontend:', 'iqblockcountry'); ?><br />
+				<?php _e('Use the CTRL key to select multiple countries', 'iqblockcountry'); ?></th>
+		<td width="70%">
+                     <select class="chosen" name="blockcountry_banlist[]" multiple="true" style="width:600px;">
+                    <?php
+			$haystack = get_option('blockcountry_banlist');
+			foreach ( $countrylist as $key => $value ) {
+			print "<option value=\"$key\"";
+			if (is_array($haystack) && in_array ( $key, $haystack )) {
+				print " selected=\"selected\" ";
+			}
+                            print ">$value</option>\n";
+                        }   
+                        ?>
+                     </select>
+                </td></tr>
+            <tr valign="top">
+                <th width="30%"><?php _e('Frontend whitelist IPv4 and/or IPv6 addresses:', 'iqblockcountry'); ?><br /><?php _e('Use a semicolon (;) to separate IP addresses', 'iqblockcountry'); ?></th>
+    	    <td width="70%">
+    	    <?php
+				$frontendwhitelist = get_option ( 'blockcountry_frontendwhitelist' );
+    	    ?>
+                <textarea cols="70" rows="5" name="blockcountry_frontendwhitelist"><?php echo $frontendwhitelist; ?></textarea>
+    	    </td></tr>
+            <tr valign="top">
+                <th width="30%"><?php _e('Frontend blacklist IPv4 and/or IPv6 addresses:', 'iqblockcountry'); ?><br /><?php _e('Use a semicolon (;) to separate IP addresses', 'iqblockcountry'); ?></th>
+    	    <td width="70%">
+    	    <?php
+				$frontendblacklist = get_option ( 'blockcountry_frontendblacklist' );
+    	    ?>
+                <textarea cols="70" rows="5" name="blockcountry_frontendblacklist"><?php echo $frontendblacklist; ?></textarea>
+    	    </td></tr>
+		<tr><td></td><td>
+						<p class="submit"><input type="submit" class="button-primary"
+				value="<?php _e ( 'Save Changes' )?>" /></p>
+		</td></tr>	
+		</table>	
+        </form>
+<?php
+        }
+        else
+        {
+		print "<p>You are missing the GeoIP class. Perhaps geoip.inc is missing?</p>";	
+        }
+       
+}
+
+
+/*
+ * Settings home
+ */
+function iqblockcountry_settings_backend()
+{
+?>
+<h3><?php _e('Backend Options', 'iqblockcountry'); ?></h3>
+        
+<form method="post" action="options.php">
+    <?php
+	settings_fields ( 'iqblockcountry-settings-group-backend' );
+        if (!class_exists('GeoIP'))
+	{
+		include_once("geoip.inc");
+	}
+	if (class_exists('GeoIP'))
+	{
+		
+            $countrylist = iqblockcountry_get_countries();
+
+            $ip_address = iqblockcountry_get_ipaddress();
+            $country = iqblockcountry_check_ipaddress($ip_address);
+            if ($country == "Unknown" || $country == "ipv6" || $country == "")
+            { $displaycountry = "Unknown"; }
+            else { $displaycountry = $countrylist[$country]; }
+            
+            
+	?>
+
+            <script language="javascript" type="text/javascript" src=<?php echo "\"" . CHOSENJS . "\""?>></script>
+            <link rel="stylesheet" href=<?php echo "\"" . CHOSENCSS . "\""?> type="text/css" />
+            <script>
+                        jQuery(document).ready(function(){
+			jQuery(".chosen").data("placeholder","Select country...").chosen();
+                       });
+            </script>
+    
+
+            <table class="form-table" cellspacing="2" cellpadding="5" width="100%">    	    
+    	    <tr valign="top">
+    	    <th width="30%"><?php _e('Block visitors from visiting the backend (administrator) of your website:', 'iqblockcountry'); ?></th>
+    	    <td width="70%">
+    	    	<input type="checkbox" name="blockcountry_blockbackend" <?php checked('on', get_option('blockcountry_blockbackend'), true); ?> />
+            </td></tr>    
+
+            <tr>
+                <th width="30%"></th>
+                <th width="70%">
+                   <?php _e('Your IP address is', 'iqblockcountry'); ?> <i><?php echo $ip_address ?></i>. <?php _e('The country that is listed for this IP address is', 'iqblockcountry'); ?> <em><?php echo $displaycountry ?></em>.<br />  
+                      <?php _e('Do <strong>NOT</strong> set the \'Block visitors from visiting the backend (administrator) of your website\' and also select', 'iqblockcountry'); ?> <?php echo $displaycountry ?> <?php _e('below.', 'iqblockcountry'); ?><br /> 
+                      <?php echo "<strong>" . __('You will NOT be able to login the next time if you DO block your own country from visiting the backend.', 'iqblockcountry') . "</strong>"; ?>
+                </th>
+            </tr>
+    	    </td></tr>
+            <tr valign="top">
+		<th scope="row" width="30%"><?php _e('Select the countries that should be blocked from visiting your backend:', 'iqblockcountry'); ?><br />
+                <?php _e('Use the x behind the country to remove a country from this blocklist.', 'iqblockcountry'); ?></th>
+		<td width="70%">
+        
+                    <select class="chosen" name="blockcountry_backendbanlist[]" multiple="true" style="width:600px;">
+                    <?php
+			$haystack = get_option ( 'blockcountry_backendbanlist' );
+			foreach ( $countrylist as $key => $value ) {
+			print "<option value=\"$key\"";
+			if (is_array($haystack) && in_array ( $key, $haystack )) {
+				print " selected=\"selected\" ";
+			}
+                            print ">$value</option>\n";
+                        }   
+                        ?>
+                     </select>
+                </td></tr>
+		<tr><td></td><td>
+						<p class="submit"><input type="submit" class="button-primary"
+				value="<?php _e ( 'Save Changes' )?>" /></p>
+		</td></tr>	
+		</table>	
+        </form>
+<?php
+        }
+        else
+        {
+		print "<p>You are missing the GeoIP class. Perhaps geoip.inc is missing?</p>";	
+        }
+
+}
+
+
                 
 /*
  * Settings home
@@ -402,7 +595,7 @@ function iqblockcountry_settings_categories() {
 function iqblockcountry_settings_home()
 {
 ?>
-<h3><?php _e('Statistics', 'iqblockcountry'); ?></h3>
+<h3><?php _e('Overall statistics since start', 'iqblockcountry'); ?></h3>
 
 <?php                     $blocked = get_option('blockcountry_backendnrblocks'); ?>
 <p><?php echo $blocked; ?> <?php _e('visitors blocked from the backend.', 'iqblockcountry'); ?></p>
@@ -450,88 +643,11 @@ function iqblockcountry_settings_home()
     	    <td width="70%">
     	    <?php
 				$blockmessage = get_option ( 'blockcountry_blockmessage' );
-				if (empty($blockmessage)) { $blockmessage = "Forbidden - Users from your country are not permitted to browse this site."; }
+				if (empty($blockmessage)) { $blockmessage = "Forbidden - Visitors from your country are not permitted to browse this site."; }
     	    ?>
                 <textarea cols="100" rows="3" name="blockcountry_blockmessage"><?php echo $blockmessage; ?></textarea>
     	    </td></tr>
 
-    	    <tr valign="top">
-    	    <th width="30%"><?php _e('Do not block users that are logged in from visiting frontend website:', 'iqblockcountry'); ?></th>
-    	    <td width="70%">
-    	    	<input type="checkbox" name="blockcountry_blocklogin" <?php checked('on', get_option('blockcountry_blocklogin'), true); ?> />
-    	    </td></tr>
-
-            <tr valign="top">
-            <th width="30%"><?php _e('Block users from visiting the frontend of your website:', 'iqblockcountry'); ?></th>
-            <td width="70%">
-    	    	<input type="checkbox" name="blockcountry_blockfrontend" <?php checked('on', get_option('blockcountry_blockfrontend'), true); ?> />
-            </td></tr>
-            
-            <tr valign="top">
-		<th scope="row" width="30%"><?php _e('Select the countries that should be blocked from visiting your frontend:', 'iqblockcountry'); ?><br />
-				<?php _e('Use the CTRL key to select multiple countries', 'iqblockcountry'); ?></th>
-		<td width="70%">
-                     <select class="chosen" name="blockcountry_banlist[]" multiple="true" style="width:600px;">
-                    <?php
-			$haystack = get_option('blockcountry_banlist');
-			foreach ( $countrylist as $key => $value ) {
-			print "<option value=\"$key\"";
-			if (is_array($haystack) && in_array ( $key, $haystack )) {
-				print " selected=\"selected\" ";
-			}
-                            print ">$value</option>\n";
-                        }   
-                        ?>
-                     </select>
-                </td></tr>
-            <tr valign="top">
-                <th width="30%"><?php _e('Frontend whitelist IPv4 and/or IPv6 addresses:', 'iqblockcountry'); ?><br /><?php _e('Use a semicolon (;) to separate IP addresses', 'iqblockcountry'); ?></th>
-    	    <td width="70%">
-    	    <?php
-				$frontendwhitelist = get_option ( 'blockcountry_frontendwhitelist' );
-    	    ?>
-                <textarea cols="70" rows="5" name="blockcountry_frontendwhitelist"><?php echo $frontendwhitelist; ?></textarea>
-    	    </td></tr>
-            <tr valign="top">
-                <th width="30%"><?php _e('Frontend blacklist IPv4 and/or IPv6 addresses:', 'iqblockcountry'); ?><br /><?php _e('Use a semicolon (;) to separate IP addresses', 'iqblockcountry'); ?></th>
-    	    <td width="70%">
-    	    <?php
-				$frontendblacklist = get_option ( 'blockcountry_frontendblacklist' );
-    	    ?>
-                <textarea cols="70" rows="5" name="blockcountry_frontendblacklist"><?php echo $frontendblacklist; ?></textarea>
-    	    </td></tr>
-    	    <tr valign="top">
-    	    <th width="30%"><?php _e('Block users from visiting the backend (administrator) of your website:', 'iqblockcountry'); ?></th>
-    	    <td width="70%">
-    	    	<input type="checkbox" name="blockcountry_blockbackend" <?php checked('on', get_option('blockcountry_blockbackend'), true); ?> />
-            </td></tr>    
-            <tr>
-                <th width="30%"></th>
-                <th width="70%">
-                   <?php _e('Your IP address is', 'iqblockcountry'); ?> <i><?php echo $ip_address ?></i>. <?php _e('The country that is listed for this IP address is', 'iqblockcountry'); ?> <em><?php echo $displaycountry ?></em>.<br />  
-                      <?php _e('Do <strong>NOT</strong> set the \'Block users from visiting the backend (administrator) of your website\' and also select', 'iqblockcountry'); ?> <?php echo $displaycountry ?> <?php _e('below.', 'iqblockcountry'); ?><br /> 
-                      <?php echo "<strong>" . __('You will NOT be able to login the next time if you DO block your own country from visiting the backend.', 'iqblockcountry') . "</strong>"; ?>
-                </th>
-            </tr>
-    	    </td></tr>
-            <tr valign="top">
-		<th scope="row" width="30%"><?php _e('Select the countries that should be blocked from visiting your backend:', 'iqblockcountry'); ?><br />
-                <?php _e('Use the x behind the country to remove a country from this blocklist.', 'iqblockcountry'); ?></th>
-		<td width="70%">
-        
-                    <select class="chosen" name="blockcountry_backendbanlist[]" multiple="true" style="width:600px;">
-                    <?php
-			$haystack = get_option ( 'blockcountry_backendbanlist' );
-			foreach ( $countrylist as $key => $value ) {
-			print "<option value=\"$key\"";
-			if (is_array($haystack) && in_array ( $key, $haystack )) {
-				print " selected=\"selected\" ";
-			}
-                            print ">$value</option>\n";
-                        }   
-                        ?>
-                     </select>
-                </td></tr>
     	    <tr valign="top">
     	    <th width="30%"><?php _e('Send headers when user is blocked:', 'iqblockcountry'); ?><br />
                 <em><?php _e('Under normal circumstances you should keep this selected! Only if you have "Cannot modify header information - headers already sent" errors or if you know what you are doing uncheck this.', 'iqblockcountry'); ?></em></th>
@@ -539,7 +655,14 @@ function iqblockcountry_settings_home()
     	    	<input type="checkbox" name="blockcountry_header" <?php checked('on', get_option('blockcountry_header'), true); ?> />
     	    </td></tr>
                         
-		<tr><td></td><td>
+    	    <tr valign="top">
+    	    <th width="30%"><?php _e('Allow tracking:', 'iqblockcountry'); ?><br />
+                <em><?php _e('This sends only the IP address and the number of attempts this ip address tried to login to your backend and was blocked doing so to a central server. No other data is being send. This helps us to get a better picture of rogue countries.', 'iqblockcountry'); ?></em></th>
+    	    <td width="70%">
+    	    	<input type="checkbox" name="blockcountry_tracking" <?php checked('on', get_option('blockcountry_tracking'), true); ?> />
+    	    </td></tr>
+
+            <tr><td></td><td>
 						<p class="submit"><input type="submit" class="button-primary"
 				value="<?php _e ( 'Save Changes' )?>" /></p>
 		</td></tr>	
@@ -551,11 +674,6 @@ function iqblockcountry_settings_home()
         {
 		print "<p>You are missing the GeoIP class. Perhaps geoip.inc is missing?</p>";	
         }
-        
-        echo '<p>This product includes GeoLite data created by MaxMind, available from ';
-	echo '<a href="http://www.maxmind.com/">http://www.maxmind.com/</a>.</p>';
-
-	echo '<p>If you like this plugin please link back to <a href="http://www.redeo.nl/">redeo.nl</a>! :-)</p>';
 
 }
 
@@ -644,6 +762,8 @@ function iqblockcountry_settings_page() {
           
         <h2 class="nav-tab-wrapper">  
             <a href="?page=iq-block-country/libs/blockcountry-settings.php&tab=home" class="nav-tab <?php echo $active_tab == 'home' ? 'nav-tab-active' : ''; ?>"><?php _e('Home', 'iqblockcountry'); ?></a>  
+            <a href="?page=iq-block-country/libs/blockcountry-settings.php&tab=frontend" class="nav-tab <?php echo $active_tab == 'frontend' ? 'nav-tab-active' : ''; ?>"><?php _e('Frontend', 'iqblockcountry'); ?></a>  
+            <a href="?page=iq-block-country/libs/blockcountry-settings.php&tab=backend" class="nav-tab <?php echo $active_tab == 'backend' ? 'nav-tab-active' : ''; ?>"><?php _e('Backend', 'iqblockcountry'); ?></a>  
             <a href="?page=iq-block-country/libs/blockcountry-settings.php&tab=pages" class="nav-tab <?php echo $active_tab == 'pages' ? 'nav-tab-active' : ''; ?>"><?php _e('Pages', 'iqblockcountry'); ?></a>  
             <a href="?page=iq-block-country/libs/blockcountry-settings.php&tab=categories" class="nav-tab <?php echo $active_tab == 'categories' ? 'nav-tab-active' : ''; ?>"><?php _e('Categories', 'iqblockcountry'); ?></a>  
             <a href="?page=iq-block-country/libs/blockcountry-settings.php&tab=tools" class="nav-tab <?php echo $active_tab == 'tools' ? 'nav-tab-active' : ''; ?>"><?php _e('Tools', 'iqblockcountry'); ?></a>  
@@ -657,7 +777,15 @@ function iqblockcountry_settings_page() {
 
         <hr />
         <?php
-        if ($active_tab == "tools")
+        if ($active_tab == "frontend")
+        { 
+            iqblockcountry_settings_frontend();
+        }
+        elseif ($active_tab == "backend")
+        { 
+            iqblockcountry_settings_backend();
+        }
+        elseif ($active_tab == "tools")
         { 
             iqblockcountry_settings_tools();
         }
@@ -681,10 +809,11 @@ function iqblockcountry_settings_page() {
         {
              iqblockcountry_settings_home();
         }
-	?>	
+        echo '<p>This product includes GeoLite data created by MaxMind, available from ';
+	echo '<a href="http://www.maxmind.com/">http://www.maxmind.com/</a>.</p>';
 
+	echo '<p>If you like this plugin please link back to <a href="http://www.redeo.nl/">redeo.nl</a>! :-)</p>';
 
-    <?php
 	/* Check if the Geo Database exists otherwise try to download it */
 	if (! (file_exists ( IPV4DBFILE ))) {
 		?> 

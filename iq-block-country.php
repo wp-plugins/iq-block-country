@@ -2,7 +2,7 @@
 /*
 Plugin Name: iQ Block Country
 Plugin URI: http://www.redeo.nl/2013/12/iq-block-country-wordpress-plugin-blocks-countries/
-Version: 1.1.6c
+Version: 1.1.6f
 Author: Pascal
 Author URI: http://www.redeo.nl/
 Description: Block visitors from visiting your website and backend website based on which country their IP address is from. The Maxmind GeoIP lite database is used for looking up from which country an ip address is from.
@@ -49,6 +49,75 @@ function iqblockcountry_this_plugin_first()
 		array_unshift($active_plugins, $this_plugin);
 		update_option('active_plugins', $active_plugins);
 	}     
+}
+
+/*
+ * 
+ */
+function iqblockcountry_schedule_tracking($old_value, $new_value)
+{
+    $current_schedule = wp_next_scheduled( 'blockcountry_tracking' );
+    if ($old_value !== $new_value)
+    {
+        if ($new_value == '')
+        {
+            wp_clear_scheduled_hook( 'blockcountry_tracking' );
+        }
+        elseif ($new_value == 'on' && $current_schedule == FALSE)
+        {
+            wp_schedule_event( time(), 'hourly', 'blockcountry_tracking' );
+        }
+    }
+}
+
+
+/*
+ * iQ Block Tracking
+ */
+function iqblockcountry_tracking()
+{
+    if (get_option("blockcountry_tracking") == "on")
+    {    
+        $lasttracked = get_option("blockcountry_lasttrack");
+        global $wpdb;
+
+        $table_name = $wpdb->prefix . "iqblock_logging";
+    
+//        $lasttracked = 260;
+        $content = array();
+        if (!empty($lasttracked))
+        {
+            $query = "SELECT id,ipaddress,count(ipaddress) as countip FROM $table_name WHERE banned=\"B\" and id > $lasttracked GROUP BY ipaddress ORDER BY id";
+        }
+        else
+        {
+            $query = "SELECT id,ipaddress,count(ipaddress) as countip FROM $table_name WHERE banned=\"B\" GROUP BY ipaddress ORDER BY id";
+        }
+        foreach ($wpdb->get_results( $query ) as $row)
+        {
+            $newcontent = array('ipaddress' => $row->ipaddress,'count' => $row->countip);
+            array_push($content,$newcontent);
+            $id = $row->id;
+        }
+        
+        if (!empty($content))
+        {
+        	$response = wp_remote_post(TRACKINGURL,
+                array(
+                'body' => $content
+                    )
+                );
+
+//	$html = '<div id="post-success">';
+//        $html .= '<p>' . __( 'Your message posted with success! The response was as follows:', 'wprp-example' ) . '</p>';
+//        $html .= '<p id="response-data">' . $response['body'] . '</p>';
+//        $html .= '</div><!-- /#post-error -->';
+//
+//        echo $html;
+
+        if (isset($id)) { update_option('blockcountry_lasttrack',$id); }
+        }
+    }
 }
 
 /*
@@ -250,7 +319,8 @@ define("IPV6DB","http://geolite.maxmind.com/download/geoip/database/GeoIPv6.dat.
 define("IPV4DB","http://geolite.maxmind.com/download/geoip/database/GeoLiteCountry/GeoIP.dat.gz");
 define("IPV4DBFILE",WP_PLUGIN_DIR . "/" . dirname ( plugin_basename ( __FILE__ ) ) . "/GeoIP.dat");
 define("IPV6DBFILE",WP_PLUGIN_DIR . "/" . dirname ( plugin_basename ( __FILE__ ) ) . "/GeoIPv6.dat");
-define("VERSION","1.1d");
+define("TRACKINGURL","http://tracking.webence.nl/iq-block-country-tracking.php");
+define("VERSION","1.6f");
 define("DBVERSION","110");
 define("PLUGINPATH",plugin_dir_path( __FILE__ )); 
 
@@ -283,7 +353,9 @@ if (get_option('blockcountry_blockfrontend'))
 add_action ( 'admin_init', 'iqblockcountry_localization');
 add_action ( 'admin_menu', 'iqblockcountry_create_menu' );
 add_action ( 'admin_init', 'iqblockcountry_checkupdatedb' );
-
+add_filter ( 'update_option_blockcountry_tracking', 'iqblockcountry_schedule_tracking', 10, 2);
+add_filter ( 'add_option_blockcountry_tracking', 'iqblockcountry_schedule_tracking', 10, 2);
+add_action ( 'blockcountry_tracking', 'iqblockcountry_tracking' );
 
 
 ?>
