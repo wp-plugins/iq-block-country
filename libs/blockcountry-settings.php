@@ -31,8 +31,9 @@ function iqblockcountry_register_mysettings()
 	register_setting ( 'iqblockcountry-settings-group-frontend', 'blockcountry_blockfrontend' );
         register_setting ( 'iqblockcountry-settings-group-pages', 'blockcountry_blockpages');
         register_setting ( 'iqblockcountry-settings-group-pages', 'blockcountry_pages');
-        register_setting ( 'iqblockcountry-settings-group3', 'blockcountry_blockcategories');
-        register_setting ( 'iqblockcountry-settings-group3', 'blockcountry_categories');
+        register_setting ( 'iqblockcountry-settings-group-cat', 'blockcountry_blockcategories');
+        register_setting ( 'iqblockcountry-settings-group-cat', 'blockcountry_categories');
+        register_setting ( 'iqblockcountry-settings-group-cat', 'blockcountry_blockhome');
 }
 
 /**
@@ -44,7 +45,7 @@ function iqblockcountry_get_options_arr() {
         $optarr = array( 'blockcountry_banlist', 'blockcountry_backendbanlist','blockcountry_backendblacklist','blockcountry_backendwhitelist', 
             'blockcountry_frontendblacklist','blockcountry_frontendwhitelist','blockcountry_blockmessage','blockcountry_blocklogin','blockcountry_blockfrontend',
             'blockcountry_blockbackend','blockcountry_header','blockcountry_blockpages','blockcountry_pages','blockcountry_blockcategories','blockcountry_categories',
-            'blockcountry_tracking');
+            'blockcountry_tracking','blockcountry_blockhome');
         return apply_filters( 'iqblockcountry_options', $optarr );
 }
 
@@ -60,6 +61,20 @@ function iqblockcountry_set_defaults()
 	update_option('blockcountry_backendnrblocks', 0);
 	update_option('blockcountry_frontendnrblocks', 0);
 	update_option('blockcountry_header', 'on');
+
+        $countrylist = iqblockcountry_get_countries();
+        $ip_address = iqblockcountry_get_ipaddress();
+        $usercountry = iqblockcountry_check_ipaddress($ip_address);
+
+        $blacklist = array();
+        foreach ($countrylist AS $shortcode => $country)
+        {
+            if (!($shortcode == $usercountry))
+            {
+                array_push($blacklist,$shortcode);
+            }
+        }    
+        update_option('blockcountry_backendbanlist',$blacklist);
         iqblockcountry_install_db();       
 }
 
@@ -88,6 +103,7 @@ function iqblockcountry_uninstall() //deletes all the database entries that the 
         delete_option('blockcountry_categories');
         delete_option('blockcountry_lasttrack');
         delete_option('blockcountry_tracking');
+        delete_option('blockcountry_blockhome');
 }
 
 
@@ -359,7 +375,7 @@ function iqblockcountry_settings_categories() {
     <h3><?php _e('Select which categories are blocked.', 'iqblockcountry'); ?></h3>
     <form method="post" action="options.php">
 <?php
-    settings_fields ( 'iqblockcountry-settings-group3' );
+    settings_fields ( 'iqblockcountry-settings-group-cat' );
 ?>
     <table class="form-table" cellspacing="2" cellpadding="5" width="100%">    	    
     <tr valign="top">
@@ -367,6 +383,12 @@ function iqblockcountry_settings_categories() {
         <?php _e('If you do not select this option all blog articles will be blocked.', 'iqblockcountry'); ?></th>
     <td width="70%">
 	<input type="checkbox" name="blockcountry_blockcategories" value="on" <?php checked('on', get_option('blockcountry_blockcategories'), true); ?> /> 	
+    </td></tr>
+    <tr valign="top">
+        <th width="30%"><?php _e('Do you want to block the homepage:', 'iqblockcountry'); ?><br />
+        <?php _e('If you do not select this option visitors will not be blocked from your homepage regardless of the categories you select.', 'iqblockcountry'); ?></th>
+    <td width="70%">
+	<input type="checkbox" name="blockcountry_blockhome" value="on" <?php checked('on', get_option('blockcountry_blockhome'), true); ?> /> 	
     </td></tr>
     <tr valign="top">
     <th width="30%"><?php _e('Select categories you want to block:', 'iqblockcountry'); ?></th>

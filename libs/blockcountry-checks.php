@@ -44,25 +44,29 @@ function iqblockcountry_check_ipaddress($ip_address)
  */
 function iqblockcountry_check($country,$badcountries,$ip_address)
 {
-    $blocked = FALSE;
+    /* Set default blocked status and get all options */
+    $blocked = FALSE; 
     $blockedpage = get_option('blockcountry_blockpages');
     $blockedcategory = get_option('blockcountry_blockcategories');
-    if (is_array ( $badcountries ) && in_array ( $country, $badcountries )) {
-        $blocked = TRUE;
-    }
-    $frontendblacklist = get_option ( 'blockcountry_frontendblacklist' );
     $frontendblacklistip = array();
+    $frontendblacklist = get_option ( 'blockcountry_frontendblacklist' );
+    $frontendwhitelistip = array();
+    $frontendwhitelist = get_option ( 'blockcountry_frontendwhitelist' );
     if (preg_match('/;/',$frontendblacklist))
     {
         $frontendblacklistip = explode(";", $frontendblacklist);
     }
-    $frontendwhitelistip = array();
-    $frontendwhitelist = get_option ( 'blockcountry_frontendwhitelist' );
     if (preg_match('/;/',$frontendwhitelist))
     {
             $frontendwhitelistip = explode(";", $frontendwhitelist);
     }
     
+    /* Block if user is in a bad country from frontend or backend. Unblock may happen later */
+    if (is_array ( $badcountries ) && in_array ( $country, $badcountries )) {
+        $blocked = TRUE;
+    }
+
+    /* Check if requested url is not login page. Else check against frontend whitelist/blacklist. */
     if (!iqblockcountry_is_login_page() )
     {    
         if (is_array ( $frontendwhitelistip ) && in_array ( $ip_address, $frontendwhitelistip)) {
@@ -109,7 +113,10 @@ function iqblockcountry_check($country,$badcountries,$ip_address)
         }
         if ($flagged) { $blocked = TRUE; } else { $blocked = FALSE; }
     }
-   
+    if (is_home() && (get_option('blockcountry_blockhome')) == "on")
+    {
+        $blocked = FALSE;
+    }
     return $blocked;
 }
 

@@ -165,6 +165,12 @@ If this does not help you out deselect "Send headers when user is blocked". This
 
 == Changelog ==
 
+= 1.1.6 =
+* Added to ban categories. This works the same way as blocking pages (By request of FVCS)
+* Changed the admin page layout. Added tabs for frontend and backend blocking to make it look less cluttered
+* Added optional tracking to the plugin. This is an experiment to see if building a database of IP addresses that try to login to the backend is viable.
+* Upon first activation the plugin now fills the backend block list with all countries except the country that is currently used to activate.
+
 = 1.1.5 =
 
 * Statistics required wp-config.php in a specific place bug smashed.
