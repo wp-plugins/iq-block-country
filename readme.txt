@@ -170,6 +170,7 @@ If this does not help you out deselect "Send headers when user is blocked". This
 * Changed the admin page layout. Added tabs for frontend and backend blocking to make it look less cluttered
 * Added optional tracking to the plugin. This is an experiment to see if building a database of IP addresses that try to login to the backend is viable.
 * Upon first activation the plugin now fills the backend block list with all countries except the country that is currently used to activate.
+* Added IP checking in header HTTP_CLIENT_IP and HTTP_X_REAL_IP
 
 = 1.1.5 =
 
