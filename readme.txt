@@ -1,10 +1,10 @@
 === iQ Block Country ===
 Contributors: iqpascal,williewonka
-Donate link: http://www.unicef.org/
+Donate link: http://www.redeo.nl/plugins/donate
 Tags: spam, block, countries, country, comments, ban, geo, geo blocking, geo ip, block country, block countries, ban countries, ban country, blacklist, whitelist
 Requires at least: 3.5.2
 Tested up to: 3.8.1
-Stable tag: 1.1.5
+Stable tag: 1.1.6
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -163,6 +163,18 @@ This is possible if another plugin or your template sends out header information
 
 If this does not help you out deselect "Send headers when user is blocked". This will no longer send headers but only display the block message. This however will mess up your website if you use caching software for your website.
 
+= What data get sends to you when I select "Allow tracking"? =
+
+If you select this option each hour the plugin checks if it has new data to send back to the central server. 
+
+This data consists of each IP address that has tried to login to your backend and how many attempts were made since the last check.
+
+Goal of this feature is to check if we can create a user-driven database of rogue IP addresses that try to login to the backend.
+If this is viable in a future version this database can be used to block these rogue users despite the country they come from.
+
+If storing or sharing an IP address is illegal in your country do not select this feature.
+
+
 == Changelog ==
 
 = 1.1.6 =
@@ -170,6 +182,7 @@ If this does not help you out deselect "Send headers when user is blocked". This
 * Changed the admin page layout. Added tabs for frontend and backend blocking to make it look less cluttered
 * Added optional tracking to the plugin. This is an experiment to see if building a database of IP addresses that try to login to the backend is viable.
 * Upon first activation the plugin now fills the backend block list with all countries except the country that is currently used to activate.
+* Added IP checking in header HTTP_CLIENT_IP and HTTP_X_REAL_IP
 
 = 1.1.5 =
 

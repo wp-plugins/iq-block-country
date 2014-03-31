@@ -96,6 +96,7 @@ function iqblockcountry_check($country,$badcountries,$ip_address)
     {
         global $post;
         $blockedcategories = get_option('blockcountry_categories');
+        if (!is_array($blockedcategories)) { $blockedcategories = array(); }
         $post_categories = wp_get_post_categories( $post->ID );
         $flagged = FALSE;
         foreach ($post_categories as $key => $value)
@@ -113,7 +114,7 @@ function iqblockcountry_check($country,$badcountries,$ip_address)
         }
         if ($flagged) { $blocked = TRUE; } else { $blocked = FALSE; }
     }
-    if (is_home() && (get_option('blockcountry_blockhome')) == "on")
+    if (is_home() && (get_option('blockcountry_blockhome')) == FALSE)
     {
         $blocked = FALSE;
     }
@@ -127,12 +128,16 @@ function iqblockcountry_check($country,$badcountries,$ip_address)
 function iqblockcountry_CheckCountry() {
 
     $ip_address = "";
-    if (empty($_SERVER["HTTP_X_FORWARDED_FOR"])) {
-        $ip_address = $_SERVER["REMOTE_ADDR"];
-    } else {
-        $ip_address = $_SERVER["HTTP_X_FORWARDED_FOR"];
-    }
     
+    if ( isset($_SERVER['HTTP_X_FORWARDED_FOR']) && !empty($_SERVER['HTTP_X_FORWARDED_FOR']) ) {
+    $ips = explode(',', $_SERVER['HTTP_X_FORWARDED_FOR']);
+    $ip_address = trim($ips[0]);
+    } elseif ( isset($_SERVER['HTTP_X_REAL_IP']) && !empty($_SERVER['HTTP_X_REAL_IP']) ) {
+    $ip_address = $_SERVER['HTTP_X_REAL_IP'];
+    } elseif ( isset($_SERVER['HTTP_CLIENT_IP']) && !empty($_SERVER['HTTP_CLIENT_IP']) ) {
+    $ip_address = $_SERVER['HTTP_CLIENT_IP'];
+    }
+        
     $ip_address = iqblockcountry_get_ipaddress();
     $country = iqblockcountry_check_ipaddress($ip_address);
     
