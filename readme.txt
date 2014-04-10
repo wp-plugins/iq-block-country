@@ -4,7 +4,7 @@ Donate link: http://www.redeo.nl/plugins/donate
 Tags: spam, block, countries, country, comments, ban, geo, geo blocking, geo ip, block country, block countries, ban countries, ban country, blacklist, whitelist
 Requires at least: 3.5.2
 Tested up to: 3.8.2
-Stable tag: 1.1.6
+Stable tag: 1.1.9
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -176,6 +176,16 @@ If storing or sharing an IP address is illegal in your country do not select thi
 
 
 == Changelog ==
+
+= 1.1.8 =
+
+* Smashed a bug where the homepage was unprotected due to missing check.
+
+= 1.1.7 =
+
+* Added Russian (ru_RU) translation by Maxim
+* Added Serbo-Croatian (sr_RU) translation by Borisa Djuraskovic (Webostinghub)
+* Changed the logging table a bit.
 
 = 1.1.6 =
 * Added to ban categories. This works the same way as blocking pages (By request of FVCS)
