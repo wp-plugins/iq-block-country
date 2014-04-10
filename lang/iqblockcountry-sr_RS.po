@@ -1,0 +1,471 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: iQ Block Country\n"
+"POT-Creation-Date: 2014-03-31 15:52+0100\n"
+"PO-Revision-Date: 2014-04-10 09:43+0100\n"
+"Last-Translator: Borisa Djuraskovic <borisad@webhostinghub.com>\n"
+"Language-Team: iQ Block Country <info@redeo.nl>\n"
+"Language: English\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.5.7\n"
+"X-Poedit-KeywordsList: _;gettext;gettext_noop;__;_e\n"
+"X-Poedit-Basepath: ../\n"
+"X-Poedit-SearchPath-0: libs\n"
+"X-Poedit-SearchPath-1: .\n"
+
+#: libs/blockcountry-settings.php:113
+msgid ""
+"Check which country belongs to an IP Address according to the current "
+"database."
+msgstr ""
+"Proveriti kojoj zemlji pripada IP Adresa pomoću  trenutne baze podataka."
+
+#: libs/blockcountry-settings.php:117
+msgid "IP Address to check:"
+msgstr "IP Adresa za proveru:"
+
+#: libs/blockcountry-settings.php:127
+msgid "No country for"
+msgstr "Nijedna zemlja za"
+
+#: libs/blockcountry-settings.php:127
+msgid "could be found. Or"
+msgstr "nie nadjena. Ili"
+
+#: libs/blockcountry-settings.php:127
+msgid "is not a valid IPv4 or IPv6 IP address"
+msgstr "nije validna IPv4 ili IPv6 IP adresa"
+
+#: libs/blockcountry-settings.php:132
+msgid "IP Adress"
+msgstr "IP Adresa za proveru:"
+
+#: libs/blockcountry-settings.php:132
+msgid "belongs to"
+msgstr "pripada"
+
+#: libs/blockcountry-settings.php:135
+msgid "This country is not permitted to visit the frontend of this website."
+msgstr "Ovoj zemlji nije dozvoljeno da poseti prednju stranu websajta."
+
+#: libs/blockcountry-settings.php:140
+msgid "This country is not permitted to visit the backend of this website."
+msgstr "Ovoj zemlji nije dozvoljeno da poseti prednju stranu websajta."
+
+#: libs/blockcountry-settings.php:146
+msgid "Check IP address"
+msgstr "Proverite  IP adresu"
+
+#: libs/blockcountry-settings.php:152
+msgid "Download GeoIP database"
+msgstr "Download GeoIP bazau podataka"
+
+#: libs/blockcountry-settings.php:159
+msgid "The GeoIP database is updated once a month. Last update: "
+msgstr " GeoIP baza podataka se updatuje jednom mesečno. Poslednji update:"
+
+#: libs/blockcountry-settings.php:160
+msgid "If you need a manual update please press buttons below to update."
+msgstr ""
+"Treba ručno da  updateujete kliknite na dugme ispod da biste updateovali."
+
+#: libs/blockcountry-settings.php:166
+msgid "Download new GeoIP IPv4 Database"
+msgstr "Download novu GeoIP IPv4 bazu podataka"
+
+#: libs/blockcountry-settings.php:173
+msgid "Download new GeoIP IPv6 Database"
+msgstr "Download novu GeoIP IPv6 bazu podataka"
+
+#: libs/blockcountry-settings.php:178 libs/blockcountry-settings.php:182
+msgid "Downloading..."
+msgstr "Downloading..."
+
+#: libs/blockcountry-settings.php:188
+msgid "Active plugins"
+msgstr "Aktivni pluginovi"
+
+#: libs/blockcountry-settings.php:195
+msgid "Plugin name"
+msgstr "Ime plugina"
+
+#: libs/blockcountry-settings.php:195
+msgid "Version"
+msgstr "Verzija"
+
+#: libs/blockcountry-settings.php:195 libs/blockcountry-settings.php:716
+#: libs/blockcountry-settings.php:759
+msgid "URL"
+msgstr "URL"
+
+#: libs/blockcountry-settings.php:220
+msgid "Export"
+msgstr "Eksport"
+
+#: libs/blockcountry-settings.php:221
+msgid ""
+"When you click on <tt>Backup all settings</tt> button a backup of the iQ "
+"Block Country configuration will be created."
+msgstr ""
+"Kada kliknete na <tt> Backup-ujte sva podešavanja < / tt > dugm ebackup "
+"konfiguracije iQ Blokirati Zemlju će biti kreiran."
+
+#: libs/blockcountry-settings.php:222
+msgid ""
+"After exporting, you can either use the backup file to restore your settings "
+"on this site again or copy the settings to another WordPress site."
+msgstr ""
+"Nakon eksportovanja , možete da koristite rezervnu kopiju da ponovo vratite "
+"podešavanja na ovom sajtu ili kopirate postavke na drugi WordPress sajt ."
+
+#: libs/blockcountry-settings.php:226
+msgid "Backup all settings"
+msgstr "Backup-ovati sve postavke"
+
+#: libs/blockcountry-settings.php:233
+msgid "Import"
+msgstr "Importovati"
+
+#: libs/blockcountry-settings.php:234
+msgid "Click the browse button and choose a zip file that you exported before."
+msgstr ""
+"Klik na dugme za pretragu i izaberite zip fajl koji je eksportovan pre."
+
+#: libs/blockcountry-settings.php:235
+msgid "Press Restore settings button, and let WordPress do the magic for you."
+msgstr ""
+"Klik na Povratiti postavke  dugme i ostaviti sve ostalo da uradi WordPress."
+
+#: libs/blockcountry-settings.php:240
+msgid "Restore settings"
+msgstr "Povratiti postavke"
+
+#: libs/blockcountry-settings.php:263 libs/blockcountry-settings.php:266
+#: libs/blockcountry-settings.php:275
+msgid "Something went wrong exporting this file"
+msgstr "Nešto nije kako treba sa eksportovanjem ovog fajla"
+
+#: libs/blockcountry-settings.php:278
+msgid "Exporting settings..."
+msgstr "Eksportovati postavke..."
+
+#: libs/blockcountry-settings.php:293
+msgid "Something went wrong importing this file"
+msgstr "Nešto nije kako treba sa importovanjem ovog fajla"
+
+#: libs/blockcountry-settings.php:310
+msgid "All options are restored successfully."
+msgstr "Sve opcije su uspešno vraćene.."
+
+#: libs/blockcountry-settings.php:313
+msgid "Invalid file."
+msgstr "Nepostojeći fajl."
+
+#: libs/blockcountry-settings.php:318
+msgid "No correct import or export option given."
+msgstr "Nijedna ispravna  import ili export opcija nije data.  "
+
+#: libs/blockcountry-settings.php:327
+msgid "Select which pages are blocked."
+msgstr "Izaberite koje stranice su blokirane."
+
+#: libs/blockcountry-settings.php:334
+msgid "Do you want to block individual pages:"
+msgstr "Da li želite da blokirate individualne stranic:"
+
+#: libs/blockcountry-settings.php:335
+msgid "If you do not select this option all pages will be blocked."
+msgstr "Ako niste selektovali ovu opciju sve stranice će biti blokirane."
+
+#: libs/blockcountry-settings.php:340
+msgid "Select pages you want to block:"
+msgstr "Izaberite stranicu koju želite da blokirate:"
+
+#: libs/blockcountry-settings.php:362 libs/blockcountry-settings.php:416
+#: libs/blockcountry-settings.php:511 libs/blockcountry-settings.php:599
+#: libs/blockcountry-settings.php:689
+msgid "Save Changes"
+msgstr "Sačuvati promene"
+
+#: libs/blockcountry-settings.php:375
+msgid "Select which categories are blocked."
+msgstr "Seletujte koje kategorije su blokirane."
+
+#: libs/blockcountry-settings.php:382
+msgid "Do you want to block individual categories:"
+msgstr "Da li želite da blokirate individualne kategorije:"
+
+#: libs/blockcountry-settings.php:383
+msgid "If you do not select this option all blog articles will be blocked."
+msgstr "Ako ne selektujete ovu opciju svi članci na blogu će biti blokirani."
+
+#: libs/blockcountry-settings.php:388
+msgid "Do you want to block the homepage:"
+msgstr "Da li želite da blokirate počenu stranicu:"
+
+#: libs/blockcountry-settings.php:389
+msgid ""
+"If you do not select this option visitors will not be blocked from your "
+"homepage regardless of the categories you select."
+msgstr ""
+"Ako ne selektujete ovu opciju posetioci neće biti blokirani sa vaše početne "
+"stranice bez obzira na kategoriju."
+
+#: libs/blockcountry-settings.php:394
+msgid "Select categories you want to block:"
+msgstr "Selektujte kategoriju koju želite da blokirate:"
+
+#: libs/blockcountry-settings.php:430
+msgid "Frontend options"
+msgstr "Opcije prednje strane"
+
+#: libs/blockcountry-settings.php:465
+msgid ""
+"Do not block visitors that are logged in from visiting frontend website:"
+msgstr ""
+"Nemojte da blokirate posetioce koju su ulogovani iz prednje strane websajta:"
+
+#: libs/blockcountry-settings.php:471
+msgid "Block visitors from visiting the frontend of your website:"
+msgstr "Blokiraj posetioce da posete prednju stranu vašeg sajta :"
+
+#: libs/blockcountry-settings.php:477
+msgid ""
+"Select the countries that should be blocked from visiting your frontend:"
+msgstr ""
+"Izaberite zemlje koje bi trebalo da budu blokirane za posetu vašeg zadnje "
+"strane :"
+
+#: libs/blockcountry-settings.php:478
+msgid "Use the CTRL key to select multiple countries"
+msgstr "Koristite CTRL ključ da biste selektovali više zemalja"
+
+#: libs/blockcountry-settings.php:494
+msgid "Frontend whitelist IPv4 and/or IPv6 addresses:"
+msgstr "Bela list prednje strane IPv4 i/ili IPv6 adrese:"
+
+#: libs/blockcountry-settings.php:494 libs/blockcountry-settings.php:502
+msgid "Use a semicolon (;) to separate IP addresses"
+msgstr "Koristite tačku zarez (;) da biste odvojili IP adresu"
+
+#: libs/blockcountry-settings.php:502
+msgid "Frontend blacklist IPv4 and/or IPv6 addresses:"
+msgstr "Crna lista zadnje strane IPv4 i/ili IPv6 adrese:"
+
+#: libs/blockcountry-settings.php:531
+msgid "Backend Options"
+msgstr "Opcije zadnjeg dela"
+
+#: libs/blockcountry-settings.php:565
+msgid ""
+"Block visitors from visiting the backend (administrator) of your website:"
+msgstr ""
+"Blokirati posetioce da ne posećuju zadnji deo (administratora) vašeg "
+"websajta:"
+
+#: libs/blockcountry-settings.php:573
+msgid "Your IP address is"
+msgstr "Vaša IP adresa je"
+
+#: libs/blockcountry-settings.php:573
+msgid "The country that is listed for this IP address is"
+msgstr "Zemlja koja je zavedena pod ovu IP adresu je"
+
+#: libs/blockcountry-settings.php:574
+msgid ""
+"Do <strong>NOT</strong> set the 'Block visitors from visiting the backend "
+"(administrator) of your website' and also select"
+msgstr ""
+"Uradite <strong>NIJE</strong> podešavanje 'Blokirati posetioce da ne "
+"posećuju zadnji deo (administratora) vašeg websajta' i takodje izaberite"
+
+#: libs/blockcountry-settings.php:574
+msgid "below."
+msgstr "ispod."
+
+#: libs/blockcountry-settings.php:575
+msgid ""
+"You will NOT be able to login the next time if you DO block your own country "
+"from visiting the backend."
+msgstr ""
+"Nećete biti u mogućnosti da se ulogujete sledeći put ako blokirate vašu "
+"zemlju od posete zadnjem delu"
+
+#: libs/blockcountry-settings.php:580
+msgid "Select the countries that should be blocked from visiting your backend:"
+msgstr ""
+"Izaberite zemlje koje treba da budu blokirane od posećivanja vašeg zadnjeg "
+"dela:"
+
+#: libs/blockcountry-settings.php:581
+msgid "Use the x behind the country to remove a country from this blocklist."
+msgstr "Koristite x ispod zemlje da biste uklonili zemlju."
+
+#: libs/blockcountry-settings.php:620
+msgid "Overall statistics since start"
+msgstr "Sva statistika od starta"
+
+#: libs/blockcountry-settings.php:623
+msgid "visitors blocked from the backend."
+msgstr "posetioci blokirani od zadnjeg dela.."
+
+#: libs/blockcountry-settings.php:625
+msgid "visitors blocked from the frontend."
+msgstr "posetioci blokirani od prednjeg dela."
+
+#: libs/blockcountry-settings.php:629
+msgid "Basic Options"
+msgstr "Osnovne opcije"
+
+#: libs/blockcountry-settings.php:664
+msgid "Message to display when people are blocked:"
+msgstr "Poruka za prikaz kada su ljudi blokirani:"
+
+#: libs/blockcountry-settings.php:674
+msgid "Send headers when user is blocked:"
+msgstr "Poslati headere kada je korisnik blokiran:"
+
+#: libs/blockcountry-settings.php:675
+msgid ""
+"Under normal circumstances you should keep this selected! Only if you have "
+"\"Cannot modify header information - headers already sent\" errors or if you "
+"know what you are doing uncheck this."
+msgstr ""
+"Pod normalnim okolnostima, trebalo bi da zadržite ovo odabrano ! Samo ako "
+"imate \" Ne može se modifikovati header informacija - headersi su već poslati"
+"\"greške ili ako znate šta radite odčekirajte ovo."
+
+#: libs/blockcountry-settings.php:681
+msgid "Allow tracking:"
+msgstr "Dozvoliti praćenje:"
+
+#: libs/blockcountry-settings.php:682
+msgid ""
+"This sends only the IP address and the number of attempts this ip address "
+"tried to login to your backend and was blocked doing so to a central server. "
+"No other data is being send. This helps us to get a better picture of rogue "
+"countries."
+msgstr ""
+"Ovo šalje samo IP adresu i broj pokušaja ove IP adrese koji su pokušali da "
+"se uloguju na vaš zadnji deo i bili blokirani na taj način na centralnom "
+"serveru . Nijedni drugi podaci se ne šalju . Ovo nam pomaže da dobijete "
+"bolju sliku o otpadničkim zemalja ."
+
+#: libs/blockcountry-settings.php:708
+msgid "Last 15 blocked visits"
+msgstr "Poslednjih 15 blokiranih poseta"
+
+#: libs/blockcountry-settings.php:716
+msgid "Date / Time"
+msgstr "Datum / Vreme"
+
+#: libs/blockcountry-settings.php:716 libs/blockcountry-settings.php:748
+msgid "IP Address"
+msgstr "IP adresa"
+
+#: libs/blockcountry-settings.php:716 libs/blockcountry-settings.php:748
+msgid "Hostname"
+msgstr "Ime hosta"
+
+#: libs/blockcountry-settings.php:716 libs/blockcountry-settings.php:735
+msgid "Country"
+msgstr "Zemlja"
+
+#: libs/blockcountry-settings.php:716
+msgid "Frontend/Backend"
+msgstr "Prednje/Zadnje"
+
+#: libs/blockcountry-settings.php:726 libs/blockcountry-settings.php:787
+msgid "Frontend"
+msgstr "Prednje"
+
+#: libs/blockcountry-settings.php:726 libs/blockcountry-settings.php:788
+msgid "Backend"
+msgstr "Zadnje"
+
+#: libs/blockcountry-settings.php:733
+msgid "Top countries that are blocked"
+msgstr "Top zemlje koji su blokirani"
+
+#: libs/blockcountry-settings.php:735 libs/blockcountry-settings.php:748
+#: libs/blockcountry-settings.php:759
+msgid "# of blocked attempts"
+msgstr "# blokiranih pokušaja"
+
+#: libs/blockcountry-settings.php:746
+msgid "Top hosts that are blocked"
+msgstr "Top hostovi koji su blokirani"
+
+#: libs/blockcountry-settings.php:757
+msgid "Top URLs that are blocked"
+msgstr "Top URLs koji su blokirani"
+
+#: libs/blockcountry-settings.php:786
+msgid "Home"
+msgstr "Početna stranica"
+
+#: libs/blockcountry-settings.php:789
+msgid "Pages"
+msgstr "Stranice"
+
+#: libs/blockcountry-settings.php:790
+msgid "Categories"
+msgstr "Kategorije"
+
+#: libs/blockcountry-settings.php:791
+msgid "Tools"
+msgstr "Alatke"
+
+#: libs/blockcountry-settings.php:792
+msgid "Logging"
+msgstr "Loginovanje"
+
+#: libs/blockcountry-settings.php:793
+msgid "Import/Export"
+msgstr "Import/Export"
+
+#: libs/blockcountry-settings.php:843
+msgid "GeoIP database does not exists. Trying to download it..."
+msgstr "GeoIP baza podataka ne postoji. Pokušavamo da downloadujemo…."
+
+#: iq-block-country.php:142 iq-block-country.php:152
+msgid "Error occured: Could not download the GeoIP database from"
+msgstr "Greška se pojavila: Ne može da se downloaduje GeoIP baza podataka iz"
+
+#: iq-block-country.php:143
+msgid ""
+"MaxMind has blocked requests from your IP address for 24 hours. Please check "
+"again in 24 hours or download this file from your own PC"
+msgstr ""
+"MaxMind je blokirao zahteve iz vaše  IP adrese na  24 sata. Proverite opet "
+"nakon 24 sata ili downloadujte ovaj fajl iz vašeg PCija"
+
+#: iq-block-country.php:144
+msgid "Unzip this file and upload it (via FTP for instance) to:"
+msgstr "Unzipujte ovaj fajl i uploadujte ga (via FTP za instancu) na:"
+
+#: iq-block-country.php:153
+msgid ""
+"Please download this file from your own PC unzip this file and upload it "
+"(via FTP for instance) to:"
+msgstr ""
+"Downloadujte ovaj fajl iz vašeg PCija unzipujteovaj fajl i uploadujte ga "
+"(via FTP za instancu) na:"
+
+#: iq-block-country.php:179
+msgid "Finished downloading"
+msgstr "Gotov downloading"
+
+#: iq-block-country.php:185
+msgid "Fatal error: GeoIP"
+msgstr "Fatalna greška: GeoIP"
+
+#: iq-block-country.php:185
+msgid ""
+"database does not exists. This plugin will not work until the database file "
+"is present."
+msgstr ""
+"baza podataka ne postoji. Ovaj plugin neće raditi dok fajl iz baze podataka "
+"ne bude prisutan."

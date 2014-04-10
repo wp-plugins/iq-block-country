@@ -696,7 +696,6 @@ function iqblockcountry_settings_home()
         {
 		print "<p>You are missing the GeoIP class. Perhaps geoip.inc is missing?</p>";	
         }
-
 }
 
 /*
