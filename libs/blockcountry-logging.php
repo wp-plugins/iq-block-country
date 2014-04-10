@@ -5,19 +5,18 @@ function iqblockcountry_install_db() {
 
    $table_name = $wpdb->prefix . "iqblock_logging";
      
-   $sql = "CREATE TABLE IF NOT EXISTS $table_name (
-  id mediumint(9) NOT NULL AUTO_INCREMENT,
+   $sql = "CREATE TABLE $table_name (
+  id bigint(20) NOT NULL AUTO_INCREMENT,
   datetime datetime NOT NULL,
   ipaddress tinytext NOT NULL,
   country tinytext NOT NULL,
   url varchar(250) DEFAULT '/' NOT NULL,
   banned enum('F','B') NOT NULL,
-  PRIMARY KEY  (id),
   UNIQUE KEY id (id)
 );";
 
    require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
-   dbDelta( $sql ); 
+   dbDelta( $sql );
 }
 
 function iqblockcountry_uninstall_db() {
