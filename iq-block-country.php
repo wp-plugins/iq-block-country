@@ -317,7 +317,7 @@ define("IPV4DBFILE",WP_PLUGIN_DIR . "/" . dirname ( plugin_basename ( __FILE__ )
 define("IPV6DBFILE",WP_PLUGIN_DIR . "/" . dirname ( plugin_basename ( __FILE__ ) ) . "/GeoIPv6.dat");
 define("TRACKINGURL","http://tracking.webence.nl/iq-block-country-tracking.php");
 define("VERSION","1.1.7");
-define("DBVERSION","110");
+define("DBVERSION","117");
 define("PLUGINPATH",plugin_dir_path( __FILE__ )); 
 
 
