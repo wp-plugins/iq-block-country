@@ -114,7 +114,7 @@ function iqblockcountry_check($country,$badcountries,$ip_address)
         }
         if ($flagged) { $blocked = TRUE; } else { $blocked = FALSE; }
     }
-    if (is_home() && (get_option('blockcountry_blockhome')) == FALSE)
+    if (is_home() && (get_option('blockcountry_blockhome')) == FALSE && $blockedcategory == "on")
     {
         $blocked = FALSE;
     }
@@ -199,7 +199,8 @@ function iqblockcountry_CheckCountry() {
  * Check if page is the login page
  */
 function iqblockcountry_is_login_page() {
-    return !strncmp($_SERVER['REQUEST_URI'], '/wp-login.php', strlen('/wp-login.php'));
+    if ( in_array( $GLOBALS['pagenow'], array( 'wp-login.php', 'wp-register.php' ) ) )
+    { return TRUE; } else { return FALSE; }
 }
 
 /*
