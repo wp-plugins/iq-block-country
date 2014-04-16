@@ -3,8 +3,8 @@ Contributors: iqpascal,williewonka
 Donate link: http://www.redeo.nl/plugins/donate
 Tags: spam, block, countries, country, comments, ban, geo, geo blocking, geo ip, block country, block countries, ban countries, ban country, blacklist, whitelist
 Requires at least: 3.5.2
-Tested up to: 3.8.2
-Stable tag: 1.1.9
+Tested up to: 3.9
+Stable tag: 1.1.10
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -176,6 +176,15 @@ If storing or sharing an IP address is illegal in your country do not select thi
 
 
 == Changelog ==
+
+= 1.1.10 =
+
+* Small fixes
+* WP 3.9 compatability issue fixed
+
+= 1.1.9 =
+
+* Bugfix release. v1.1.8 was a faulty release. My apologies!
 
 = 1.1.8 =
 
