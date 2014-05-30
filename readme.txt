@@ -1,10 +1,10 @@
 === iQ Block Country ===
-Contributors: iqpascal,williewonka
+Contributors: iqpascal
 Donate link: http://www.redeo.nl/plugins/donate
 Tags: spam, block, countries, country, comments, ban, geo, geo blocking, geo ip, block country, block countries, ban countries, ban country, blacklist, whitelist
 Requires at least: 3.5.2
-Tested up to: 3.9
-Stable tag: 1.1.10
+Tested up to: 3.9.1
+Stable tag: 1.1.11
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -177,6 +177,14 @@ If storing or sharing an IP address is illegal in your country do not select thi
 
 == Changelog ==
 
+= 1.1.11 =
+
+* Added select box on how many rows to display on the logging tab
+* Redirect blocked users to a specific page instead of displaying the block message.
+* Added blacklist and whitelist of IP addresses to the backend.
+* Adjusted some text
+* Minor bugfixes
+
 = 1.1.10 =
 
 * Small fixes
@@ -184,7 +192,7 @@ If storing or sharing an IP address is illegal in your country do not select thi
 
 = 1.1.9 =
 
-* Bugfix release. v1.1.8 was a faulty release. My apologies!
+* Bugfix release due to faulty v1.1.8 release. My Apologies.
 
 = 1.1.8 =
 

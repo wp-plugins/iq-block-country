@@ -2,7 +2,7 @@
 /*
 Plugin Name: iQ Block Country
 Plugin URI: http://www.redeo.nl/2013/12/iq-block-country-wordpress-plugin-blocks-countries/
-Version: 1.1.10
+Version: 1.1.11
 Author: Pascal
 Author URI: http://www.redeo.nl/
 Description: Block visitors from visiting your website and backend website based on which country their IP address is from. The Maxmind GeoIP lite database is used for looking up from which country an ip address is from.
@@ -52,7 +52,7 @@ function iqblockcountry_this_plugin_first()
 }
 
 /*
- * 
+ * Schedule tracking if this option was set in the admin panel
  */
 function iqblockcountry_schedule_tracking($old_value, $new_value)
 {
@@ -69,6 +69,21 @@ function iqblockcountry_schedule_tracking($old_value, $new_value)
         }
     }
 }
+
+
+/*
+ * Attempt on output buffering to protect against headers already send mistakes 
+ */
+function iqblockcountry_buffer() {
+	ob_start();
+} 
+
+/*
+ * Attempt on output buffering to protect against headers already send mistakes 
+ */
+function iqblockcountry_buffer_flush() {
+	ob_end_flush();
+} 
 
 
 /*
@@ -249,13 +264,14 @@ function iqblockcountry_upgrade()
 {
     /* Check if update is necessary */
     $dbversion = get_option( 'blockcountry_version' );
+    update_option('blockcountry_version',VERSION);
 
-    if ($dbversion != "" && version_compare($dbversion, "1.0.10", '<') )
+    if ($dbversion != "" && version_compare($dbversion, "1.1.11", '<') )
     {
-        iqblockcountry_install_db();
-        add_option( "blockcountry_dbversion", DBVERSION );
-        // Get banlist option and convert to backend banlist
-        update_option('blockcountry_version',VERSION);
+        update_option('blockcountry_nrstatistics', 15);
+    }
+    elseif ($dbversion != "" && version_compare($dbversion, "1.0.10", '<') )
+    {
         $frontendbanlist = get_option('blockcountry_banlist');
         update_option('blockcountry_backendbanlist',$frontendbanlist);
         update_option('blockcountry_backendnrblocks', 0);
@@ -265,17 +281,9 @@ function iqblockcountry_upgrade()
     elseif ($dbversion != "" && version_compare($dbversion, "1.0.10", '=') )
     {
         iqblockcountry_install_db();
-        add_option( "blockcountry_dbversion", DBVERSION );
         update_option('blockcountry_backendnrblocks', 0);
         update_option('blockcountry_frontendnrblocks', 0);
         update_option('blockcountry_header', 'on');
-        update_option('blockcountry_version',VERSION);
-    }        
-    elseif ($dbversion != "" && version_compare($dbversion, "1.0.11", '=') )
-    {
-        iqblockcountry_install_db();
-        add_option( "blockcountry_dbversion", DBVERSION );
-        update_option('blockcountry_version',VERSION);
     }        
     elseif ($dbversion == "")
     {
@@ -290,10 +298,7 @@ function iqblockcountry_upgrade()
         $frontendbanlist = get_option('blockcountry_banlist');
         update_option('blockcountry_backendbanlist',$frontendbanlist);
     }    
-    elseif ($dbversion != "" && version_compare($dbversion, "1.6h", '=') )
-    {
-         update_option('blockcountry_version',VERSION);
-    }
+
     iqblockcountry_update_db_check();
    
 }
@@ -305,6 +310,7 @@ require_once('libs/blockcountry-checks.php');
 require_once('libs/blockcountry-settings.php');
 require_once('libs/blockcountry-validation.php');
 require_once('libs/blockcountry-logging.php');
+//require_once('libs/blockcountry-tracking.php');
 
 
 /*
@@ -317,9 +323,12 @@ define("IPV4DB","http://geolite.maxmind.com/download/geoip/database/GeoLiteCount
 define("IPV4DBFILE",WP_PLUGIN_DIR . "/" . dirname ( plugin_basename ( __FILE__ ) ) . "/GeoIP.dat");
 define("IPV6DBFILE",WP_PLUGIN_DIR . "/" . dirname ( plugin_basename ( __FILE__ ) ) . "/GeoIPv6.dat");
 define("TRACKINGURL","http://tracking.webence.nl/iq-block-country-tracking.php");
-define("VERSION","1.1.10");
-define("DBVERSION","119");
+define("VERSION","1.1.11");
+define("DBVERSION","120");
 define("PLUGINPATH",plugin_dir_path( __FILE__ )); 
+
+global $apiblacklist;
+$apiblacklist = FALSE;
 
 
 register_activation_hook(__file__, 'iqblockcountry_this_plugin_first');
@@ -328,7 +337,10 @@ register_uninstall_hook(__file__, 'iqblockcountry_uninstall');
 
  // Check if upgrade is necessary
  iqblockcountry_upgrade();
-
+ 
+ /* Check retrieve XML schedule */
+// iqblockcountry_schedule_retrievebanlist();
+ 
  /* Clean logging database */
  iqblockcountry_clean_db();
  
@@ -352,7 +364,11 @@ add_action ( 'admin_menu', 'iqblockcountry_create_menu' );
 add_action ( 'admin_init', 'iqblockcountry_checkupdatedb' );
 add_filter ( 'update_option_blockcountry_tracking', 'iqblockcountry_schedule_tracking', 10, 2);
 add_filter ( 'add_option_blockcountry_tracking', 'iqblockcountry_schedule_tracking', 10, 2);
+//add_filter ( 'update_option_blockcountry_apikey', 'iqblockcountry_schedule_retrieving', 10, 2);
+//add_filter ( 'add_option_blockcountry_apikey', 'iqblockcountry_schedule_retrieving', 10, 2);
 add_action ( 'blockcountry_tracking', 'iqblockcountry_tracking' );
-
+add_action ( 'blockcountry_retrievebanlist',  'iqblockcountry_tracking_retrieve_xml');
+add_action ( 'init', 'iqblockcountry_buffer',1);
+add_action ( 'wp_footer', 'iqblockcountry_buffer_flush');
 
 ?>
