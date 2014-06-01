@@ -51,8 +51,8 @@ function iqblockcountry_check($country,$badcountries,$ip_address)
 
     $frontendblacklistip = array();   $frontendblacklist = get_option ( 'blockcountry_frontendblacklist' );
     $frontendwhitelistip = array();   $frontendwhitelist = get_option ( 'blockcountry_frontendwhitelist' );
-    $backendblacklistip = array();    $backendblacklist = get_option ( 'blockcountry_frontendblacklist' );
-    $backendwhitelistip = array();    $backendwhitelist = get_option ( 'blockcountry_frontendwhitelist' );
+    $backendblacklistip = array();    $backendblacklist = get_option ( 'blockcountry_backendblacklist' );
+    $backendwhitelistip = array();    $backendwhitelist = get_option ( 'blockcountry_backendwhitelist' );
     
     $backendbanlistip = unserialize(get_option('blockcountry_backendbanlistip'));
     $blockredirect = get_option ( 'blockcountry_redirect');
@@ -250,9 +250,7 @@ function iqblockcountry_CheckCountry() {
  * Check if page is the login page
  */
 function iqblockcountry_is_login_page() {
-//    return !strncmp($_SERVER['REQUEST_URI'], '/wp-login.php', strlen('/wp-login.php'));
-    if ( in_array( $GLOBALS['pagenow'], array( 'wp-login.php', 'wp-register.php' ) ) )
-    { return TRUE; } else { return FALSE; }
+    return !strncmp($_SERVER['REQUEST_URI'], '/wp-login.php', strlen('/wp-login.php'));
 }
 
 /*
