@@ -18,8 +18,12 @@ function iqblockcountry_register_mysettings()
 {
 	//register our settings
 	register_setting ( 'iqblockcountry-settings-group', 'blockcountry_blockmessage' );
+        register_setting ( 'iqblockcountry-settings-group', 'blockcountry_redirect');
         register_setting ( 'iqblockcountry-settings-group', 'blockcountry_header');
         register_setting ( 'iqblockcountry-settings-group', 'blockcountry_tracking');
+        register_setting ( 'iqblockcountry-settings-group', 'blockcountry_nrstatistics');
+        register_setting ( 'iqblockcountry-settings-group', 'blockcountry_nrstatistics');
+        register_setting ( 'iqblockcountry-settings-group', 'blockcountry_apikey');
 	register_setting ( 'iqblockcountry-settings-group-backend', 'blockcountry_blockbackend' );
 	register_setting ( 'iqblockcountry-settings-group-backend', 'blockcountry_backendbanlist' );
 	register_setting ( 'iqblockcountry-settings-group-backend', 'blockcountry_backendblacklist','iqblockcountry_validate_ip');
@@ -45,7 +49,7 @@ function iqblockcountry_get_options_arr() {
         $optarr = array( 'blockcountry_banlist', 'blockcountry_backendbanlist','blockcountry_backendblacklist','blockcountry_backendwhitelist', 
             'blockcountry_frontendblacklist','blockcountry_frontendwhitelist','blockcountry_blockmessage','blockcountry_blocklogin','blockcountry_blockfrontend',
             'blockcountry_blockbackend','blockcountry_header','blockcountry_blockpages','blockcountry_pages','blockcountry_blockcategories','blockcountry_categories',
-            'blockcountry_tracking','blockcountry_blockhome');
+            'blockcountry_tracking','blockcountry_blockhome','blockcountry_nrstatistics','blockcountry_apikey','blockcountry_redirect');
         return apply_filters( 'iqblockcountry_options', $optarr );
 }
 
@@ -61,7 +65,7 @@ function iqblockcountry_set_defaults()
 	update_option('blockcountry_backendnrblocks', 0);
 	update_option('blockcountry_frontendnrblocks', 0);
 	update_option('blockcountry_header', 'on');
-
+        update_option('blockcountry_nrstatistics',15);
         $countrylist = iqblockcountry_get_countries();
         $ip_address = iqblockcountry_get_ipaddress();
         $usercountry = iqblockcountry_check_ipaddress($ip_address);
@@ -104,6 +108,10 @@ function iqblockcountry_uninstall() //deletes all the database entries that the 
         delete_option('blockcountry_lasttrack');
         delete_option('blockcountry_tracking');
         delete_option('blockcountry_blockhome');
+        delete_option('blockcountry_backendbanlistip');
+        delete_option('blockcountry_nrstastistics');
+        delete_option('blockcountry_apikey');
+        delete_option('blockcountry_redirect');
 }
 
 
@@ -594,6 +602,22 @@ function iqblockcountry_settings_backend()
                         ?>
                      </select>
                 </td></tr>
+            <tr valign="top">
+                <th width="30%"><?php _e('Backend whitelist IPv4 and/or IPv6 addresses:', 'iqblockcountry'); ?><br /><?php _e('Use a semicolon (;) to separate IP addresses', 'iqblockcountry'); ?></th>
+    	    <td width="70%">
+    	    <?php
+				$backendwhitelist = get_option ( 'blockcountry_backendwhitelist' );
+    	    ?>
+                <textarea cols="70" rows="5" name="blockcountry_backendwhitelist"><?php echo $backendwhitelist; ?></textarea>
+    	    </td></tr>
+            <tr valign="top">
+                <th width="30%"><?php _e('Backend blacklist IPv4 and/or IPv6 addresses:', 'iqblockcountry'); ?><br /><?php _e('Use a semicolon (;) to separate IP addresses', 'iqblockcountry'); ?></th>
+    	    <td width="70%">
+    	    <?php
+				$backendblacklist = get_option ( 'blockcountry_backendblacklist' );
+    	    ?>
+                <textarea cols="70" rows="5" name="blockcountry_backendblacklist"><?php echo $backendblacklist; ?></textarea>
+    	    </td></tr>
 		<tr><td></td><td>
 						<p class="submit"><input type="submit" class="button-primary"
 				value="<?php _e ( 'Save Changes' )?>" /></p>
@@ -670,20 +694,64 @@ function iqblockcountry_settings_home()
                 <textarea cols="100" rows="3" name="blockcountry_blockmessage"><?php echo $blockmessage; ?></textarea>
     	    </td></tr>
 
-    	    <tr valign="top">
+            <tr valign="top">
+    	    <th width="30%"><?php _e('Page to redirect to:', 'iqblockcountry'); ?><br />
+                <em><?php _e('If you select a page here blocked visitors will be redirected to this page instead of displaying above block message.', 'iqblockcountry'); ?></em></th>
+</th>
+    	    <td width="70%">
+                    <select class="chosen" name="blockcountry_redirect" style="width:400px;">
+                    <?php
+			$haystack = get_option ( 'blockcountry_redirect' );
+                        echo "<option value=\"0\">". __("Choose a page...", 'iqblockcountry') . "</option>";
+                        $pages = get_pages(); 
+                        foreach ( $pages as $page ) {
+			print "<option value=\"$page->ID\"";
+                        if ($page->ID == $haystack) { 
+
+				print " selected=\"selected\" ";
+			}
+                            print ">$page->post_title</option>\n";
+                        }   
+                        ?>
+                     </select>
+            </td></tr>
+
+            <tr valign="top">
     	    <th width="30%"><?php _e('Send headers when user is blocked:', 'iqblockcountry'); ?><br />
                 <em><?php _e('Under normal circumstances you should keep this selected! Only if you have "Cannot modify header information - headers already sent" errors or if you know what you are doing uncheck this.', 'iqblockcountry'); ?></em></th>
     	    <td width="70%">
     	    	<input type="checkbox" name="blockcountry_header" <?php checked('on', get_option('blockcountry_header'), true); ?> />
     	    </td></tr>
                         
+            <tr valign="top">
+    	    <th width="30%"><?php _e('Number of rows on statistics page:', 'iqblockcountry'); ?><br />
+                <em><?php _e('How many rows do you want to display on each tab the statistics page.', 'iqblockcountry'); ?></em></th>
+    	    <td width="70%">
+                <?php
+                $nrrows = get_option('blockcountry_nrstatistics'); ?>
+                <select name="blockcountry_nrstatistics">
+                    <option <?php selected( $nrrows, 10 ); ?> value="10">10</option>
+                    <option <?php selected( $nrrows, 15 ); ?> value="15">15</option>
+                    <option <?php selected( $nrrows, 20 ); ?> value="20">20</option>
+                    <option <?php selected( $nrrows, 25 ); ?> value="25">25</option>
+                    <option <?php selected( $nrrows, 30 ); ?> value="30">30</option>
+                    <option <?php selected( $nrrows, 45 ); ?> value="45">45</option>
+                </select>
+    	    </td></tr>
+
     	    <tr valign="top">
     	    <th width="30%"><?php _e('Allow tracking:', 'iqblockcountry'); ?><br />
                 <em><?php _e('This sends only the IP address and the number of attempts this ip address tried to login to your backend and was blocked doing so to a central server. No other data is being send. This helps us to get a better picture of rogue countries.', 'iqblockcountry'); ?></em></th>
     	    <td width="70%">
     	    	<input type="checkbox" name="blockcountry_tracking" <?php checked('on', get_option('blockcountry_tracking'), true); ?> />
     	    </td></tr>
-
+  <!--          
+            <tr valign="top">
+    	    <th width="30%"><?php _e('API Key:', 'iqblockcountry'); ?></th>
+    	    <td width="70%">
+                <input type="text" size="25" name="blockcountry_apikey" value="<?php echo get_option ( 'blockcountry_apikey' );?>">
+    	    </td></tr>
+-->            
             <tr><td></td><td>
 						<p class="submit"><input type="submit" class="button-primary"
 				value="<?php _e ( 'Save Changes' )?>" /></p>
@@ -704,17 +772,19 @@ function iqblockcountry_settings_home()
 function iqblockcountry_settings_logging()
 {    
     ?>
-   <h3><?php _e('Last 15 blocked visits', 'iqblockcountry'); ?></h3>
+   <h3><?php _e('Last blocked visits', 'iqblockcountry'); ?></h3>
    <?php
    global $wpdb;
 
    $table_name = $wpdb->prefix . "iqblock_logging";
    $format = get_option('date_format') . ' ' . get_option('time_format');
+   $nrrows = get_option('blockcountry_nrstatistics');
+   if ($nrrows == "") { $nrrows = 15;};
    $countrylist = iqblockcountry_get_countries();
    echo '<table class="widefat">';
    echo '<thead><tr><th>' . __('Date / Time', 'iqblockcountry') . '</th><th>' . __('IP Address', 'iqblockcountry') . '</th><th>' . __('Hostname', 'iqblockcountry') . '</th><th>' . __('URL', 'iqblockcountry') . '</th><th>' . __('Country', 'iqblockcountry') . '</th><th>' . __('Frontend/Backend', 'iqblockcountry') . '</th></tr></thead>';
    
-   foreach ($wpdb->get_results( "SELECT * FROM $table_name ORDER BY datetime DESC LIMIT 15" ) as $row)
+   foreach ($wpdb->get_results( "SELECT * FROM $table_name ORDER BY datetime DESC LIMIT $nrrows" ) as $row)
    {
        $countryimage = "icons/" . strtolower($row->country) . ".png";
        $countryurl = '<img src="' . plugins_url( $countryimage , dirname(__FILE__) ) . '" > ';
@@ -722,7 +792,7 @@ function iqblockcountry_settings_logging()
        $datetime = strtotime($row->datetime);
        $mysqldate = date($format, $datetime);
        echo $mysqldate . '</td><td>' . $row->ipaddress . '</td><td>' . gethostbyaddr( $row->ipaddress ) . '</td><td>' . $row->url . '</td><td>' . $countryurl . $countrylist[$row->country] . '<td>';
-       if ($row->banned == "F") _e('Frontend', 'iqblockcountry'); else { _e('Backend', 'iqblockcountry'); }
+       if ($row->banned == "F") _e('Frontend', 'iqblockcountry'); elseif ($row->banned == "A") { _e('Backend banlist','iqblockcountry'); } else { _e('Backend', 'iqblockcountry'); }
        echo "</td></tr></tbody>";
    }
    echo '</table>';
@@ -733,7 +803,7 @@ function iqblockcountry_settings_logging()
    echo '<table class="widefat">';
    echo '<thead><tr><th>' . __('Country', 'iqblockcountry') . '</th><th>' . __('# of blocked attempts', 'iqblockcountry') . '</th></tr></thead>';
 
-   foreach ($wpdb->get_results( "SELECT count(country) AS count,country FROM $table_name GROUP BY country ORDER BY count(country) DESC LIMIT 15" ) as $row)
+   foreach ($wpdb->get_results( "SELECT count(country) AS count,country FROM $table_name GROUP BY country ORDER BY count(country) DESC LIMIT $nrrows" ) as $row)
    {
        $countryimage = "icons/" . strtolower($row->country) . ".png";
        $countryurl = '<img src="' . plugins_url( $countryimage , dirname(__FILE__) ) . '" > ';
@@ -746,7 +816,7 @@ function iqblockcountry_settings_logging()
    echo '<table class="widefat">';
    echo '<thead><tr><th>' . __('IP Address', 'iqblockcountry') . '</th><th>' . __('Hostname', 'iqblockcountry') . '</th><th>' . __('# of blocked attempts', 'iqblockcountry') . '</th></tr></thead>';
 
-   foreach ($wpdb->get_results( "SELECT count(ipaddress) AS count,ipaddress FROM $table_name GROUP BY ipaddress ORDER BY count(ipaddress) DESC LIMIT 15" ) as $row)
+   foreach ($wpdb->get_results( "SELECT count(ipaddress) AS count,ipaddress FROM $table_name GROUP BY ipaddress ORDER BY count(ipaddress) DESC LIMIT $nrrows" ) as $row)
    {
        echo "<tbody><tr><td>" . $row->ipaddress . "</td><td>" . gethostbyaddr($row->ipaddress) . "</td><td>" . $row->count . "</td></tr></tbody>";
    }
@@ -757,7 +827,7 @@ function iqblockcountry_settings_logging()
    echo '<table class="widefat">';
    echo '<thead><tr><th>' . __('URL', 'iqblockcountry') . '</th><th>' .  __('# of blocked attempts', 'iqblockcountry') .  '</th></tr></thead>';
 
-   foreach ($wpdb->get_results( "SELECT count(url) AS count,url FROM $table_name GROUP BY url ORDER BY count(url) DESC LIMIT 15" ) as $row)
+   foreach ($wpdb->get_results( "SELECT count(url) AS count,url FROM $table_name GROUP BY url ORDER BY count(url) DESC LIMIT $nrrows" ) as $row)
    {
        echo "<tbody><tr><td>" . $row->url . "</td><td>" . $row->count . "</td></tr></tbody>";
    }

@@ -48,17 +48,32 @@ function iqblockcountry_check($country,$badcountries,$ip_address)
     $blocked = FALSE; 
     $blockedpage = get_option('blockcountry_blockpages');
     $blockedcategory = get_option('blockcountry_blockcategories');
-    $frontendblacklistip = array();
-    $frontendblacklist = get_option ( 'blockcountry_frontendblacklist' );
-    $frontendwhitelistip = array();
-    $frontendwhitelist = get_option ( 'blockcountry_frontendwhitelist' );
+
+    $frontendblacklistip = array();   $frontendblacklist = get_option ( 'blockcountry_frontendblacklist' );
+    $frontendwhitelistip = array();   $frontendwhitelist = get_option ( 'blockcountry_frontendwhitelist' );
+    $backendblacklistip = array();    $backendblacklist = get_option ( 'blockcountry_backendblacklist' );
+    $backendwhitelistip = array();    $backendwhitelist = get_option ( 'blockcountry_backendwhitelist' );
+    
+    $backendbanlistip = unserialize(get_option('blockcountry_backendbanlistip'));
+    $blockredirect = get_option ( 'blockcountry_redirect');
+    
+   
     if (preg_match('/;/',$frontendblacklist))
     {
         $frontendblacklistip = explode(";", $frontendblacklist);
+        $apiblacklist = TRUE;
     }
     if (preg_match('/;/',$frontendwhitelist))
     {
             $frontendwhitelistip = explode(";", $frontendwhitelist);
+    }
+    if (preg_match('/;/',$backendblacklist))
+    {
+        $backendblacklistip = explode(";", $backendblacklist);
+    }
+    if (preg_match('/;/',$backendwhitelist))
+    {
+            $backendwhitelistip = explode(";", $backendwhitelist);
     }
     
     /* Block if user is in a bad country from frontend or backend. Unblock may happen later */
@@ -69,13 +84,31 @@ function iqblockcountry_check($country,$badcountries,$ip_address)
     /* Check if requested url is not login page. Else check against frontend whitelist/blacklist. */
     if (!iqblockcountry_is_login_page() )
     {    
-        if (is_array ( $frontendwhitelistip ) && in_array ( $ip_address, $frontendwhitelistip)) {
-                $blocked = FALSE;
-            }
         if (is_array ( $frontendblacklistip ) && in_array ( $ip_address, $frontendblacklistip)) {
              $blocked = TRUE;
             }
+        if (is_array ( $frontendwhitelistip ) && in_array ( $ip_address, $frontendwhitelistip)) {
+                $blocked = FALSE;
+            }
     }
+    
+    
+    if (iqblockcountry_is_login_page() )
+    {    
+        if (is_array($backendbanlistip) &&  in_array($ip_address,$backendbanlistip))
+        {
+            $blocked = TRUE;
+            global $apiblacklist;
+            $apiblacklist = TRUE;
+        }
+        if (is_array ( $backendblacklistip ) && in_array ( $ip_address, $backendblacklistip)) {
+             $blocked = TRUE;
+            }
+        if (is_array ( $backendwhitelistip ) && in_array ( $ip_address, $backendwhitelistip)) {
+                $blocked = FALSE;
+            }
+    }
+    
     if (is_page() && $blockedpage == "on")
     {
         $blockedpages = get_option('blockcountry_pages');
@@ -118,6 +151,10 @@ function iqblockcountry_check($country,$badcountries,$ip_address)
     {
         $blocked = FALSE;
     }
+    if (is_page($blockredirect) && ($blockredirect != 0) && !(empty($blockredirect)))
+    {
+        $blocked = FALSE;
+    }
     return $blocked;
 }
 
@@ -156,6 +193,7 @@ function iqblockcountry_CheckCountry() {
         if (iqblockcountry_check($country,$badcountries,$ip_address))
         {        
         	$blockmessage = get_option ( 'blockcountry_blockmessage' );
+                $blockredirect = get_option ( 'blockcountry_redirect');
                 $header = get_option('blockcountry_header');
                 if (!empty($header) && ($header))
                 {
@@ -167,16 +205,29 @@ function iqblockcountry_CheckCountry() {
                                 
                     header ( 'HTTP/1.1 403 Forbidden' );
                 }
+                if (!empty($blockredirect) && $blockredirect != 0)
+                {
+                    $redirecturl = get_permalink($blockredirect);
+                    header("Location: $redirecturl");
+                }
                 // Display block message
-		print "$blockmessage";
-                
+                print "$blockmessage";
+
                 if ((iqblockcountry_is_login_page() || is_admin()) && get_option('blockcountry_blockbackend'))
                 {
                     $blocked = get_option('blockcountry_backendnrblocks');
                     if (empty($blocked)) { $blocked = 0; }
                     $blocked++;
                     update_option('blockcountry_backendnrblocks', $blocked);
-                    iqblockcountry_logging($ip_address, $country, "B");
+                    global $apiblacklist;
+                    if (!$apiblacklist)
+                    {    
+                        iqblockcountry_logging($ip_address, $country, "B");
+                    }
+                    else
+                    {
+                        iqblockcountry_logging($ip_address, $country, "A");
+                    }
                 }
                 else
                 {
@@ -199,8 +250,7 @@ function iqblockcountry_CheckCountry() {
  * Check if page is the login page
  */
 function iqblockcountry_is_login_page() {
-    if ( in_array( $GLOBALS['pagenow'], array( 'wp-login.php', 'wp-register.php' ) ) )
-    { return TRUE; } else { return FALSE; }
+    return !strncmp($_SERVER['REQUEST_URI'], '/wp-login.php', strlen('/wp-login.php'));
 }
 
 /*

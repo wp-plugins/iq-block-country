@@ -11,7 +11,7 @@ function iqblockcountry_install_db() {
   ipaddress tinytext NOT NULL,
   country tinytext NOT NULL,
   url varchar(250) DEFAULT '/' NOT NULL,
-  banned enum('F','B') NOT NULL,
+  banned enum('F','B','A') NOT NULL,
   UNIQUE KEY id (id)
 );";
 
@@ -36,7 +36,7 @@ function iqblockcountry_clean_db()
    global $wpdb;
 
    $table_name = $wpdb->prefix . "iqblock_logging";
-   $sql = "DELETE FROM " . $table_name . " WHERE DATE_SUB(CURDATE(),INTERVAL 30 DAY) >= datetime;";
+   $sql = "DELETE FROM " . $table_name . " WHERE DATE_SUB(CURDATE(),INTERVAL 31 DAY) >= datetime;";
    $wpdb->query($sql);
    
 }
