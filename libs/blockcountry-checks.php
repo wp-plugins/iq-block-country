@@ -61,7 +61,6 @@ function iqblockcountry_check($country,$badcountries,$ip_address)
     if (preg_match('/;/',$frontendblacklist))
     {
         $frontendblacklistip = explode(";", $frontendblacklist);
-        $apiblacklist = TRUE;
     }
     if (preg_match('/;/',$frontendwhitelist))
     {
@@ -79,6 +78,8 @@ function iqblockcountry_check($country,$badcountries,$ip_address)
     /* Block if user is in a bad country from frontend or backend. Unblock may happen later */
     if (is_array ( $badcountries ) && in_array ( $country, $badcountries )) {
         $blocked = TRUE;
+        global $backendblacklistcheck;
+        $backendblacklistcheck = TRUE;
     }
 
     /* Check if requested url is not login page. Else check against frontend whitelist/blacklist. */
@@ -155,6 +156,13 @@ function iqblockcountry_check($country,$badcountries,$ip_address)
     {
         $blocked = FALSE;
     }
+    
+    $allowse = get_option('blockcountry_allowse');
+    if (!iqblockcountry_is_login_page() && iqblockcountry_check_searchengine($_SERVER['HTTP_USER_AGENT'], $allowse))
+    {
+        $blocked = FALSE;
+    }
+    
     return $blocked;
 }
 
@@ -219,14 +227,18 @@ function iqblockcountry_CheckCountry() {
                     if (empty($blocked)) { $blocked = 0; }
                     $blocked++;
                     update_option('blockcountry_backendnrblocks', $blocked);
-                    global $apiblacklist;
+                    global $apiblacklist,$backendblacklistcheck;
                     if (!$apiblacklist)
                     {    
                         iqblockcountry_logging($ip_address, $country, "B");
                     }
+                    elseif ($backendblacklistcheck && $apiblacklist)
+                    {
+                        iqblockcountry_logging($ip_address, $country, "T");
+                    }
                     else
                     {
-                        iqblockcountry_logging($ip_address, $country, "A");
+                        iqblockcountry_logging($ip_address, $country, "A");                        
                     }
                 }
                 else

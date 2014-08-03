@@ -11,7 +11,7 @@ function iqblockcountry_install_db() {
   ipaddress tinytext NOT NULL,
   country tinytext NOT NULL,
   url varchar(250) DEFAULT '/' NOT NULL,
-  banned enum('F','B','A') NOT NULL,
+  banned enum('F','B','A','T') NOT NULL,
   UNIQUE KEY id (id)
 );";
 

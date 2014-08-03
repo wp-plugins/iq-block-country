@@ -38,6 +38,7 @@ function iqblockcountry_register_mysettings()
         register_setting ( 'iqblockcountry-settings-group-cat', 'blockcountry_blockcategories');
         register_setting ( 'iqblockcountry-settings-group-cat', 'blockcountry_categories');
         register_setting ( 'iqblockcountry-settings-group-cat', 'blockcountry_blockhome');
+        register_setting ( 'iqblockcountry-settings-group-se', 'blockcountry_allowse');
 }
 
 /**
@@ -49,7 +50,7 @@ function iqblockcountry_get_options_arr() {
         $optarr = array( 'blockcountry_banlist', 'blockcountry_backendbanlist','blockcountry_backendblacklist','blockcountry_backendwhitelist', 
             'blockcountry_frontendblacklist','blockcountry_frontendwhitelist','blockcountry_blockmessage','blockcountry_blocklogin','blockcountry_blockfrontend',
             'blockcountry_blockbackend','blockcountry_header','blockcountry_blockpages','blockcountry_pages','blockcountry_blockcategories','blockcountry_categories',
-            'blockcountry_tracking','blockcountry_blockhome','blockcountry_nrstatistics','blockcountry_apikey','blockcountry_redirect');
+            'blockcountry_tracking','blockcountry_blockhome','blockcountry_nrstatistics','blockcountry_apikey','blockcountry_redirect','blockcountry_allowse');
         return apply_filters( 'iqblockcountry_options', $optarr );
 }
 
@@ -60,12 +61,12 @@ function iqblockcountry_get_options_arr() {
 function iqblockcountry_set_defaults() 
 {
         update_option('blockcountry_version',VERSION);
-        update_option('blockcountry_lastupdate' , 0);
-        update_option('blockcountry_blockfrontend' , 'on');
-	update_option('blockcountry_backendnrblocks', 0);
-	update_option('blockcountry_frontendnrblocks', 0);
-	update_option('blockcountry_header', 'on');
-        update_option('blockcountry_nrstatistics',15);
+        if (get_option('blockcountry_lastupdate') === FALSE) { update_option('blockcountry_lastupdate' , 0); }
+        if (get_option('blockcountry_blockfrontend') === FALSE) { update_option('blockcountry_blockfrontend' , 'on'); }
+	if (get_option('blockcountry_backendnrblocks') === FALSE) { update_option('blockcountry_backendnrblocks', 0); }
+	if (get_option('blockcountry_frontendnrblocks') === FALSE) { update_option('blockcountry_frontendnrblocks', 0); }
+	if (get_option('blockcountry_header') === FALSE) { update_option('blockcountry_header', 'on'); }
+        if (get_option('blockcountry_nrstatistics') === FALSE) { update_option('blockcountry_nrstatistics',15); }
         $countrylist = iqblockcountry_get_countries();
         $ip_address = iqblockcountry_get_ipaddress();
         $usercountry = iqblockcountry_check_ipaddress($ip_address);
@@ -78,7 +79,7 @@ function iqblockcountry_set_defaults()
                 array_push($blacklist,$shortcode);
             }
         }    
-        update_option('blockcountry_backendbanlist',$blacklist);
+        if (get_option('blockcountry_backendbanlist') === FALSE) { update_option('blockcountry_backendbanlist',$blacklist); }
         iqblockcountry_install_db();       
 }
 
@@ -112,6 +113,7 @@ function iqblockcountry_uninstall() //deletes all the database entries that the 
         delete_option('blockcountry_nrstastistics');
         delete_option('blockcountry_apikey');
         delete_option('blockcountry_redirect');
+        delete_option('blockcountry_allowse');
 }
 
 
@@ -148,6 +150,11 @@ function iqblockcountry_settings_tools() {
 				_e('This country is not permitted to visit the backend of this website.', 'iqblockcountry');
                                 echo "<br />";
                             }
+                            $backendbanlistip = unserialize(get_option('blockcountry_backendbanlistip'));
+                            if (is_array($backendbanlistip) &&  in_array($ip_address,$backendbanlistip)) {
+				_e('This ip is present in the blacklist.', 'iqblockcountry');
+                            }
+                            // Add blacklist check
                         }
                     }    
 		}
@@ -428,6 +435,50 @@ function iqblockcountry_settings_categories() {
 
   <?php
 }    
+
+/*
+ * Function: Categories settings
+ */
+function iqblockcountry_settings_searchengines() {
+    ?>
+    <h3><?php _e('Select which search engines are allowed.', 'iqblockcountry'); ?></h3>
+    <form method="post" action="options.php">
+<?php
+    settings_fields ( 'iqblockcountry-settings-group-se' );
+?>
+    <table class="form-table" cellspacing="2" cellpadding="5" width="100%">    	    
+    <tr valign="top">
+        <th width="30%"><?php _e('Select which search engines you want to allow:', 'iqblockcountry'); ?><br />
+        <?php _e('This will allow a search engine to your site despite if you blocked the country.', 'iqblockcountry'); ?></th>
+    <td width="70%">
+     
+ 	<ul>
+    <?php
+        global $searchengines;
+        $selectedse = get_option('blockcountry_allowse'); 
+        $selected = "";
+        foreach ( $searchengines AS $se => $seua ) {
+        if (is_array($selectedse)) {
+                                if ( in_array( $se,$selectedse) ) {
+                                        $selected = " checked=\"checked\"";
+                                } else {
+                                        $selected = "";
+                                }
+                            } 
+	echo "<li><input type=\"checkbox\" " . $selected . " name=\"blockcountry_allowse[]\" value=\"" . $se . "\" id=\"" . $se . "\" /> <label for=\"" . $se . "\">" . $se . "</label></li>"; 	
+  }
+        ?>
+    </td></tr>
+    <tr><td></td><td>
+	<p class="submit"><input type="submit" class="button-primary"
+	value="<?php _e ( 'Save Changes' )?>" /></p>
+    </td></tr>	
+    </table>	
+    </form>
+
+  <?php
+}    
+
 
 /*
  * Settings frontend
@@ -745,13 +796,13 @@ function iqblockcountry_settings_home()
     	    <td width="70%">
     	    	<input type="checkbox" name="blockcountry_tracking" <?php checked('on', get_option('blockcountry_tracking'), true); ?> />
     	    </td></tr>
-  <!--          
+
             <tr valign="top">
     	    <th width="30%"><?php _e('API Key:', 'iqblockcountry'); ?></th>
     	    <td width="70%">
                 <input type="text" size="25" name="blockcountry_apikey" value="<?php echo get_option ( 'blockcountry_apikey' );?>">
     	    </td></tr>
--->            
+
             <tr><td></td><td>
 						<p class="submit"><input type="submit" class="button-primary"
 				value="<?php _e ( 'Save Changes' )?>" /></p>
@@ -792,7 +843,7 @@ function iqblockcountry_settings_logging()
        $datetime = strtotime($row->datetime);
        $mysqldate = date($format, $datetime);
        echo $mysqldate . '</td><td>' . $row->ipaddress . '</td><td>' . gethostbyaddr( $row->ipaddress ) . '</td><td>' . $row->url . '</td><td>' . $countryurl . $countrylist[$row->country] . '<td>';
-       if ($row->banned == "F") _e('Frontend', 'iqblockcountry'); elseif ($row->banned == "A") { _e('Backend banlist','iqblockcountry'); } else { _e('Backend', 'iqblockcountry'); }
+       if ($row->banned == "F") _e('Frontend', 'iqblockcountry'); elseif ($row->banned == "A") { _e('Backend banlist','iqblockcountry'); } elseif ($row->banned == "T") { _e('Backend & Backend banlist','iqblockcountry'); } else { _e('Backend', 'iqblockcountry'); }
        echo "</td></tr></tbody>";
    }
    echo '</table>';
@@ -857,6 +908,7 @@ function iqblockcountry_settings_page() {
             <a href="?page=iq-block-country/libs/blockcountry-settings.php&tab=backend" class="nav-tab <?php echo $active_tab == 'backend' ? 'nav-tab-active' : ''; ?>"><?php _e('Backend', 'iqblockcountry'); ?></a>  
             <a href="?page=iq-block-country/libs/blockcountry-settings.php&tab=pages" class="nav-tab <?php echo $active_tab == 'pages' ? 'nav-tab-active' : ''; ?>"><?php _e('Pages', 'iqblockcountry'); ?></a>  
             <a href="?page=iq-block-country/libs/blockcountry-settings.php&tab=categories" class="nav-tab <?php echo $active_tab == 'categories' ? 'nav-tab-active' : ''; ?>"><?php _e('Categories', 'iqblockcountry'); ?></a>  
+            <a href="?page=iq-block-country/libs/blockcountry-settings.php&tab=searchengines" class="nav-tab <?php echo $active_tab == 'searchengines' ? 'nav-tab-active' : ''; ?>"><?php _e('Search Engines', 'iqblockcountry'); ?></a>  
             <a href="?page=iq-block-country/libs/blockcountry-settings.php&tab=tools" class="nav-tab <?php echo $active_tab == 'tools' ? 'nav-tab-active' : ''; ?>"><?php _e('Tools', 'iqblockcountry'); ?></a>  
             <a href="?page=iq-block-country/libs/blockcountry-settings.php&tab=logging" class="nav-tab <?php echo $active_tab == 'logging' ? 'nav-tab-active' : ''; ?>"><?php _e('Logging', 'iqblockcountry'); ?></a>  
             <a href="?page=iq-block-country/libs/blockcountry-settings.php&tab=export" class="nav-tab <?php echo $active_tab == 'export' ? 'nav-tab-active' : ''; ?>"><?php _e('Import/Export', 'iqblockcountry'); ?></a>  
@@ -891,6 +943,10 @@ function iqblockcountry_settings_page() {
         elseif ($active_tab == "categories")
         {    
             iqblockcountry_settings_categories();
+        }
+        elseif ($active_tab == "searchengines")
+        {    
+            iqblockcountry_settings_searchengines();
         }
         elseif ($active_tab == "export")
         {    
