@@ -177,6 +177,11 @@ If storing or sharing an IP address is illegal in your country do not select thi
 
 == Changelog ==
 
+= 1.1.13 =
+
+* Bugfix on setting defaults when they values already existed.
+* You can now allow search engines access to your country even if they come from countries that you want to block.
+
 = 1.1.12 = 
 
 * Bugfix on the backend blacklist / whitelist
