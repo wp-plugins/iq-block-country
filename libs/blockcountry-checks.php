@@ -39,6 +39,48 @@ function iqblockcountry_check_ipaddress($ip_address)
     return $country;
 }
 
+
+function iqblockcountry_check_city_ipaddress($ip_address)
+{
+    if (!class_exists('GeoIP'))
+    {
+	include_once("geoip.inc");
+    }
+    include_once("geoipcity.inc");
+    include_once("geoipregionvars.php");
+
+    if ((file_exists ( IPV4DBFILE )) && function_exists('geoip_open')) {
+
+	$ipv4 = FALSE;
+	$ipv6 = FALSE;
+	if (iqblockcountry_is_valid_ipv4($ip_address)) { $ipv4 = TRUE; }
+	if (iqblockcountry_is_valid_ipv6($ip_address)) { $ipv6 = TRUE; }
+	
+	if ($ipv4) 
+	{ 	
+		$gi = geoip_open ( CITY4DBFILE, GEOIP_STANDARD );
+		$record = geoip_record_by_addr ( $gi, $ip_address );
+		geoip_close ( $gi );
+	}
+	elseif ($ipv6)
+	{
+		if (file_exists ( CITY6DBFILE )) {				
+			$gi = geoip_open(CITY6DBFILE,GEOIP_STANDARD);
+                        $record = GeoIP_record_by_addr_v6 ( $gi, $ip_address );
+			geoip_close($gi);
+		}
+                else 
+                { $record = "Unknown";
+                }
+	}
+        else { $record = "Unknown"; }
+        }
+        else { $record = "Unknown"; }
+        
+    return $record;
+}
+
+
 /*
  *  Check country against bad countries, whitelist and blacklist
  */
@@ -185,7 +227,9 @@ function iqblockcountry_CheckCountry() {
         
     $ip_address = iqblockcountry_get_ipaddress();
     $country = iqblockcountry_check_ipaddress($ip_address);
-    
+//    $city = iqblockcountry_check_city_ipaddress($ip_address);
+//    print_r($city);
+
     if ((iqblockcountry_is_login_page() || is_admin()) && get_option('blockcountry_blockbackend'))
     { 
         $badcountries = get_option( 'blockcountry_backendbanlist' );
@@ -251,10 +295,8 @@ function iqblockcountry_CheckCountry() {
                 }
 
 		exit ();
-	}
-		
+	}		
     }
-	
 }
 
 
@@ -262,7 +304,12 @@ function iqblockcountry_CheckCountry() {
  * Check if page is the login page
  */
 function iqblockcountry_is_login_page() {
-    return !strncmp($_SERVER['REQUEST_URI'], '/wp-login.php', strlen('/wp-login.php'));
+//    return !strncmp($_SERVER['REQUEST_URI'], '/wp-login.php', strlen('/wp-login.php'));
+    $found = FALSE;
+    $pos = strpos( $_SERVER['REQUEST_URI'], 'wp-login' );
+    if ($pos !== false)
+    { return TRUE; }
+    else { return FALSE; }
 }
 
 /*
@@ -270,15 +317,21 @@ function iqblockcountry_is_login_page() {
  */
 function iqblockcountry_checkupdatedb()
 {
-    $lastupdate = get_option('blockcountry_lastupdate');
-    if (empty($lastupdate)) { $lastupdate = 0; }
-    $time = $lastupdate + 86400 * 31;
-  
-    if(time() > $time)
+    if (get_option('blockcountry_automaticupdate') == 'on')
     {
-        iqblockcountry_downloadgeodatabase("4", false);
-        iqblockcountry_downloadgeodatabase("6", false);
-        update_option('blockcountry_lastupdate' , time());
-
+        $lastupdate = get_option('blockcountry_lastupdate');
+        if (empty($lastupdate)) { $lastupdate = 0; }
+        $time = $lastupdate + 86400 * 31;
+  
+        if(time() > $time)
+        {
+            iqblockcountry_downloadgeodatabase("4", false);
+            iqblockcountry_downloadgeodatabase("6", false);
+            update_option('blockcountry_lastupdate' , time());
+        }
+    
+        if (! (file_exists ( IPV4DBFILE )))     {   iqblockcountry_downloadgeodatabase("4", false);   }
+        if (! (file_exists ( IPV6DBFILE )))     {   iqblockcountry_downloadgeodatabase("6", false);   }
+    
     }
 }

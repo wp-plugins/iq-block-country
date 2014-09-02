@@ -3,8 +3,8 @@ Contributors: iqpascal
 Donate link: http://www.redeo.nl/plugins/donate
 Tags: spam, block, countries, country, comments, ban, geo, geo blocking, geo ip, block country, block countries, ban countries, ban country, blacklist, whitelist
 Requires at least: 3.5.2
-Tested up to: 3.9.1
-Stable tag: 1.1.13
+Tested up to: 4.0
+Stable tag: 1.1.14
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -176,6 +176,13 @@ If storing or sharing an IP address is illegal in your country do not select thi
 
 
 == Changelog ==
+
+= 1.1.14 =
+
+* Bugfix: The plugin did not recognise the login page when installed to a subdirectory.
+* New: You can configure if it auto updates the GeoIP Database. Upon request of those people who have the paid database of MaxMind.
+* Added Facebook and MSN to list of search engines.
+* Changed the version of the geoip.inc file to the version of https://github.com/daigo75/geoip-api-php
 
 = 1.1.13 =
 

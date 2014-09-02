@@ -24,6 +24,8 @@ function iqblockcountry_register_mysettings()
         register_setting ( 'iqblockcountry-settings-group', 'blockcountry_nrstatistics');
         register_setting ( 'iqblockcountry-settings-group', 'blockcountry_nrstatistics');
         register_setting ( 'iqblockcountry-settings-group', 'blockcountry_apikey');
+        register_setting ( 'iqblockcountry-settings-group', 'blockcountry_backendlogging');
+        register_setting ( 'iqblockcountry-settings-group', 'blockcountry_automaticupdate');
 	register_setting ( 'iqblockcountry-settings-group-backend', 'blockcountry_blockbackend' );
 	register_setting ( 'iqblockcountry-settings-group-backend', 'blockcountry_backendbanlist' );
 	register_setting ( 'iqblockcountry-settings-group-backend', 'blockcountry_backendblacklist','iqblockcountry_validate_ip');
@@ -50,7 +52,8 @@ function iqblockcountry_get_options_arr() {
         $optarr = array( 'blockcountry_banlist', 'blockcountry_backendbanlist','blockcountry_backendblacklist','blockcountry_backendwhitelist', 
             'blockcountry_frontendblacklist','blockcountry_frontendwhitelist','blockcountry_blockmessage','blockcountry_blocklogin','blockcountry_blockfrontend',
             'blockcountry_blockbackend','blockcountry_header','blockcountry_blockpages','blockcountry_pages','blockcountry_blockcategories','blockcountry_categories',
-            'blockcountry_tracking','blockcountry_blockhome','blockcountry_nrstatistics','blockcountry_apikey','blockcountry_redirect','blockcountry_allowse');
+            'blockcountry_tracking','blockcountry_blockhome','blockcountry_nrstatistics','blockcountry_apikey','blockcountry_redirect','blockcountry_allowse',
+            'blockcountry_backendlogging','blockcountry_automaticupdate');
         return apply_filters( 'iqblockcountry_options', $optarr );
 }
 
@@ -67,6 +70,7 @@ function iqblockcountry_set_defaults()
 	if (get_option('blockcountry_frontendnrblocks') === FALSE) { update_option('blockcountry_frontendnrblocks', 0); }
 	if (get_option('blockcountry_header') === FALSE) { update_option('blockcountry_header', 'on'); }
         if (get_option('blockcountry_nrstatistics') === FALSE) { update_option('blockcountry_nrstatistics',15); }
+        if (get_option('blockcountry_automaticupdate') === FALSE) { update_option('blockcountry_automaticupdate','on'); }
         $countrylist = iqblockcountry_get_countries();
         $ip_address = iqblockcountry_get_ipaddress();
         $usercountry = iqblockcountry_check_ipaddress($ip_address);
@@ -87,6 +91,7 @@ function iqblockcountry_set_defaults()
 function iqblockcountry_uninstall() //deletes all the database entries that the plugin has created
 {
         iqblockcountry_uninstall_db();
+        iqblockcountry_uninstall_loggingdb();
     	delete_option('blockcountry_banlist' );
 	delete_option('blockcountry_backendbanlist' );
 	delete_option('blockcountry_backendblacklist' );
@@ -114,6 +119,8 @@ function iqblockcountry_uninstall() //deletes all the database entries that the 
         delete_option('blockcountry_apikey');
         delete_option('blockcountry_redirect');
         delete_option('blockcountry_allowse');
+        delete_option('blockcountry_backendlogging');
+        delete_option('blockcountry_automaticupdate');
 }
 
 
@@ -170,8 +177,15 @@ function iqblockcountry_settings_tools() {
         $time = get_option('blockcountry_lastupdate');
         
         $lastupdated = date($dateformat,$time);
-        
-	echo "<strong>"; _e('The GeoIP database is updated once a month. Last update: ', 'iqblockcountry'); echo $lastupdated; echo ".</strong>.<br />"; 
+        if (get_option('blockcountry_automaticupdate') == 'on')
+        {    
+            echo "<strong>"; _e('Automatic update is not setup. Last update: ', 'iqblockcountry'); echo $lastupdated; echo ".</strong>.<br />"; 
+
+        }
+        else
+        {    
+            echo "<strong>"; _e('The GeoIP database is updated once a month. Last update: ', 'iqblockcountry'); echo $lastupdated; echo ".</strong>.<br />"; 
+        }
             _e('If you need a manual update please press buttons below to update.', 'iqblockcountry');
         ?>
         
@@ -802,7 +816,24 @@ function iqblockcountry_settings_home()
     	    <td width="70%">
                 <input type="text" size="25" name="blockcountry_apikey" value="<?php echo get_option ( 'blockcountry_apikey' );?>">
     	    </td></tr>
-
+<!--
+    	    <tr valign="top">
+    	    <th width="30%"><?php _e('Log all visits to the backend:', 'iqblockcountry'); ?><br />
+                <em><?php _e('This logs all visits to the backend despite if they are blocked or not. This is mainly for debugging purposes.', 'iqblockcountry'); ?></em></th>
+    	    <td width="70%">
+    	    	<input type="checkbox" name="blockcountry_backendlogging" <?php checked('on', get_option('blockcountry_backendlogging'), true); ?> />
+    	    </td></tr>
+-->        
+   	    <tr valign="top">
+    	    <th width="30%"><?php _e('Auto update GeoIP Database:', 'iqblockcountry'); ?><br />
+                <em><?php _e('Selecting this makes sure that the GeoIP database is downloaded once a month.', 'iqblockcountry'); ?></em></th>
+    	    <td width="70%">
+    	    	<input type="checkbox" name="blockcountry_automaticupdate" <?php checked('on', get_option('blockcountry_automaticupdate'), true); ?> />
+    	    </td></tr>
+            
+            
+            
+            
             <tr><td></td><td>
 						<p class="submit"><input type="submit" class="button-primary"
 				value="<?php _e ( 'Save Changes' )?>" /></p>
