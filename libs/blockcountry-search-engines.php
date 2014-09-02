@@ -5,7 +5,9 @@ $searchengines = array(
     "Ask" => "ask jeeves",
     "Bing" => "bingbot",
     "Duck Duck Go" => "duckduckbot",
-    "Google" => "googlebot",  
+    "Facebook" => "facebookexternalhit",
+    "Google" => "googlebot",
+    "MSN" => "msnbot",
     "Yahoo!" => "yahoo! slurp",
     "Yandex" => "yandexbot"
 );

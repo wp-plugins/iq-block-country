@@ -2,7 +2,7 @@
 /*
 Plugin Name: iQ Block Country
 Plugin URI: http://www.redeo.nl/2013/12/iq-block-country-wordpress-plugin-blocks-countries/
-Version: 1.1.13
+Version: 1.1.14
 Author: Pascal
 Author URI: http://www.redeo.nl/
 Description: Block visitors from visiting your website and backend website based on which country their IP address is from. The Maxmind GeoIP lite database is used for looking up from which country an ip address is from.
@@ -51,25 +51,6 @@ function iqblockcountry_this_plugin_first()
 	}     
 }
 
-/*
- * Schedule tracking if this option was set in the admin panel
- */
-function iqblockcountry_schedule_tracking($old_value, $new_value)
-{
-    $current_schedule = wp_next_scheduled( 'blockcountry_tracking' );
-    if ($old_value !== $new_value)
-    {
-        if ($new_value == '')
-        {
-            wp_clear_scheduled_hook( 'blockcountry_tracking' );
-        }
-        elseif ($new_value == 'on' && $current_schedule == FALSE)
-        {
-            wp_schedule_event( time(), 'hourly', 'blockcountry_tracking' );
-        }
-    }
-}
-
 
 /*
  * Attempt on output buffering to protect against headers already send mistakes 
@@ -85,123 +66,6 @@ function iqblockcountry_buffer_flush() {
 	ob_end_flush();
 } 
 
-
-/*
- * iQ Block Tracking
- */
-function iqblockcountry_tracking()
-{
-    if (get_option("blockcountry_tracking") == "on")
-    {    
-        $lasttracked = get_option("blockcountry_lasttrack");
-        global $wpdb;
-
-        $table_name = $wpdb->prefix . "iqblock_logging";
-    
-        $content = array();
-        if (!empty($lasttracked))
-        {
-            $query = "SELECT id,ipaddress,count(ipaddress) as countip FROM $table_name WHERE banned=\"B\" and id > $lasttracked GROUP BY ipaddress ORDER BY id";
-        }
-        else
-        {
-            $query = "SELECT id,ipaddress,count(ipaddress) as countip FROM $table_name WHERE banned=\"B\" GROUP BY ipaddress ORDER BY id";
-        }
-        foreach ($wpdb->get_results( $query ) as $row)
-        {
-            $newcontent = array('ipaddress' => $row->ipaddress,'count' => $row->countip);
-            array_push($content,$newcontent);
-            $id = $row->id;
-        }
-        
-        if (!empty($content))
-        {
-        	$response = wp_remote_post(TRACKINGURL,
-                array(
-                'body' => $content
-                    )
-                );
-
-        if (isset($id)) { update_option('blockcountry_lasttrack',$id); }
-        }
-    }
-}
-
-/*
- * Download the GeoIP database from MaxMind
- */
-function iqblockcountry_downloadgeodatabase($version, $displayerror) 
-                {
-	
- if( !class_exists( 'WP_Http' ) )
-        include_once( ABSPATH . WPINC. '/class-http.php' );
-
- if ($version == 6)
- {
- 	$url = IPV6DB;
- 	$geofile = IPV6DBFILE;
- }
- else 
- {
- 	$url = IPV4DB;
- 	$geofile = IPV4DBFILE;
- }       
- 
- $request = new WP_Http ();
- $result = $request->request ( $url );
- $content = array ();
-
-    if (is_array($result) && array_key_exists('response',$result) && (in_array ( '403', $result ['response'] )) && (preg_match('/Rate limited exceeded, please try again in 24 hours./', $result['body'] )) )  {
-    if($displayerror){
- ?>
- 	<p><?php _e('Error occured: Could not download the GeoIP database from'); ?> <?php echo " " . $url;?><br />
-	<?php _e('MaxMind has blocked requests from your IP address for 24 hours. Please check again in 24 hours or download this file from your own PC'); ?><br />
-	<?php _e('Unzip this file and upload it (via FTP for instance) to:'); ?>
-	<strong> <?php echo $geofile;?></strong></p>
- <?php
-    }
- }
- elseif ((isset ( $result->errors )) || (! (in_array ( '200', $result ['response'] )))) {
-    if($displayerror){
- ?>
- 	<p><?php _e('Error occured: Could not download the GeoIP database from'); ?> <?php echo " " . $url;?><br />
-	<?php _e('Please download this file from your own PC unzip this file and upload it (via FTP for instance) to:'); ?> 
-	<strong> <?php echo $geofile;?></strong></p>
- <?php
-    }
- } else {
-
-	/* Download file */
-	if (file_exists ( $geofile . ".gz" )) { unlink ( $geofile . ".gz" ); }
-	$content = $result ['body'];
-	$fp = fopen ( $geofile . ".gz", "w" );
-	fwrite ( $fp, "$content" );
-	fclose ( $fp );
-		
-	/* Unzip this file and throw it away afterwards*/
-	$zd = gzopen ( $geofile . ".gz", "r" );
-	$buffer = gzread ( $zd, 2000000 );
-	gzclose ( $zd );
-	if (file_exists ( $geofile . ".gz" )) { unlink ( $geofile . ".gz" ); }
-			
-	/* Write this file to the GeoIP database file */
-	if (file_exists ( $geofile )) { unlink ( $geofile ); } 
-	$fp = fopen ( $geofile, "w" );
-	fwrite ( $fp, "$buffer" );
-	fclose ( $fp );
-        update_option('blockcountry_lastupdate' , time());
-        if($displayerror){
-	   print "<p>" . _e('Finished downloading', 'iqblockcountry') . "</p>";
-        }
- }
- if (! (file_exists ( IPV4DBFILE ))) {
-    if($displayerror){
-	?> 
-	<p><?php echo __('Fatal error: GeoIP') . " " . IPV4DBFILE . " " . __('database does not exists. This plugin will not work until the database file is present.'); ?></p>
-	<?php
-    }
- }
-}
 
 /*
  * Localization
@@ -266,7 +130,11 @@ function iqblockcountry_upgrade()
     $dbversion = get_option( 'blockcountry_version' );
     update_option('blockcountry_version',VERSION);
 
-    if ($dbversion != "" && version_compare($dbversion, "1.1.11", '<') )
+    if ($dbversion != "" && version_compare($dbversion, "1.1.14", '<') )
+    {
+        update_option('blockcountry_automaticupdate', 'on');
+    }
+    elseif ($dbversion != "" && version_compare($dbversion, "1.1.11", '<') )
     {
         update_option('blockcountry_nrstatistics', 15);
     }
@@ -312,6 +180,7 @@ require_once('libs/blockcountry-validation.php');
 require_once('libs/blockcountry-logging.php');
 require_once('libs/blockcountry-tracking.php');
 require_once('libs/blockcountry-search-engines.php');
+require_once('libs/blockcountry-retrieve-geodb.php');
 
 /*
  * Main plugin works.
@@ -324,7 +193,7 @@ define("IPV4DBFILE",WP_PLUGIN_DIR . "/" . dirname ( plugin_basename ( __FILE__ )
 define("IPV6DBFILE",WP_PLUGIN_DIR . "/" . dirname ( plugin_basename ( __FILE__ ) ) . "/GeoIPv6.dat");
 define("TRACKINGURL","http://tracking.webence.nl/iq-block-country-tracking.php");
 define("TRACKINGRETRIEVEURL","http://tracking.webence.nl/iq-block-country-retrieve.php");
-define("VERSION","1.1.13d");
+define("VERSION","1.1.14");
 define("DBVERSION","121");
 define("PLUGINPATH",plugin_dir_path( __FILE__ )); 
 
@@ -364,6 +233,8 @@ add_filter ( 'update_option_blockcountry_tracking', 'iqblockcountry_schedule_tra
 add_filter ( 'add_option_blockcountry_tracking', 'iqblockcountry_schedule_tracking', 10, 2);
 add_filter ( 'update_option_blockcountry_apikey', 'iqblockcountry_schedule_retrieving', 10, 2);
 add_filter ( 'add_option_blockcountry_apikey', 'iqblockcountry_schedule_retrieving', 10, 2);
+//add_filter ( 'update_option_blockcountry_backendlogging', 'iqblockcountry_blockcountry_backendlogging', 10, 2);
+//add_filter ( 'add_option_blockcountry_backendlogging', 'iqblockcountry_blockcountry_backendlogging', 10, 2);
 add_action ( 'blockcountry_tracking', 'iqblockcountry_tracking' );
 add_action ( 'blockcountry_retrievebanlist',  'iqblockcountry_tracking_retrieve_xml');
 add_action ( 'init', 'iqblockcountry_buffer',1);
