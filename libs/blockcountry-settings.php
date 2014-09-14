@@ -161,7 +161,6 @@ function iqblockcountry_settings_tools() {
                             if (is_array($backendbanlistip) &&  in_array($ip_address,$backendbanlistip)) {
 				_e('This ip is present in the blacklist.', 'iqblockcountry');
                             }
-                            // Add blacklist check
                         }
                     }    
 		}

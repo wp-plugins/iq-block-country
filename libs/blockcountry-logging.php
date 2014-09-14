@@ -87,7 +87,6 @@ function iqblockcountry_clean_loggingdb()
    $table_name = $wpdb->prefix . "iqblock_logging_db";
    $sql = "DELETE FROM " . $table_name . " WHERE DATE_SUB(CURDATE(),INTERVAL 14 DAY) >= datetime;";
    $wpdb->query($sql);
-   
 }
 
 /*
@@ -125,6 +124,6 @@ function iqblockcountry_logging_backend($ipaddress,$country,$banend)
 
     $urlRequested = (isset($_SERVER["REQUEST_URI"]) ? $_SERVER["REQUEST_URI"] : '/' );
 
-   $table_name = $wpdb->prefix . "iqblock_logging_backend";
+    $table_name = $wpdb->prefix . "iqblock_logging_backend";
     $wpdb->insert($table_name,array ('datetime' => current_time('mysql'), 'ipaddress' => $ipaddress, 'country' => $country, 'banned' => $banend,'url' => $urlRequested));
 }

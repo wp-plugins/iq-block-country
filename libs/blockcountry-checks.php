@@ -223,12 +223,14 @@ function iqblockcountry_CheckCountry() {
     $ip_address = $_SERVER['HTTP_X_REAL_IP'];
     } elseif ( isset($_SERVER['HTTP_CLIENT_IP']) && !empty($_SERVER['HTTP_CLIENT_IP']) ) {
     $ip_address = $_SERVER['HTTP_CLIENT_IP'];
+    } elseif ( isset($_SERVER['X-TM-REMOTE-ADDR']) && !empty($_SERVER['X-TM-REMOTE-ADDR']) ) {
+    $ip_address = $_SERVER['X-TM-REMOTE-ADDR'];
     }
+    
+    
         
     $ip_address = iqblockcountry_get_ipaddress();
     $country = iqblockcountry_check_ipaddress($ip_address);
-//    $city = iqblockcountry_check_city_ipaddress($ip_address);
-//    print_r($city);
 
     if ((iqblockcountry_is_login_page() || is_admin()) && get_option('blockcountry_blockbackend'))
     { 
@@ -304,7 +306,6 @@ function iqblockcountry_CheckCountry() {
  * Check if page is the login page
  */
 function iqblockcountry_is_login_page() {
-//    return !strncmp($_SERVER['REQUEST_URI'], '/wp-login.php', strlen('/wp-login.php'));
     $found = FALSE;
     $pos = strpos( $_SERVER['REQUEST_URI'], 'wp-login' );
     if ($pos !== false)
