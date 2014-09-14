@@ -4,10 +4,14 @@ global $searchengines;
 $searchengines = array(
     "Ask" => "ask jeeves",
     "Bing" => "bingbot",
+    "Bitly" => "bitlybot",
+    "Cliqz" => "cliqzbot",
     "Duck Duck Go" => "duckduckbot",
     "Facebook" => "facebookexternalhit",
     "Google" => "googlebot",
     "MSN" => "msnbot",
+    "TinEye" =>  "tineye-bot",
+    "Twitter" => "twitterbot",
     "Yahoo!" => "yahoo! slurp",
     "Yandex" => "yandexbot"
 );
