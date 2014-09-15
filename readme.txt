@@ -161,7 +161,7 @@ If your download fails try to download it from home or work and upload it via FT
 
 This is possible if another plugin or your template sends out header information before this plugin does. You can deactivate and reactivate this plugin, it will try to load as the first plugin upon activation.
 
-If this does not help you out deselect "Send headers when user is blocked". This will no longer send headers but only display the block message. This however will mess up your website if you use caching software for your website.
+If this does not help you out deselectt "Send headers when user is blocked". This will no longer send headers but only display the block message. This however will mess up your website if you use caching software for your website.
 
 = What data get sends to you when I select "Allow tracking"? =
 
@@ -176,6 +176,12 @@ If storing or sharing an IP address is illegal in your country do not select thi
 
 
 == Changelog ==
+
+= 1.1.15 =
+
+* Bugfix: iQ Block Country was not compatible with NextGen Gallery.
+* Added check for X-TM-REMOTE-ADDR to get real ip address of T-Mobile users.
+* Added Twitter, Bitly, Cliqz and TinEye to the search engines list.
 
 = 1.1.14 =
 

@@ -20,6 +20,7 @@ function iqblockcountry_register_mysettings()
 	register_setting ( 'iqblockcountry-settings-group', 'blockcountry_blockmessage' );
         register_setting ( 'iqblockcountry-settings-group', 'blockcountry_redirect');
         register_setting ( 'iqblockcountry-settings-group', 'blockcountry_header');
+        register_setting ( 'iqblockcountry-settings-group', 'blockcountry_buffer');
         register_setting ( 'iqblockcountry-settings-group', 'blockcountry_tracking');
         register_setting ( 'iqblockcountry-settings-group', 'blockcountry_nrstatistics');
         register_setting ( 'iqblockcountry-settings-group', 'blockcountry_nrstatistics');
@@ -53,7 +54,7 @@ function iqblockcountry_get_options_arr() {
             'blockcountry_frontendblacklist','blockcountry_frontendwhitelist','blockcountry_blockmessage','blockcountry_blocklogin','blockcountry_blockfrontend',
             'blockcountry_blockbackend','blockcountry_header','blockcountry_blockpages','blockcountry_pages','blockcountry_blockcategories','blockcountry_categories',
             'blockcountry_tracking','blockcountry_blockhome','blockcountry_nrstatistics','blockcountry_apikey','blockcountry_redirect','blockcountry_allowse',
-            'blockcountry_backendlogging','blockcountry_automaticupdate');
+            'blockcountry_backendlogging','blockcountry_automaticupdate','blockcountry_buffer');
         return apply_filters( 'iqblockcountry_options', $optarr );
 }
 
@@ -121,6 +122,7 @@ function iqblockcountry_uninstall() //deletes all the database entries that the 
         delete_option('blockcountry_allowse');
         delete_option('blockcountry_backendlogging');
         delete_option('blockcountry_automaticupdate');
+        delete_option('blockcountry_buffer');
 }
 
 
@@ -786,7 +788,14 @@ function iqblockcountry_settings_home()
     	    <td width="70%">
     	    	<input type="checkbox" name="blockcountry_header" <?php checked('on', get_option('blockcountry_header'), true); ?> />
     	    </td></tr>
-                        
+
+            <tr valign="top">
+    	    <th width="30%"><?php _e('Buffer output?:', 'iqblockcountry'); ?><br />
+                <em><?php _e('You can use this option to buffer all output. This can be helpful in case you have "headers already sent" issues.', 'iqblockcountry'); ?></em></th>
+    	    <td width="70%">
+    	    	<input type="checkbox" name="blockcountry_buffer" <?php checked('on', get_option('blockcountry_buffer'), true); ?> />
+    	    </td></tr>
+            
             <tr valign="top">
     	    <th width="30%"><?php _e('Number of rows on statistics page:', 'iqblockcountry'); ?><br />
                 <em><?php _e('How many rows do you want to display on each tab the statistics page.', 'iqblockcountry'); ?></em></th>
