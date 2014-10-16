@@ -178,7 +178,7 @@ function iqblockcountry_settings_tools() {
         $time = get_option('blockcountry_lastupdate');
         
         $lastupdated = date($dateformat,$time);
-        if (get_option('blockcountry_automaticupdate') == 'on')
+        if (get_option('blockcountry_automaticupdate') !== 'on')
         {    
             echo "<strong>"; _e('Automatic update is not setup. Last update: ', 'iqblockcountry'); echo $lastupdated; echo ".</strong>.<br />"; 
 

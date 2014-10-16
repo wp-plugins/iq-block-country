@@ -71,7 +71,7 @@ function iqblockcountry_download_geodb($url,$geofile,$displayerror)
 	$fp = fopen ( $geofile, "w" );
 	fwrite ( $fp, "$buffer" );
 	fclose ( $fp );
-//        update_option('blockcountry_lastupdate' , time());
+        update_option('blockcountry_lastupdate' , time());
         if($displayerror)
         {
 	   print "<p>" . _e('Finished downloading', 'iqblockcountry') . "</p>";
