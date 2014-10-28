@@ -179,9 +179,12 @@ If storing or sharing an IP address is illegal in your country do not select thi
 
 = 1.1.15 =
 
-* Bugfix: iQ Block Country was not compatible with NextGen Gallery.
+* Bugfix: You can now set an option to buffer the output of the iQ Block Country plugin. If you use for instance NextGen Gallery you should not set this option as it will break uploading pictures to your gallery.
+* Bugfix: Last time GeoIP databases were downloaded was wrong.
+* Bugfix: If you configured auto-update of the GeoIP databases the tools tab showed that you did not configure auto update.
 * Added check for X-TM-REMOTE-ADDR to get real ip address of T-Mobile users.
 * Added Twitter, Bitly, Cliqz and TinEye to the search engines list.
+* New: No longer blocks category pages of categories you have not blocked.
 
 = 1.1.14 =
 

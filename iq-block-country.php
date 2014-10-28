@@ -2,7 +2,7 @@
 /*
 Plugin Name: iQ Block Country
 Plugin URI: http://www.redeo.nl/2013/12/iq-block-country-wordpress-plugin-blocks-countries/
-Version: 1.1.15d
+Version: 1.1.15e
 Author: Pascal
 Author URI: http://www.redeo.nl/
 Description: Block visitors from visiting your website and backend website based on which country their IP address is from. The Maxmind GeoIP lite database is used for looking up from which country an ip address is from.
@@ -192,7 +192,7 @@ define("IPV4DBFILE",WP_PLUGIN_DIR . "/" . dirname ( plugin_basename ( __FILE__ )
 define("IPV6DBFILE",WP_PLUGIN_DIR . "/" . dirname ( plugin_basename ( __FILE__ ) ) . "/GeoIPv6.dat");
 define("TRACKINGURL","http://tracking.webence.nl/iq-block-country-tracking.php");
 define("TRACKINGRETRIEVEURL","http://tracking.webence.nl/iq-block-country-retrieve.php");
-define("VERSION","1.1.15d");
+define("VERSION","1.1.15e");
 define("DBVERSION","121");
 define("PLUGINPATH",plugin_dir_path( __FILE__ )); 
 

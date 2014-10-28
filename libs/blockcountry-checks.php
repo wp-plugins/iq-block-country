@@ -190,6 +190,21 @@ function iqblockcountry_check($country,$badcountries,$ip_address)
         }
         if ($flagged) { $blocked = TRUE; } else { $blocked = FALSE; }
     }
+    if (is_category() && $blockedcategory == "on")
+    {
+        $blockedcategories = get_option('blockcountry_categories');
+        if (!is_array($blockedcategories)) { $blockedcategories = array(); }
+        if (is_category($blockedcategories))
+        {
+            $blocked = TRUE;
+        }
+        else
+        {
+            $blocked = FALSE;
+        }
+    }
+    
+    
     if (is_home() && (get_option('blockcountry_blockhome')) == FALSE && $blockedcategory == "on")
     {
         $blocked = FALSE;
