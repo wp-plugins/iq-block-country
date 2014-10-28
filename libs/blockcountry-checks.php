@@ -238,7 +238,7 @@ function iqblockcountry_CheckCountry() {
     $ip_address = $_SERVER['HTTP_X_REAL_IP'];
     } elseif ( isset($_SERVER['HTTP_CLIENT_IP']) && !empty($_SERVER['HTTP_CLIENT_IP']) ) {
     $ip_address = $_SERVER['HTTP_CLIENT_IP'];
-    } elseif ( isset($_SERVER['X-TM-REMOTE-ADDR']) && !empty($_SERVER['X-TM-REMOTE-ADDR']) ) {
+    } elseif ( isset($_SERVER['HTTP_X_TM_REMOTE_ADDR']) && !empty($_SERVER['HTTP_X_TM_REMOTE_ADDR']) ) {
     $ip_address = $_SERVER['HTTP_X_TM_REMOTE_ADDR'];
     }
     

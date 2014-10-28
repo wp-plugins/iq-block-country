@@ -4,7 +4,7 @@ Donate link: http://www.redeo.nl/plugins/donate
 Tags: spam, block, countries, country, comments, ban, geo, geo blocking, geo ip, block country, block countries, ban countries, ban country, blacklist, whitelist
 Requires at least: 3.5.2
 Tested up to: 4.0
-Stable tag: 1.1.14
+Stable tag: 1.1.15
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -182,9 +182,10 @@ If storing or sharing an IP address is illegal in your country do not select thi
 * Bugfix: You can now set an option to buffer the output of the iQ Block Country plugin. If you use for instance NextGen Gallery you should not set this option as it will break uploading pictures to your gallery.
 * Bugfix: Last time GeoIP databases were downloaded was wrong.
 * Bugfix: If you configured auto-update of the GeoIP databases the tools tab showed that you did not configure auto update.
-* Added check for X-TM-REMOTE-ADDR to get real ip address of T-Mobile users.
+* Added check for HTTP_X_TM_REMOTE_ADDR to get real ip address of T-Mobile users.
 * Added Twitter, Bitly, Cliqz and TinEye to the search engines list.
 * New: No longer blocks category pages of categories you have not blocked.
+* Bugfix: Added check if HTTP_USER_AGENT is set.
 
 = 1.1.14 =
 
