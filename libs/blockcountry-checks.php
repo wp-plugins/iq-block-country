@@ -190,6 +190,21 @@ function iqblockcountry_check($country,$badcountries,$ip_address)
         }
         if ($flagged) { $blocked = TRUE; } else { $blocked = FALSE; }
     }
+    if (is_category() && $blockedcategory == "on")
+    {
+        $blockedcategories = get_option('blockcountry_categories');
+        if (!is_array($blockedcategories)) { $blockedcategories = array(); }
+        if (is_category($blockedcategories))
+        {
+            $blocked = TRUE;
+        }
+        else
+        {
+            $blocked = FALSE;
+        }
+    }
+    
+    
     if (is_home() && (get_option('blockcountry_blockhome')) == FALSE && $blockedcategory == "on")
     {
         $blocked = FALSE;
@@ -200,7 +215,7 @@ function iqblockcountry_check($country,$badcountries,$ip_address)
     }
     
     $allowse = get_option('blockcountry_allowse');
-    if (!iqblockcountry_is_login_page() && iqblockcountry_check_searchengine($_SERVER['HTTP_USER_AGENT'], $allowse))
+    if (!iqblockcountry_is_login_page() && isset ($_SERVER['HTTP_USER_AGENT']) && iqblockcountry_check_searchengine($_SERVER['HTTP_USER_AGENT'], $allowse))
     {
         $blocked = FALSE;
     }
@@ -223,7 +238,7 @@ function iqblockcountry_CheckCountry() {
     $ip_address = $_SERVER['HTTP_X_REAL_IP'];
     } elseif ( isset($_SERVER['HTTP_CLIENT_IP']) && !empty($_SERVER['HTTP_CLIENT_IP']) ) {
     $ip_address = $_SERVER['HTTP_CLIENT_IP'];
-    } elseif ( isset($_SERVER['X-TM-REMOTE-ADDR']) && !empty($_SERVER['X-TM-REMOTE-ADDR']) ) {
+    } elseif ( isset($_SERVER['HTTP_X_TM_REMOTE_ADDR']) && !empty($_SERVER['HTTP_X_TM_REMOTE_ADDR']) ) {
     $ip_address = $_SERVER['HTTP_X_TM_REMOTE_ADDR'];
     }
     
