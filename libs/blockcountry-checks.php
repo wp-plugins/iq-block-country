@@ -215,7 +215,7 @@ function iqblockcountry_check($country,$badcountries,$ip_address)
     }
     
     $allowse = get_option('blockcountry_allowse');
-    if (!iqblockcountry_is_login_page() && iqblockcountry_check_searchengine($_SERVER['HTTP_USER_AGENT'], $allowse))
+    if (!iqblockcountry_is_login_page() && isset ($_SERVER['HTTP_USER_AGENT']) && iqblockcountry_check_searchengine($_SERVER['HTTP_USER_AGENT'], $allowse))
     {
         $blocked = FALSE;
     }
