@@ -27,6 +27,8 @@ function iqblockcountry_register_mysettings()
         register_setting ( 'iqblockcountry-settings-group', 'blockcountry_apikey');
         register_setting ( 'iqblockcountry-settings-group', 'blockcountry_backendlogging');
         register_setting ( 'iqblockcountry-settings-group', 'blockcountry_automaticupdate');
+        register_setting ( 'iqblockcountry-settings-group', 'blockcountry_accessibility');
+        register_setting ( 'iqblockcountry-settings-group', 'blockcountry_logging');
 	register_setting ( 'iqblockcountry-settings-group-backend', 'blockcountry_blockbackend' );
 	register_setting ( 'iqblockcountry-settings-group-backend', 'blockcountry_backendbanlist' );
 	register_setting ( 'iqblockcountry-settings-group-backend', 'blockcountry_backendblacklist','iqblockcountry_validate_ip');
@@ -54,7 +56,7 @@ function iqblockcountry_get_options_arr() {
             'blockcountry_frontendblacklist','blockcountry_frontendwhitelist','blockcountry_blockmessage','blockcountry_blocklogin','blockcountry_blockfrontend',
             'blockcountry_blockbackend','blockcountry_header','blockcountry_blockpages','blockcountry_pages','blockcountry_blockcategories','blockcountry_categories',
             'blockcountry_tracking','blockcountry_blockhome','blockcountry_nrstatistics','blockcountry_apikey','blockcountry_redirect','blockcountry_allowse',
-            'blockcountry_backendlogging','blockcountry_automaticupdate','blockcountry_buffer');
+            'blockcountry_backendlogging','blockcountry_automaticupdate','blockcountry_buffer','blockcountry_accessibility','blockcountry_logging');
         return apply_filters( 'iqblockcountry_options', $optarr );
 }
 
@@ -123,6 +125,8 @@ function iqblockcountry_uninstall() //deletes all the database entries that the 
         delete_option('blockcountry_backendlogging');
         delete_option('blockcountry_automaticupdate');
         delete_option('blockcountry_buffer');
+        delete_option('blockcountry_accessibility');
+        delete_option('blockcountry_logging');
 }
 
 
@@ -551,9 +555,32 @@ function iqblockcountry_settings_frontend()
 		<th scope="row" width="30%"><?php _e('Select the countries that should be blocked from visiting your frontend:', 'iqblockcountry'); ?><br />
 				<?php _e('Use the CTRL key to select multiple countries', 'iqblockcountry'); ?></th>
 		<td width="70%">
-                     <select class="chosen" name="blockcountry_banlist[]" multiple="true" style="width:600px;">
-                    <?php
-			$haystack = get_option('blockcountry_banlist');
+                    
+                    
+                    
+                    
+
+        <?php
+        $selected = "";
+        $haystack = get_option('blockcountry_banlist');
+
+        if (get_option('blockcountry_accessibility'))
+        {
+            echo "<ul>";
+            foreach ( $countrylist as $key => $value ) {
+			if (is_array($haystack) && in_array ( $key, $haystack )) {
+                                        $selected = " checked=\"checked\"";
+                                } else {
+                                        $selected = "";
+                                }
+                echo "<li><input type=\"checkbox\" " . $selected . " name=\"blockcountry_banlist[]\" value=\"" . $key . "\"  \"/> <label for=\"" . $value . "\">" . $value . "</label></li>"; 	
+            }
+            echo "</ul>";
+        }
+        else 
+        {
+                ?>                           <select class="chosen" name="blockcountry_banlist[]" multiple="true" style="width:600px;">
+                <?php   
 			foreach ( $countrylist as $key => $value ) {
 			print "<option value=\"$key\"";
 			if (is_array($haystack) && in_array ( $key, $haystack )) {
@@ -561,8 +588,10 @@ function iqblockcountry_settings_frontend()
 			}
                             print ">$value</option>\n";
                         }   
-                        ?>
-                     </select>
+                        echo "                     </select>";
+        }
+
+             ?>
                 </td></tr>
             <tr valign="top">
                 <th width="30%"><?php _e('Frontend whitelist IPv4 and/or IPv6 addresses:', 'iqblockcountry'); ?><br /><?php _e('Use a semicolon (;) to separate IP addresses', 'iqblockcountry'); ?></th>
@@ -655,9 +684,27 @@ function iqblockcountry_settings_backend()
                 <?php _e('Use the x behind the country to remove a country from this blocklist.', 'iqblockcountry'); ?></th>
 		<td width="70%">
         
-                    <select class="chosen" name="blockcountry_backendbanlist[]" multiple="true" style="width:600px;">
                     <?php
-			$haystack = get_option ( 'blockcountry_backendbanlist' );
+        $selected = "";
+        $haystack = get_option ( 'blockcountry_backendbanlist' );       
+
+        if (get_option('blockcountry_accessibility'))
+        {
+            echo "<ul>";
+            foreach ( $countrylist as $key => $value ) {
+			if (is_array($haystack) && in_array ( $key, $haystack )) {
+                                        $selected = " checked=\"checked\"";
+                                } else {
+                                        $selected = "";
+                                }
+                echo "<li><input type=\"checkbox\" " . $selected . " name=\"blockcountry_backendbanlist[]\" value=\"" . $key . "\"  \"/> <label for=\"" . $value . "\">" . $value . "</label></li>"; 	
+            }
+            echo "</ul>";
+        }
+        else 
+        {
+                ?>      <select class="chosen" name="blockcountry_backendbanlist[]" multiple="true" style="width:600px;">
+                <?php   
 			foreach ( $countrylist as $key => $value ) {
 			print "<option value=\"$key\"";
 			if (is_array($haystack) && in_array ( $key, $haystack )) {
@@ -665,8 +712,10 @@ function iqblockcountry_settings_backend()
 			}
                             print ">$value</option>\n";
                         }   
+                        echo "                     </select>";
+        }
                         ?>
-                     </select>
+
                 </td></tr>
             <tr valign="top">
                 <th width="30%"><?php _e('Backend whitelist IPv4 and/or IPv6 addresses:', 'iqblockcountry'); ?><br /><?php _e('Use a semicolon (;) to separate IP addresses', 'iqblockcountry'); ?></th>
@@ -796,6 +845,14 @@ function iqblockcountry_settings_home()
     	    	<input type="checkbox" name="blockcountry_buffer" <?php checked('on', get_option('blockcountry_buffer'), true); ?> />
     	    </td></tr>
             
+   	    <tr valign="top">
+    	    <th width="30%"><?php _e('Do not log IP addresses:', 'iqblockcountry'); ?><br />
+                <em><?php _e('Check this box if the laws in your country do not permit you to log IP addresses or if you do not want to log the ip addresses.', 'iqblockcountry'); ?></em></th>
+    	    <td width="70%">
+    	    	<input type="checkbox" name="blockcountry_logging" <?php checked('on', get_option('blockcountry_logging'), true); ?> />
+    	    </td></tr>
+       
+            
             <tr valign="top">
     	    <th width="30%"><?php _e('Number of rows on statistics page:', 'iqblockcountry'); ?><br />
                 <em><?php _e('How many rows do you want to display on each tab the statistics page.', 'iqblockcountry'); ?></em></th>
@@ -820,7 +877,9 @@ function iqblockcountry_settings_home()
     	    </td></tr>
 
             <tr valign="top">
-    	    <th width="30%"><?php _e('API Key:', 'iqblockcountry'); ?></th>
+    	    <th width="30%"><?php _e('API Key:', 'iqblockcountry'); ?><br />
+                <em><?php _e('This is an experimantal feature. You do not need an API key for this plugin to work.', 'iqblockcountry'); ?></em></th>
+            </th>
     	    <td width="70%">
                 <input type="text" size="25" name="blockcountry_apikey" value="<?php echo get_option ( 'blockcountry_apikey' );?>">
     	    </td></tr>
@@ -832,15 +891,20 @@ function iqblockcountry_settings_home()
     	    	<input type="checkbox" name="blockcountry_backendlogging" <?php checked('on', get_option('blockcountry_backendlogging'), true); ?> />
     	    </td></tr>
 -->        
+
    	    <tr valign="top">
     	    <th width="30%"><?php _e('Auto update GeoIP Database:', 'iqblockcountry'); ?><br />
                 <em><?php _e('Selecting this makes sure that the GeoIP database is downloaded once a month.', 'iqblockcountry'); ?></em></th>
     	    <td width="70%">
     	    	<input type="checkbox" name="blockcountry_automaticupdate" <?php checked('on', get_option('blockcountry_automaticupdate'), true); ?> />
     	    </td></tr>
-            
-            
-            
+
+    	    <tr valign="top">
+    	    <th width="30%"><?php _e('Accessibility options:', 'iqblockcountry'); ?><br />
+                <em><?php _e('Set this option if you cannot use the default country selection box.', 'iqblockcountry'); ?></em></th>
+    	    <td width="70%">
+    	    	<input type="checkbox" name="blockcountry_accessibility" <?php checked('on', get_option('blockcountry_accessibility'), true); ?> />
+    	    </td></tr>
             
             <tr><td></td><td>
 						<p class="submit"><input type="submit" class="button-primary"
@@ -864,6 +928,10 @@ function iqblockcountry_settings_logging()
     ?>
    <h3><?php _e('Last blocked visits', 'iqblockcountry'); ?></h3>
    <?php
+   if (!get_option('blockcountry_logging'))
+   {
+   
+   
    global $wpdb;
 
    $table_name = $wpdb->prefix . "iqblock_logging";
@@ -923,6 +991,29 @@ function iqblockcountry_settings_logging()
    }
    echo '</table>';
    
+   ?>
+   <form name="cleardatabase" action="#cleardatabase" method="post">
+        <input type="hidden" name="action" value="cleardatabase" />
+<?php
+        echo '<div class="submit"><input type="submit" name="test" value="' . __( 'Clear database', 'iqblockcountry' ) . '" /></div>';
+        wp_nonce_field('iqblockcountry');
+
+        if ( isset($_POST['action']) && $_POST[ 'action' ] == 'cleardatabase') {
+            global $wpdb;
+            $table_name = $wpdb->prefix . "iqblock_logging";
+            $sql = "TRUNCATE " . $table_name . ";";
+            $wpdb->query($sql);
+            echo mysql_error();
+            echo "Cleared database";
+
+        }   
+   }
+   else
+   {
+       echo "<hr><h3>";
+       _e('You are not logging any information. Please uncheck the option \'Do not log IP addresses\' if this is not what you want.', 'iqblockcountry');
+       echo "<hr></h3>";
+   }
 }
 
 

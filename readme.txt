@@ -3,7 +3,7 @@ Contributors: iqpascal
 Donate link: http://www.redeo.nl/plugins/donate
 Tags: spam, block, countries, country, comments, ban, geo, geo blocking, geo ip, block country, block countries, ban countries, ban country, blacklist, whitelist
 Requires at least: 3.5.2
-Tested up to: 4.0
+Tested up to: 4.1
 Stable tag: 1.1.15
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -174,8 +174,17 @@ If this is viable in a future version this database can be used to block these r
 
 If storing or sharing an IP address is illegal in your country do not select this feature.
 
+= The laws in my country do not allow storing IP addresses as it is personal information. =
+
+You can select the option on the home tab "Do not log IP addresses" to stop iQ Block Country from logging IP addresses. This will however also break the statistics.
 
 == Changelog ==
+
+= 1.1.16 =
+
+* New: Accessibility option. You can now choose if you want the country default selectbox or an normal selectbox.
+* New: New button to empty the logging database..
+* New: You can now set the option to not log the ip addresses to the database. This does not influence the blocking process only the logging process. This can be handy if the laws in your country do not permit you to log this information or if you choose not to log this information
 
 = 1.1.15 =
 

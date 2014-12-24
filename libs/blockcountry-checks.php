@@ -289,6 +289,8 @@ function iqblockcountry_CheckCountry() {
                     $blocked++;
                     update_option('blockcountry_backendnrblocks', $blocked);
                     global $apiblacklist,$backendblacklistcheck;
+                    if (!get_option('blockcountry_logging'))
+                    {
                     if (!$apiblacklist)
                     {    
                         iqblockcountry_logging($ip_address, $country, "B");
@@ -301,6 +303,8 @@ function iqblockcountry_CheckCountry() {
                     {
                         iqblockcountry_logging($ip_address, $country, "A");                        
                     }
+                    }
+                    //
                 }
                 else
                 {
@@ -308,7 +312,10 @@ function iqblockcountry_CheckCountry() {
                     if (empty($blocked)) { $blocked = 0; }
                     $blocked++;
                     update_option('blockcountry_frontendnrblocks', $blocked);
-                    iqblockcountry_logging($ip_address, $country, "F");
+                    if (!get_option('blockcountry_logging'))
+                    {
+                        iqblockcountry_logging($ip_address, $country, "F");
+                    }
                 }
 
 		exit ();
