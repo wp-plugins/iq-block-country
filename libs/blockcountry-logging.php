@@ -90,7 +90,7 @@ function iqblockcountry_clean_loggingdb()
 }
 
 /*
- * Schedule tracking if this option was set in the admin panel
+ * Schedule debug logging if this option was set in the admin panel
  */
 function iqblockcountry_blockcountry_backendlogging($old_value, $new_value)
 {

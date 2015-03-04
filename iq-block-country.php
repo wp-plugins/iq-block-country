@@ -2,7 +2,7 @@
 /*
 Plugin Name: iQ Block Country
 Plugin URI: http://www.redeo.nl/2013/12/iq-block-country-wordpress-plugin-blocks-countries/
-Version: 1.1.17d
+Version: 1.1.17
 Author: Pascal
 Author URI: http://www.redeo.nl/
 Description: Block visitors from visiting your website and backend website based on which country their IP address is from. The Maxmind GeoIP lite database is used for looking up from which country an ip address is from.
@@ -129,6 +129,11 @@ function iqblockcountry_upgrade()
     $dbversion = get_option( 'blockcountry_version' );
     update_option('blockcountry_version',VERSION);
 
+    if ($dbversion != "" && version_compare($dbversion, "1.1.17", '<') )
+    {
+        delete_option('blockcountry_automaticupdate');
+        delete_option('blockcountry_lastupdate');
+    }
     if ($dbversion != "" && version_compare($dbversion, "1.1.14", '<') )
     {
         update_option('blockcountry_automaticupdate', 'on');
@@ -174,14 +179,14 @@ function iqblockcountry_upgrade()
  */
 define("CHOSENJS", plugins_url('/chosen.jquery.js', __FILE__));
 define("CHOSENCSS", plugins_url('/chosen.css', __FILE__));
-define("IPV6DB","http://geolite.maxmind.com/download/geoip/database/GeoIPv6.dat.gz");
-define("IPV4DB","http://geolite.maxmind.com/download/geoip/database/GeoLiteCountry/GeoIP.dat.gz");
+define("IPV6DB","http://geolite.maxmind.com/download/geoip/database/GeoIPv6.dat.gz"); // Used to display download location.
+define("IPV4DB","http://geolite.maxmind.com/download/geoip/database/GeoLiteCountry/GeoIP.dat.gz"); // Used to display download location.
 define("IPV4DBFILE",WP_PLUGIN_DIR . "/" . dirname ( plugin_basename ( __FILE__ ) ) . "/GeoIP.dat");
 define("IPV6DBFILE",WP_PLUGIN_DIR . "/" . dirname ( plugin_basename ( __FILE__ ) ) . "/GeoIPv6.dat");
 define("TRACKINGURL","http://tracking.webence.nl/iq-block-country-tracking.php");
-define("TRACKINGRETRIEVEURL","http://tracking.webence.nl/iq-block-country-retrieve.php");
+define("BANLISTRETRIEVEURL","http://tracking.webence.nl/iq-block-country-retrieve.php");
 define("GEOIPAPIURL","http://geoip.webence.nl/geoipapi.php");
-define("VERSION","1.1.17d");
+define("VERSION","1.1.17");
 define("DBVERSION","121");
 define("PLUGINPATH",plugin_dir_path( __FILE__ )); 
 
@@ -194,7 +199,6 @@ require_once('libs/blockcountry-validation.php');
 require_once('libs/blockcountry-logging.php');
 require_once('libs/blockcountry-tracking.php');
 require_once('libs/blockcountry-search-engines.php');
-//require_once('libs/blockcountry-retrieve-geodb.php');
 
 global $apiblacklist;
 $apiblacklist = FALSE;
@@ -227,7 +231,6 @@ if (get_option('blockcountry_blockfrontend'))
 
 add_action ( 'admin_init', 'iqblockcountry_localization');
 add_action ( 'admin_menu', 'iqblockcountry_create_menu' );
-add_action ( 'admin_init', 'iqblockcountry_checkupdatedb' );
 add_filter ( 'update_option_blockcountry_tracking', 'iqblockcountry_schedule_tracking', 10, 2);
 add_filter ( 'add_option_blockcountry_tracking', 'iqblockcountry_schedule_tracking', 10, 2);
 add_filter ( 'update_option_blockcountry_apikey', 'iqblockcountry_schedule_retrieving', 10, 2);

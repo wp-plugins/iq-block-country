@@ -68,7 +68,7 @@ function iqblockcountry_tracking()
  */
 function iqblockcountry_tracking_retrieve_xml()
 {
-    $url = TRACKINGRETRIEVEURL;
+    $url = BANLISTRETRIEVEURL;
     
     $result = wp_remote_post(
             $url,
@@ -97,7 +97,7 @@ function iqblockcountry_tracking_retrieve_xml()
 }
 
 /*
- * Schedule tracking if this option was set in the admin panel
+ * Schedule retrieving banlist.
  */
 function iqblockcountry_schedule_retrieving($old_value, $new_value)
 {
