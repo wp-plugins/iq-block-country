@@ -34,51 +34,51 @@ function iqblockcountry_check_ipaddress($ip_address)
 	}
         else { $country = "Unknown"; }
         }
+        elseif (get_option('blockcountry_geoapikey'))
+        {
+            $country = iqblockcountry_retrieve_geoipapi($ip_address);
+            // check with GeoIP API
+        }
         else { $country = "Unknown"; }
         
     return $country;
 }
 
-
-function iqblockcountry_check_city_ipaddress($ip_address)
+/*
+ * iQ Block Retrieve XML file for API blocking
+ */
+function iqblockcountry_retrieve_geoipapi($ipaddress)
 {
-    if (!class_exists('GeoIP'))
-    {
-	include_once("geoip.inc");
+    $url = GEOIPAPIURL;
+    
+    $result = wp_remote_post(
+            $url,
+            array(
+                'body' => array(
+                    'api-key' => get_option('blockcountry_geoapikey'),
+                    'ipaddress' => $ipaddress
+                 
+                )
+            )
+        );    
+    if ( 200 == $result['response']['code'] ) {
+	$body = $result['body'];
+//        print_r($body);
+        $xml = new SimpleXmlElement($body);
+        return (string) $xml->country;
+        $banlist = array();
+//        $i=0;
+//        foreach ($xml->banlist->ipaddress AS $ip)
+//        {
+//            array_push($banlist,sprintf('%s',$ip));
+//            $i++;
+//        }    
+//        update_option('blockcountry_backendbanlistip', serialize($banlist));
     }
-    include_once("geoipcity.inc");
-    include_once("geoipregionvars.php");
-
-    if ((file_exists ( IPV4DBFILE )) && function_exists('geoip_open')) {
-
-	$ipv4 = FALSE;
-	$ipv6 = FALSE;
-	if (iqblockcountry_is_valid_ipv4($ip_address)) { $ipv4 = TRUE; }
-	if (iqblockcountry_is_valid_ipv6($ip_address)) { $ipv6 = TRUE; }
-	
-	if ($ipv4) 
-	{ 	
-		$gi = geoip_open ( CITY4DBFILE, GEOIP_STANDARD );
-		$record = geoip_record_by_addr ( $gi, $ip_address );
-		geoip_close ( $gi );
-	}
-	elseif ($ipv6)
-	{
-		if (file_exists ( CITY6DBFILE )) {				
-			$gi = geoip_open(CITY6DBFILE,GEOIP_STANDARD);
-                        $record = GeoIP_record_by_addr_v6 ( $gi, $ip_address );
-			geoip_close($gi);
-		}
-                else 
-                { $record = "Unknown";
-                }
-	}
-        else { $record = "Unknown"; }
-        }
-        else { $record = "Unknown"; }
-        
-    return $record;
+    
+    
 }
+
 
 
 /*
@@ -90,6 +90,7 @@ function iqblockcountry_check($country,$badcountries,$ip_address)
     $blocked = FALSE; 
     $blockedpage = get_option('blockcountry_blockpages');
     $blockedcategory = get_option('blockcountry_blockcategories');
+    $blockedposttypes = get_option('blockcountry_blockposttypes');
 
     $frontendblacklistip = array();   $frontendblacklist = get_option ( 'blockcountry_frontendblacklist' );
     $frontendwhitelistip = array();   $frontendwhitelist = get_option ( 'blockcountry_frontendwhitelist' );
@@ -151,11 +152,24 @@ function iqblockcountry_check($country,$badcountries,$ip_address)
                 $blocked = FALSE;
             }
     }
+
+    global $post;
+
+//    if ($blockedposttypes == "on")
+//    {
+//        $blockedposttypes = get_option('blockcountry_posttypes');
+//        if (is_array($blockedposttypes) && in_array(get_post_type( $post->ID ), $blockedposttypes) && ((is_array ( $badcountries ) && in_array ( $country, $badcountries ) || (is_array ( $frontendblacklistip ) && in_array ( $ip_address, $frontendblacklistip)))))
+//        {
+//            $blocked = TRUE;
+//            if (is_array ( $frontendwhitelistip ) && in_array ( $ip_address, $frontendwhitelistip)) {
+//                $blocked = FALSE;
+//            }
+//        }
+//    }
     
     if (is_page() && $blockedpage == "on")
     {
         $blockedpages = get_option('blockcountry_pages');
-        $frontendblacklist = get_option ( 'blockcountry_frontendblacklist' );
         if (is_page($blockedpages) && !empty($blockedpages) && ((is_array ( $badcountries ) && in_array ( $country, $badcountries ) || (is_array ( $frontendblacklistip ) && in_array ( $ip_address, $frontendblacklistip)))))
         {
             $blocked = TRUE;
@@ -348,13 +362,46 @@ function iqblockcountry_checkupdatedb()
   
         if(time() > $time)
         {
-            iqblockcountry_downloadgeodatabase("4", false);
-            iqblockcountry_downloadgeodatabase("6", false);
-            update_option('blockcountry_lastupdate' , time());
+//            iqblockcountry_downloadgeodatabase("4", false);
+//            iqblockcountry_downloadgeodatabase("6", false);
+//            update_option('blockcountry_lastupdate' , time());
         }
     
-        if (! (file_exists ( IPV4DBFILE )))     {   iqblockcountry_downloadgeodatabase("4", false);   }
-        if (! (file_exists ( IPV6DBFILE )))     {   iqblockcountry_downloadgeodatabase("6", false);   }
+//        if (! (file_exists ( IPV4DBFILE )))     {   iqblockcountry_downloadgeodatabase("4", false);   }
+//        if (! (file_exists ( IPV6DBFILE )))     {   iqblockcountry_downloadgeodatabase("6", false);   }
     
     }
+}
+
+/*
+ * iQ Block Retrieve country from GeoIP API
+ */
+function iqblockcountry_geoip_lookup($ipaddress)
+{
+    $url = GEOIPURL;
+    
+    $result = wp_remote_post(
+            $url,
+            array(
+                'body' => array(
+                    'api-key' => get_option('blockcountry_geoapikey'),
+                    'ipaddress' => $ipaddress
+                 
+                )
+            )
+        );    
+    
+    if ( 200 == $result['response']['code'] ) {
+	$body = $result['body'];
+        $xml = new SimpleXmlElement($body);
+//        $banlist = array();
+//        $i=0;
+//        foreach ($xml->banlist->ipaddress AS $ip)
+//        {
+//            array_push($banlist,sprintf('%s',$ip));
+//            $i++;
+//        }    
+    }
+    
+    
 }

@@ -1,5 +1,27 @@
 <?php
 
+/* Check if the Geo Database exists otherwise try to download it */
+if (! (file_exists ( IPV4DBFILE )) && !get_option('blockcountry_geoapikey')) {
+    add_action( 'admin_notices', 'iq_missing_db_notice' );
+}
+
+function iq_missing_db_notice()
+{
+    ?> 
+        <div class="error">
+            <h3>iQ Block Country</h3>
+		<p><?php _e('The MaxMind GeoIP database does not exist. Please download this file manually.', 'iqblockcountry'); ?></p>
+		<p><?php _e("Please download the database from: " , 'iqblockcountry'); ?>
+                   <?php echo "<a href=\"" . IPV4DB . "\" target=\"_blank\">" . IPV4DB . "</a>"; ?></p>
+                   <p><?php _e("And upload it to the following location: " , 'iqblockcountry'); ?>
+                    <?php echo IPV4DBFILE; ?></p>
+		<p><?php _e('For more detailed instructions take a look at the documentation..', 'iqblockcountry'); ?></p>
+                   
+        </div>        
+		<?php
+}
+
+
 /*
  * Create the wp-admin menu for iQ Block Country
  */
@@ -24,9 +46,9 @@ function iqblockcountry_register_mysettings()
         register_setting ( 'iqblockcountry-settings-group', 'blockcountry_tracking');
         register_setting ( 'iqblockcountry-settings-group', 'blockcountry_nrstatistics');
         register_setting ( 'iqblockcountry-settings-group', 'blockcountry_nrstatistics');
+        register_setting ( 'iqblockcountry-settings-group', 'blockcountry_geoapikey');
         register_setting ( 'iqblockcountry-settings-group', 'blockcountry_apikey');
         register_setting ( 'iqblockcountry-settings-group', 'blockcountry_backendlogging');
-        register_setting ( 'iqblockcountry-settings-group', 'blockcountry_automaticupdate');
         register_setting ( 'iqblockcountry-settings-group', 'blockcountry_accessibility');
         register_setting ( 'iqblockcountry-settings-group', 'blockcountry_logging');
 	register_setting ( 'iqblockcountry-settings-group-backend', 'blockcountry_blockbackend' );
@@ -40,6 +62,8 @@ function iqblockcountry_register_mysettings()
 	register_setting ( 'iqblockcountry-settings-group-frontend', 'blockcountry_blockfrontend' );
         register_setting ( 'iqblockcountry-settings-group-pages', 'blockcountry_blockpages');
         register_setting ( 'iqblockcountry-settings-group-pages', 'blockcountry_pages');
+        register_setting ( 'iqblockcountry-settings-group-posttypes', 'blockcountry_blockposttypes');
+        register_setting ( 'iqblockcountry-settings-group-posttypes', 'blockcountry_posttypes');
         register_setting ( 'iqblockcountry-settings-group-cat', 'blockcountry_blockcategories');
         register_setting ( 'iqblockcountry-settings-group-cat', 'blockcountry_categories');
         register_setting ( 'iqblockcountry-settings-group-cat', 'blockcountry_blockhome');
@@ -55,8 +79,9 @@ function iqblockcountry_get_options_arr() {
         $optarr = array( 'blockcountry_banlist', 'blockcountry_backendbanlist','blockcountry_backendblacklist','blockcountry_backendwhitelist', 
             'blockcountry_frontendblacklist','blockcountry_frontendwhitelist','blockcountry_blockmessage','blockcountry_blocklogin','blockcountry_blockfrontend',
             'blockcountry_blockbackend','blockcountry_header','blockcountry_blockpages','blockcountry_pages','blockcountry_blockcategories','blockcountry_categories',
-            'blockcountry_tracking','blockcountry_blockhome','blockcountry_nrstatistics','blockcountry_apikey','blockcountry_redirect','blockcountry_allowse',
-            'blockcountry_backendlogging','blockcountry_automaticupdate','blockcountry_buffer','blockcountry_accessibility','blockcountry_logging');
+            'blockcountry_tracking','blockcountry_blockhome','blockcountry_nrstatistics','blockcountry_geoapikey','blockcountry_apikey','blockcountry_redirect','blockcountry_allowse',
+            'blockcountry_backendlogging','blockcountry_buffer','blockcountry_accessibility','blockcountry_logging','blockcountry_blockposttypes',
+            'blockcountry_posttypes');
         return apply_filters( 'iqblockcountry_options', $optarr );
 }
 
@@ -67,13 +92,11 @@ function iqblockcountry_get_options_arr() {
 function iqblockcountry_set_defaults() 
 {
         update_option('blockcountry_version',VERSION);
-        if (get_option('blockcountry_lastupdate') === FALSE) { update_option('blockcountry_lastupdate' , 0); }
         if (get_option('blockcountry_blockfrontend') === FALSE) { update_option('blockcountry_blockfrontend' , 'on'); }
 	if (get_option('blockcountry_backendnrblocks') === FALSE) { update_option('blockcountry_backendnrblocks', 0); }
 	if (get_option('blockcountry_frontendnrblocks') === FALSE) { update_option('blockcountry_frontendnrblocks', 0); }
 	if (get_option('blockcountry_header') === FALSE) { update_option('blockcountry_header', 'on'); }
         if (get_option('blockcountry_nrstatistics') === FALSE) { update_option('blockcountry_nrstatistics',15); }
-        if (get_option('blockcountry_automaticupdate') === FALSE) { update_option('blockcountry_automaticupdate','on'); }
         $countrylist = iqblockcountry_get_countries();
         $ip_address = iqblockcountry_get_ipaddress();
         $usercountry = iqblockcountry_check_ipaddress($ip_address);
@@ -119,6 +142,7 @@ function iqblockcountry_uninstall() //deletes all the database entries that the 
         delete_option('blockcountry_blockhome');
         delete_option('blockcountry_backendbanlistip');
         delete_option('blockcountry_nrstastistics');
+        delete_option('blockcountry_geoapikey');
         delete_option('blockcountry_apikey');
         delete_option('blockcountry_redirect');
         delete_option('blockcountry_allowse');
@@ -127,6 +151,8 @@ function iqblockcountry_uninstall() //deletes all the database entries that the 
         delete_option('blockcountry_buffer');
         delete_option('blockcountry_accessibility');
         delete_option('blockcountry_logging');
+        delete_option('blockcountry_blockposttypes');
+        delete_option('blockcountry_posttypes');
 }
 
 
@@ -175,49 +201,6 @@ function iqblockcountry_settings_tools() {
 ?>		
         </form>
         
-        <hr />
-        <h3><?php _e('Download GeoIP database', 'iqblockcountry'); ?></h3>
-        <?php
-        $dateformat = get_option('date_format');
-        $time = get_option('blockcountry_lastupdate');
-        
-        $lastupdated = date($dateformat,$time);
-        if (get_option('blockcountry_automaticupdate') !== 'on')
-        {    
-            echo "<strong>"; _e('Automatic update is not setup. Last update: ', 'iqblockcountry'); echo $lastupdated; echo ".</strong>.<br />"; 
-
-        }
-        else
-        {    
-            echo "<strong>"; _e('The GeoIP database is updated once a month. Last update: ', 'iqblockcountry'); echo $lastupdated; echo ".</strong>.<br />"; 
-        }
-            _e('If you need a manual update please press buttons below to update.', 'iqblockcountry');
-        ?>
-        
-	<form name="download_geoip" action="#download" method="post">
-        <input type="hidden" name="action" value="download" />
-<?php 
-        echo '<div class="submit"><input type="submit" name="test" value="' . __( 'Download new GeoIP IPv4 Database', 'iqblockcountry' ) . '" /></div>';
-        wp_nonce_field('iqblockcountry');
-        echo '</form>';
-?>		
-		<form name="download_geoip6" action="#download6" method="post">
-        <input type="hidden" name="action" value="download6" />
-<?php 
-        echo '<div class="submit"><input type="submit" name="test" value="' . __( 'Download new GeoIP IPv6 Database', 'iqblockcountry' ) . '" /></div>';
-        wp_nonce_field('iqblockcountry');
-        echo '</form>';
-        
-        if ( isset($_POST['action']) && $_POST[ 'action' ] == 'download') {
-			_e ( 'Downloading...' );	
-			iqblockcountry_downloadgeodatabase('4', true);	
-		}
-        if ( isset($_POST['action']) && $_POST[ 'action' ] == 'download6') {
-			_e ( 'Downloading...' );	
-			iqblockcountry_downloadgeodatabase('6', true);	
-		}
-    
-?>		
         <hr />
         <h3><?php _e('Active plugins', 'iqblockcountry'); ?></h3>
         <?php
@@ -455,8 +438,59 @@ function iqblockcountry_settings_categories() {
   <?php
 }    
 
+
 /*
- * Function: Categories settings
+ * Function: Custom post type settings
+ */
+function iqblockcountry_settings_posttypes() {
+    ?>
+    <h3><?php _e('Select which post types are blocked.', 'iqblockcountry'); ?></h3>
+    <form method="post" action="options.php">
+<?php
+    settings_fields ( 'iqblockcountry-settings-group-posttypes' );
+?>
+    <table class="form-table" cellspacing="2" cellpadding="5" width="100%">    	    
+    <tr valign="top">
+        <th width="30%"><?php _e('Do you want to block individual post types:', 'iqblockcountry'); ?><br />
+    <td width="70%">
+	<input type="checkbox" name="blockcountry_blockposttypes" value="on" <?php checked('on', get_option('blockcountry_blockposttypes'), true); ?> /> 	
+    </td></tr>
+    <tr valign="top">
+    <th width="30%"><?php _e('Select post types you want to block:', 'iqblockcountry'); ?></th>
+    <td width="70%">
+     
+ 	<ul>
+    <?php
+        $post_types = get_post_types( '', 'names' ); 
+        //$selectedpages = get_option('blockcountry_pages'); 
+        $selectedposttypes = get_option('blockcountry_posttypes');
+        $selected = "";
+    foreach ( $post_types as $post_type ) {
+      if (is_array($selectedposttypes)) {
+                                if ( in_array( $post_type,$selectedposttypes) ) {
+                                        $selected = " checked=\"checked\"";
+                                } else {
+                                        $selected = "";
+                                }
+                        }
+	echo "<li><input type=\"checkbox\" " . $selected . " name=\"blockcountry_posttypes[]\" value=\"" . $post_type . "\" id=\"" . $post_type . "\" /> <label for=\"" . $post_type . "\">" . $post_type . "</label></li>"; 	
+  }
+        ?>
+    </td></tr>
+    <tr><td></td><td>
+	<p class="submit"><input type="submit" class="button-primary"
+	value="<?php _e ( 'Save Changes' )?>" /></p>
+    </td></tr>	
+    </table>	
+    </form>
+
+  <?php
+}    
+
+
+
+/*
+ * Function: Search engines settings
  */
 function iqblockcountry_settings_searchengines() {
     ?>
@@ -521,10 +555,9 @@ function iqblockcountry_settings_frontend()
 
             $ip_address = iqblockcountry_get_ipaddress();
             $country = iqblockcountry_check_ipaddress($ip_address);
-            if ($country == "Unknown" || $country == "ipv6" || $country == "")
+            if ($country == "Unknown" || $country == "ipv6" || $country == "" || $country == "FALSE")
             { $displaycountry = "Unknown"; }
             else { $displaycountry = $countrylist[$country]; }
-            
             
 	?>
 
@@ -877,7 +910,14 @@ function iqblockcountry_settings_home()
     	    </td></tr>
 
             <tr valign="top">
-    	    <th width="30%"><?php _e('API Key:', 'iqblockcountry'); ?><br />
+    	    <th width="30%"><?php _e('GeoIP API Key:', 'iqblockcountry'); ?><br />
+                <em><?php _e('If you do not want to download the MaxMind GeoIP databases you will need an API key for the GeoIP api.', 'iqblockcountry'); ?></em></th>
+            </th>
+    	    <td width="70%">
+                <input type="text" size="25" name="blockcountry_geoapikey" value="<?php echo get_option ( 'blockcountry_geoapikey' );?>">
+    	    </td></tr>
+            <tr valign="top">
+    	    <th width="30%"><?php _e('Admin block API Key:', 'iqblockcountry'); ?><br />
                 <em><?php _e('This is an experimantal feature. You do not need an API key for this plugin to work.', 'iqblockcountry'); ?></em></th>
             </th>
     	    <td width="70%">
@@ -891,13 +931,6 @@ function iqblockcountry_settings_home()
     	    	<input type="checkbox" name="blockcountry_backendlogging" <?php checked('on', get_option('blockcountry_backendlogging'), true); ?> />
     	    </td></tr>
 -->        
-
-   	    <tr valign="top">
-    	    <th width="30%"><?php _e('Auto update GeoIP Database:', 'iqblockcountry'); ?><br />
-                <em><?php _e('Selecting this makes sure that the GeoIP database is downloaded once a month.', 'iqblockcountry'); ?></em></th>
-    	    <td width="70%">
-    	    	<input type="checkbox" name="blockcountry_automaticupdate" <?php checked('on', get_option('blockcountry_automaticupdate'), true); ?> />
-    	    </td></tr>
 
     	    <tr valign="top">
     	    <th width="30%"><?php _e('Accessibility options:', 'iqblockcountry'); ?><br />
@@ -1038,6 +1071,7 @@ function iqblockcountry_settings_page() {
             <a href="?page=iq-block-country/libs/blockcountry-settings.php&tab=backend" class="nav-tab <?php echo $active_tab == 'backend' ? 'nav-tab-active' : ''; ?>"><?php _e('Backend', 'iqblockcountry'); ?></a>  
             <a href="?page=iq-block-country/libs/blockcountry-settings.php&tab=pages" class="nav-tab <?php echo $active_tab == 'pages' ? 'nav-tab-active' : ''; ?>"><?php _e('Pages', 'iqblockcountry'); ?></a>  
             <a href="?page=iq-block-country/libs/blockcountry-settings.php&tab=categories" class="nav-tab <?php echo $active_tab == 'categories' ? 'nav-tab-active' : ''; ?>"><?php _e('Categories', 'iqblockcountry'); ?></a>  
+            <!--<a href="?page=iq-block-country/libs/blockcountry-settings.php&tab=posttypes" class="nav-tab <?php echo $active_tab == 'posttypes' ? 'nav-tab-active' : ''; ?>"><?php _e('Post types', 'iqblockcountry'); ?></a>-->  
             <a href="?page=iq-block-country/libs/blockcountry-settings.php&tab=searchengines" class="nav-tab <?php echo $active_tab == 'searchengines' ? 'nav-tab-active' : ''; ?>"><?php _e('Search Engines', 'iqblockcountry'); ?></a>  
             <a href="?page=iq-block-country/libs/blockcountry-settings.php&tab=tools" class="nav-tab <?php echo $active_tab == 'tools' ? 'nav-tab-active' : ''; ?>"><?php _e('Tools', 'iqblockcountry'); ?></a>  
             <a href="?page=iq-block-country/libs/blockcountry-settings.php&tab=logging" class="nav-tab <?php echo $active_tab == 'logging' ? 'nav-tab-active' : ''; ?>"><?php _e('Logging', 'iqblockcountry'); ?></a>  
@@ -1074,6 +1108,10 @@ function iqblockcountry_settings_page() {
         {    
             iqblockcountry_settings_categories();
         }
+//        elseif ($active_tab == "posttypes")
+//        {    
+//            iqblockcountry_settings_posttypes();
+//        }
         elseif ($active_tab == "searchengines")
         {    
             iqblockcountry_settings_searchengines();
@@ -1091,16 +1129,7 @@ function iqblockcountry_settings_page() {
 
 	echo '<p>If you like this plugin please link back to <a href="http://www.redeo.nl/">redeo.nl</a>! :-)</p>';
 
-	/* Check if the Geo Database exists otherwise try to download it */
-	if (! (file_exists ( IPV4DBFILE ))) {
-		?> 
-		<hr>
-		<p><?php _e('GeoIP database does not exists. Trying to download it...', 'iqblockcountry'); ?></p>
-		<?php
-		
-			iqblockcountry_downloadgeodatabase('4', true);	
-			iqblockcountry_downloadgeodatabase('6', true);	
-		}
+        
 	
 }
 

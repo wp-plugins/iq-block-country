@@ -29,17 +29,18 @@ You can block all visitors from a certain country accessing your site but you ca
 
 This plugin uses the GeoLite database from Maxmind. It has a 99.5% accuracy so that is pretty good for a free database. If you need higher accuracy you can buy a license from MaxMind directly.
 
-Once you setup this plugin it will try to download the GeoIP database from Maxmind so you will 
-always have a recent version of the database when installing this plugin.
-
+Once you have installed this plugin you will need to download the GeoIP database from Maxmind and upload it to your site.
+The Wordpress license does not allow this plugin to download the MaxMind Geo database for you.
 
 == Installation ==
 
 1. Unzip the archive and put the `iq-block-country` folder into your plugins folder (/wp-content/plugins/).
-2. Activate the plugin through the 'Plugins' menu in WordPress
-3. Go to the settings page and choose which countries you want to ban. Use the ctrl key to select
-multiple countries
-4. Check if it downloaded the GeoIP database from MaxMind otherwise follow instructions on screen.
+2. Download the IPv4 database from: http://geolite.maxmind.com/download/geoip/database/GeoLiteCountry/GeoIP.dat.gz
+3. Unzip the GeoIP database and upload it to /wp-content/plugins/iq-block-country/GeoIP.dat
+4. Download the IPv6 database if you have a website running on IPv6 from: http://geolite.maxmind.com/download/geoip/database/GeoIPv6.dat.gz
+5. Unzip the GeoIP database and upload it to /wp-content/plugins/iq-block-country/GeoIPv6.dat
+6. Activate the plugin through the 'Plugins' menu in WordPress
+7. Go to the settings page and choose which countries you want to ban. Use the ctrl key to select multiple countries
 
 == Frequently Asked Questions ==
 
@@ -56,7 +57,7 @@ If you are worried this plugin does not work you could try to block your own cou
 
 Well, this plugin does in fact work but is limited to the data MaxMind provides. Also in your statistics software or logfiles you probably will see log entries from countries that you have blocked. See the "How come I still see visitors..." FAQ for that.
 
-If you think you have a visitor from a country you have blocked lookup that specific IP address on the MaxMind website (http://www.maxmind.com/app/locate_demo_ip) and see which country MaxMind thinks it is. If this is not the same country you may wish to block the country that MaxMind thinks it is.
+If you think you have a visitor from a country you have blocked lookup that specific IP address on the tools tab and see which country MaxMind thinks it is. If this is not the same country you may wish to block the country that MaxMind thinks it is.
 
 = Whoops I made a whoops and blocked my own country from visiting the backend. Now I cannot login... HELP! =
 
@@ -99,9 +100,6 @@ Some IPv6 blocks may not be in the right country in the MaxMind database.
 There are no guarantees blocking IPv6 works but as far as I was able to test IPv6 blocking it
 works just fine.
 
-If you want IPv6 support be sure to press the "Download new GeoIP IPv6 database" button. At this
-time the IPv6 database is not downloaded automatically.
-
 = Does this plugin work with caching? =
 
 In some circumstances: No
@@ -119,43 +117,14 @@ Perhaps also a handy function is that you can type in a part of the name of the 
 
 = How can I get a new version of the GeoIP database? =
 
-Since v1.0.9 every time you login to the backend of your website the plugin checks if the current
-databases are over a month old. If they are they will be automatically updated to the current
-version of Maxmind.
+You can download the database(s) directly from MaxMind and upload them to your website.
 
-If this is not soon enough for you you can also press the two buttons "Download new GeoIP database" on the bottom of the options page. This will download them instantly. However you do not need to download  the databases more than once a month since the lite database is only updated once a month.
-
-You can also remove the file GeoIP.dat from the plugin directory and after removal go to
-the settings page of this plugin. When it sees the GeoIP database is missing it will
-try to download it for you.
-
-However you can also download the GeoIP database yourself from Maxmind and overwrite
-the existing database.
+1. Download the IPv4 database from: http://geolite.maxmind.com/download/geoip/database/GeoLiteCountry/GeoIP.dat.gz
+2. Unzip the GeoIP database and upload it to /wp-content/plugins/iq-block-country/GeoIP.dat
+3. Download the IPv6 database if you have a website running on IPv6 from: http://geolite.maxmind.com/download/geoip/database/GeoIPv6.dat.gz
+4. Unzip the GeoIP database and upload it to /wp-content/plugins/iq-block-country/GeoIPv6.dat
 
 Maxmind updates the GeoLite database every month.
-
-= Help it gives some error about not being able to download the GeoIP database? =
-
-Follow the instructions on screen. It will probably tell you that you have to manually
-download the GeoIP database from Maxmind from the following url:
-
-http://geolite.maxmind.com/download/geoip/database/GeoLiteCountry/GeoIP.dat.gz
-
-If you also need IPv6 you can download the IPv6 database on the following url:
-
-http://geolite.maxmind.com/download/geoip/database/GeoIPv6.dat.gz
-
-It will also give you the location it expects the GeoIP.dat file. So go ahead and download  it and unzip the file. 
-
-Afterwards upload it to this specific location with for instance FTP,SFTP or FTPS.
-
-= Why does downloading the GeoIP.dat.gz fail? =
-
-For instance Maxmind limits the number of downloads per day. They do this by IP address so if you or somebody else who has a website at the same server your site is running on already downloaded the new database you may be blocked for 24 hours by MaxMind. If you are blocked because of too many requests this plugin tries to detect it and display an error message that you should try again later. So no worries try a day later again.
-
-Other possible faults are your webhosting company not allowing downloads on HTTP port 80.
-
-If your download fails try to download it from home or work and upload it via FTP,sFTP or FTPS to the location that is displayed.
 
 = I get "Cannot modify header information - headers already sent" errors =
 
@@ -179,6 +148,11 @@ If storing or sharing an IP address is illegal in your country do not select thi
 You can select the option on the home tab "Do not log IP addresses" to stop iQ Block Country from logging IP addresses. This will however also break the statistics.
 
 == Changelog ==
+
+= 1.1.17 =
+
+* Due to a conflict of the license where Wordpress is released under and the license the MaxMind databases are released under I was forced to remove all auto downloads of the GeoIP databases. You now have to manually download the databases and upload them yourself.
+* Added Webence GeoIP API lookup.
 
 = 1.1.16 =
 
