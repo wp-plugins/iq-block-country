@@ -4,11 +4,11 @@ Donate link: http://www.redeo.nl/plugins/donate
 Tags: spam, block, countries, country, comments, ban, geo, geo blocking, geo ip, block country, block countries, ban countries, ban country, blacklist, whitelist
 Requires at least: 3.5.2
 Tested up to: 4.1
-Stable tag: 1.1.16
+Stable tag: 1.1.17
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Block visitors from countries you don't want on your website. Based on which country an ip address is from.
+Block visitors from countries you don't want on your website. Based on which country your visitor is from.
 
 == Description ==
 
@@ -28,8 +28,9 @@ Users that are blocked will not be able to do harmful things to your blog like p
 You can block all visitors from a certain country accessing your site but you can also limit access to some pages, or some blog categories.
 
 This plugin uses the GeoLite database from Maxmind. It has a 99.5% accuracy so that is pretty good for a free database. If you need higher accuracy you can buy a license from MaxMind directly.
+If you cannot or do not want to download the GeoIP database from Maxmind you can use the GeoIP API website available on http://geoip.webence.nl/
 
-Once you have installed this plugin you will need to download the GeoIP database from Maxmind and upload it to your site.
+If you want to use the GeoLite database from Maxmind you will have to download the GeoIP database from MaxMind directly and upload it to your site.
 The Wordpress license does not allow this plugin to download the MaxMind Geo database for you.
 
 == Installation ==
@@ -39,10 +40,19 @@ The Wordpress license does not allow this plugin to download the MaxMind Geo dat
 3. Unzip the GeoIP database and upload it to /wp-content/plugins/iq-block-country/GeoIP.dat
 4. Download the IPv6 database if you have a website running on IPv6 from: http://geolite.maxmind.com/download/geoip/database/GeoIPv6.dat.gz
 5. Unzip the GeoIP database and upload it to /wp-content/plugins/iq-block-country/GeoIPv6.dat
-6. Activate the plugin through the 'Plugins' menu in WordPress
-7. Go to the settings page and choose which countries you want to ban. Use the ctrl key to select multiple countries
+6. If you do not want to or cannot download the MaxMind GeoIP database you can use the GeoIP API.
+7. Activate the plugin through the 'Plugins' menu in WordPress
+8. Go to the settings page and choose which countries you want to ban. Use the ctrl key to select multiple countries
 
 == Frequently Asked Questions ==
+
+= Why is the GeoLite database not downloaded anymore ? =
+
+The Wordpress guys have contacted me that the license of the MaxMind GeoLite database and the Wordpress license conflicted. So it was no longer
+allowed to include the GeoLite database or provide an automatic download or download button. Instead users should download the database themselves
+and upload them to the website.
+
+Wordpress could be held liable for any license issue. So that is why the auto download en update was removed from this plugin.
 
 = How come that I still see visitors from countries that I blocked in Statpress or other statistics software? =
 
@@ -152,7 +162,7 @@ You can select the option on the home tab "Do not log IP addresses" to stop iQ B
 = 1.1.17 =
 
 * Due to a conflict of the license where Wordpress is released under and the license the MaxMind databases are released under I was forced to remove all auto downloads of the GeoIP databases. You now have to manually download the databases and upload them yourself.
-* Added Webence GeoIP API lookup.
+* Added Webence GeoIP API lookup. See http://geoip.webence.nl/ for more information about this API.
 
 = 1.1.16 =
 
@@ -311,3 +321,9 @@ You can select the option on the home tab "Do not log IP addresses" to stop iQ B
 
 = 1.0 =
 * Initial release
+
+== Upgrade Notice ==
+
+= 1.1.17 =
+
+This plugin no longer downloads the MaxMind database. You have to download manually or use the GeoIP API.

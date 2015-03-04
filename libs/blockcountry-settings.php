@@ -1,20 +1,28 @@
 <?php
 
-/* Check if the Geo Database exists otherwise try to download it */
+/* Check if the Geo Database exists or if GeoIP API key is entered otherwise display notification */
 if (! (file_exists ( IPV4DBFILE )) && !get_option('blockcountry_geoapikey')) {
     add_action( 'admin_notices', 'iq_missing_db_notice' );
 }
 
+/*
+ * Display missing database notification.
+ */
 function iq_missing_db_notice()
 {
     ?> 
         <div class="error">
             <h3>iQ Block Country</h3>
-		<p><?php _e('The MaxMind GeoIP database does not exist. Please download this file manually.', 'iqblockcountry'); ?></p>
+            <p><?php _e('The MaxMind GeoIP database does not exist. Please download this file manually or if you wish to use the GeoIP API get an API key from: ', 'iqblockcountry'); ?><a href="http://geoip.webence.nl/" target="_blank">http://geoip.webence.nl/</a></p>
 		<p><?php _e("Please download the database from: " , 'iqblockcountry'); ?>
-                   <?php echo "<a href=\"" . IPV4DB . "\" target=\"_blank\">" . IPV4DB . "</a>"; ?></p>
-                   <p><?php _e("And upload it to the following location: " , 'iqblockcountry'); ?>
-                    <?php echo IPV4DBFILE; ?></p>
+                   <?php echo "<a href=\"" . IPV4DB . "\" target=\"_blank\">" . IPV4DB . "</a> "; ?>
+                   <?php _e("and upload it to the following location: " , 'iqblockcountry'); ?>
+                    <b><?php echo IPV4DBFILE; ?></b></p>
+                   
+                   <p><?php _e("If you also use IPv6 please also download the database from: " , 'iqblockcountry'); ?>
+                   <?php echo "<a href=\"" . IPV6DB . "\" target=\"_blank\">" . IPV6DB . "</a> "; ?>
+                   <?php _e("and upload it to the following location: " , 'iqblockcountry'); ?>
+                       <b><?php echo IPV6DBFILE; ?></b></p>
 		<p><?php _e('For more detailed instructions take a look at the documentation..', 'iqblockcountry'); ?></p>
                    
         </div>        
@@ -130,7 +138,6 @@ function iqblockcountry_uninstall() //deletes all the database entries that the 
 	delete_option('blockcountry_blocklogin' );
 	delete_option('blockcountry_blockfrontend' );
 	delete_option('blockcountry_blockbackend' );
-        delete_option('blockcountry_lastupdate');
         delete_option('blockcountry_version');
         delete_option('blockcountry_header');
         delete_option('blockcountry_blockpages');        
@@ -147,7 +154,6 @@ function iqblockcountry_uninstall() //deletes all the database entries that the 
         delete_option('blockcountry_redirect');
         delete_option('blockcountry_allowse');
         delete_option('blockcountry_backendlogging');
-        delete_option('blockcountry_automaticupdate');
         delete_option('blockcountry_buffer');
         delete_option('blockcountry_accessibility');
         delete_option('blockcountry_logging');
@@ -171,7 +177,7 @@ function iqblockcountry_settings_tools() {
                         $ip_address = $_POST['ipaddress'];
                         $country = iqblockcountry_check_ipaddress($ip_address);
                         $countrylist = iqblockcountry_get_countries();
-                        if ($country == "Unknown" || $country == "ipv6" || $country == "")
+                        if ($country == "Unknown" || $country == "ipv6" || $country == "" || $country == "FALSE")
                         {
                             echo "<p>" . __('No country for', 'iqblockcountry') . ' ' . $ip_address . ' ' . __('could be found. Or', 'iqblockcountry') . ' ' . $ip_address . ' ' . __('is not a valid IPv4 or IPv6 IP address', 'iqblockcountry'); 
                             echo "</p>";
@@ -589,10 +595,6 @@ function iqblockcountry_settings_frontend()
 				<?php _e('Use the CTRL key to select multiple countries', 'iqblockcountry'); ?></th>
 		<td width="70%">
                     
-                    
-                    
-                    
-
         <?php
         $selected = "";
         $haystack = get_option('blockcountry_banlist');
@@ -659,7 +661,7 @@ function iqblockcountry_settings_frontend()
 
 
 /*
- * Settings home
+ * Settings backend.
  */
 function iqblockcountry_settings_backend()
 {
@@ -680,7 +682,7 @@ function iqblockcountry_settings_backend()
 
             $ip_address = iqblockcountry_get_ipaddress();
             $country = iqblockcountry_check_ipaddress($ip_address);
-            if ($country == "Unknown" || $country == "ipv6" || $country == "")
+            if ($country == "Unknown" || $country == "ipv6" || $country == "" || $country == "FALSE")
             { $displaycountry = "Unknown"; }
             else { $displaycountry = $countrylist[$country]; }
             
@@ -814,7 +816,7 @@ function iqblockcountry_settings_home()
 
             $ip_address = iqblockcountry_get_ipaddress();
             $country = iqblockcountry_check_ipaddress($ip_address);
-            if ($country == "Unknown" || $country == "ipv6" || $country == "")
+            if ($country == "Unknown" || $country == "ipv6" || $country == "" || $country == "FALSE")
             { $displaycountry = "Unknown"; }
             else { $displaycountry = $countrylist[$country]; }
             
@@ -911,7 +913,7 @@ function iqblockcountry_settings_home()
 
             <tr valign="top">
     	    <th width="30%"><?php _e('GeoIP API Key:', 'iqblockcountry'); ?><br />
-                <em><?php _e('If you do not want to download the MaxMind GeoIP databases you will need an API key for the GeoIP api.', 'iqblockcountry'); ?></em></th>
+                <em><?php _e('If for some reason you cannot or do not want to download the MaxMind GeoIP databases you will need an API key for the GeoIP api.<br />You can get an API key from: ', 'iqblockcountry'); ?> <a href="http://geoip.webence.nl/" target=""_blank>http://geoip.webence.nl/</a></em></th>
             </th>
     	    <td width="70%">
                 <input type="text" size="25" name="blockcountry_geoapikey" value="<?php echo get_option ( 'blockcountry_geoapikey' );?>">
@@ -1132,4 +1134,3 @@ function iqblockcountry_settings_page() {
         
 	
 }
-

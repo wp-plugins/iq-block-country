@@ -37,7 +37,6 @@ function iqblockcountry_check_ipaddress($ip_address)
         elseif (get_option('blockcountry_geoapikey'))
         {
             $country = iqblockcountry_retrieve_geoipapi($ip_address);
-            // check with GeoIP API
         }
         else { $country = "Unknown"; }
         
@@ -63,20 +62,10 @@ function iqblockcountry_retrieve_geoipapi($ipaddress)
         );    
     if ( 200 == $result['response']['code'] ) {
 	$body = $result['body'];
-//        print_r($body);
         $xml = new SimpleXmlElement($body);
         return (string) $xml->country;
-        $banlist = array();
-//        $i=0;
-//        foreach ($xml->banlist->ipaddress AS $ip)
-//        {
-//            array_push($banlist,sprintf('%s',$ip));
-//            $i++;
-//        }    
-//        update_option('blockcountry_backendbanlistip', serialize($banlist));
     }
-    
-    
+    else return "Unknown";
 }
 
 
@@ -238,8 +227,9 @@ function iqblockcountry_check($country,$badcountries,$ip_address)
 }
 
 /*
-  * Does the real check of visitor IP against MaxMind database.
- * Looks up country in the Maxmind database and if needed blocks IP.
+ * 
+ * Does the real check of visitor IP against MaxMind database or the GeoAPI
+ * 
  */
 function iqblockcountry_CheckCountry() {
 
@@ -347,61 +337,4 @@ function iqblockcountry_is_login_page() {
     if ($pos !== false)
     { return TRUE; }
     else { return FALSE; }
-}
-
-/*
- * Check if Geo databases needs to be updated.
- */
-function iqblockcountry_checkupdatedb()
-{
-    if (get_option('blockcountry_automaticupdate') == 'on')
-    {
-        $lastupdate = get_option('blockcountry_lastupdate');
-        if (empty($lastupdate)) { $lastupdate = 0; }
-        $time = $lastupdate + 86400 * 31;
-  
-        if(time() > $time)
-        {
-//            iqblockcountry_downloadgeodatabase("4", false);
-//            iqblockcountry_downloadgeodatabase("6", false);
-//            update_option('blockcountry_lastupdate' , time());
-        }
-    
-//        if (! (file_exists ( IPV4DBFILE )))     {   iqblockcountry_downloadgeodatabase("4", false);   }
-//        if (! (file_exists ( IPV6DBFILE )))     {   iqblockcountry_downloadgeodatabase("6", false);   }
-    
-    }
-}
-
-/*
- * iQ Block Retrieve country from GeoIP API
- */
-function iqblockcountry_geoip_lookup($ipaddress)
-{
-    $url = GEOIPURL;
-    
-    $result = wp_remote_post(
-            $url,
-            array(
-                'body' => array(
-                    'api-key' => get_option('blockcountry_geoapikey'),
-                    'ipaddress' => $ipaddress
-                 
-                )
-            )
-        );    
-    
-    if ( 200 == $result['response']['code'] ) {
-	$body = $result['body'];
-        $xml = new SimpleXmlElement($body);
-//        $banlist = array();
-//        $i=0;
-//        foreach ($xml->banlist->ipaddress AS $ip)
-//        {
-//            array_push($banlist,sprintf('%s',$ip));
-//            $i++;
-//        }    
-    }
-    
-    
 }
