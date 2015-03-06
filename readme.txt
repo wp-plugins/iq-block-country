@@ -4,7 +4,7 @@ Donate link: http://www.redeo.nl/plugins/donate
 Tags: spam, block, countries, country, comments, ban, geo, geo blocking, geo ip, block country, block countries, ban countries, ban country, blacklist, whitelist
 Requires at least: 3.5.2
 Tested up to: 4.1
-Stable tag: 1.1.17
+Stable tag: 1.1.18
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -37,9 +37,9 @@ The Wordpress license does not allow this plugin to download the MaxMind Geo dat
 
 1. Unzip the archive and put the `iq-block-country` folder into your plugins folder (/wp-content/plugins/).
 2. Download the IPv4 database from: http://geolite.maxmind.com/download/geoip/database/GeoLiteCountry/GeoIP.dat.gz
-3. Unzip the GeoIP database and upload it to /wp-content/plugins/iq-block-country/GeoIP.dat
+3. Unzip the GeoIP database and upload it to your upload dir usually /wp-content/uploads/GeoIP.dat
 4. Download the IPv6 database if you have a website running on IPv6 from: http://geolite.maxmind.com/download/geoip/database/GeoIPv6.dat.gz
-5. Unzip the GeoIP database and upload it to /wp-content/plugins/iq-block-country/GeoIPv6.dat
+5. Unzip the GeoIP database and upload it to your upload dir usually /wp-content/uploads/GeoIPv6.dat
 6. If you do not want to or cannot download the MaxMind GeoIP database you can use the GeoIP API.
 7. Activate the plugin through the 'Plugins' menu in WordPress
 8. Go to the settings page and choose which countries you want to ban. Use the ctrl key to select multiple countries
@@ -130,9 +130,9 @@ Perhaps also a handy function is that you can type in a part of the name of the 
 You can download the database(s) directly from MaxMind and upload them to your website.
 
 1. Download the IPv4 database from: http://geolite.maxmind.com/download/geoip/database/GeoLiteCountry/GeoIP.dat.gz
-2. Unzip the GeoIP database and upload it to /wp-content/plugins/iq-block-country/GeoIP.dat
+2. Unzip the GeoIP database and upload it to your upload dir usually /wp-content/uploads/GeoIP.dat
 3. Download the IPv6 database if you have a website running on IPv6 from: http://geolite.maxmind.com/download/geoip/database/GeoIPv6.dat.gz
-4. Unzip the GeoIP database and upload it to /wp-content/plugins/iq-block-country/GeoIPv6.dat
+4. Unzip the GeoIP database and upload it to your upload dir usually /wp-content/uploads/GeoIPv6.dat
 
 Maxmind updates the GeoLite database every month.
 
@@ -158,6 +158,10 @@ If storing or sharing an IP address is illegal in your country do not select thi
 You can select the option on the home tab "Do not log IP addresses" to stop iQ Block Country from logging IP addresses. This will however also break the statistics.
 
 == Changelog ==
+
+= 1.1.18 =
+
+* Changed working directory for the GeoIP database to /wp-content/uploads
 
 = 1.1.17 =
 
@@ -324,6 +328,6 @@ You can select the option on the home tab "Do not log IP addresses" to stop iQ B
 
 == Upgrade Notice ==
 
-= 1.1.17 =
+= 1.1.18 =
 
 This plugin no longer downloads the MaxMind database. You have to download manually or use the GeoIP API.
