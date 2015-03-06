@@ -4,7 +4,7 @@ Donate link: http://www.redeo.nl/plugins/donate
 Tags: spam, block, countries, country, comments, ban, geo, geo blocking, geo ip, block country, block countries, ban countries, ban country, blacklist, whitelist
 Requires at least: 3.5.2
 Tested up to: 4.1
-Stable tag: 1.1.17
+Stable tag: 1.1.18
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -158,6 +158,10 @@ If storing or sharing an IP address is illegal in your country do not select thi
 You can select the option on the home tab "Do not log IP addresses" to stop iQ Block Country from logging IP addresses. This will however also break the statistics.
 
 == Changelog ==
+
+= 1.1.18 =
+
+* Changed working directory for the GeoIP database to /wp-content/uploads
 
 = 1.1.17 =
 
@@ -324,6 +328,6 @@ You can select the option on the home tab "Do not log IP addresses" to stop iQ B
 
 == Upgrade Notice ==
 
-= 1.1.17 =
+= 1.1.18 =
 
 This plugin no longer downloads the MaxMind database. You have to download manually or use the GeoIP API.
