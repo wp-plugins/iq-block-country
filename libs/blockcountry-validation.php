@@ -53,3 +53,49 @@ function iqblockcountry_validate_ip($input)
     
 }
 
+/*
+ * FIX: Fix this as it does not display properly.
+ */
+function iqblockcountry_check_geoapikey($input)
+{
+    
+    // Check first if API key is empty....
+    if (!empty($input))
+    {    
+    
+        $url = GEOIPAPICHECKURL;
+    
+        $result = wp_remote_post(
+            $url,
+            array(
+                'body' => array(
+                    'api-key' => $input
+                )
+            )
+        );    
+        $message = "";
+        $type = "updated";
+        if ( 200 == $result['response']['code'] ) {
+            $body = $result['body'];
+            $xml = new SimpleXmlElement($body);
+            if ($xml->check != "Ok")
+            {
+                $message = __( 'The GeoIP API key is incorrect. Please update the key.', 'iqblockcountry' );
+                $type = "error";
+                $input = FALSE;
+            }
+            else 
+            {
+                $message = __( 'Setting saved.', 'iqblockcountry' );
+                $type = "updated";
+            }
+        }
+        else
+        {
+            $input = FALSE;
+        }
+        add_settings_error('iqblockcountry_geoipapi_error',esc_attr( 'settings_updated' ),$message,$type);
+        return $input;
+    }
+    return "";
+}

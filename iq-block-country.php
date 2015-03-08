@@ -2,7 +2,7 @@
 /*
 Plugin Name: iQ Block Country
 Plugin URI: http://www.redeo.nl/2013/12/iq-block-country-wordpress-plugin-blocks-countries/
-Version: 1.1.18
+Version: 1.1.19a
 Author: Pascal
 Author URI: http://www.redeo.nl/
 Description: Block visitors from visiting your website and backend website based on which country their IP address is from. The Maxmind GeoIP lite database is used for looking up from which country an ip address is from.
@@ -108,20 +108,28 @@ function iqblockcountry_get_countries()
     return $countylist;
  }    
 
-/*
+ /*
   * Retrieves the IP address from the HTTP Headers
  */
 function iqblockcountry_get_ipaddress() {
     global $ip_address;
     
-    $ip_address = "";
-    if (empty($_SERVER["HTTP_X_FORWARDED_FOR"])) {
-        $ip_address = $_SERVER["REMOTE_ADDR"];
-    } else {
-        $ip_address = $_SERVER["HTTP_X_FORWARDED_FOR"];
+    if ( isset($_SERVER['REMOTE_ADDR']) && !empty($_SERVER['REMOTE_ADDR']) ) {
+    $ip_address = $_SERVER['REMOTE_ADDR'];
+    }
+    elseif ( isset($_SERVER['HTTP_X_FORWARDED_FOR']) && !empty($_SERVER['HTTP_X_FORWARDED_FOR']) ) {
+    $ips = explode(',', $_SERVER['HTTP_X_FORWARDED_FOR']);
+    $ip_address = trim($ips[0]);
+    } elseif ( isset($_SERVER['HTTP_X_REAL_IP']) && !empty($_SERVER['HTTP_X_REAL_IP']) ) {
+    $ip_address = $_SERVER['HTTP_X_REAL_IP'];
+    } elseif ( isset($_SERVER['HTTP_CLIENT_IP']) && !empty($_SERVER['HTTP_CLIENT_IP']) ) {
+    $ip_address = $_SERVER['HTTP_CLIENT_IP'];
+    } elseif ( isset($_SERVER['HTTP_X_TM_REMOTE_ADDR']) && !empty($_SERVER['HTTP_X_TM_REMOTE_ADDR']) ) {
+    $ip_address = $_SERVER['HTTP_X_TM_REMOTE_ADDR'];
     }
     return $ip_address;
 }
+
 
 function iqblockcountry_upgrade()
 {
@@ -187,7 +195,8 @@ define("IPV6DBFILE",$upload_dir['basedir'] . "/GeoIPv6.dat");
 define("TRACKINGURL","http://tracking.webence.nl/iq-block-country-tracking.php");
 define("BANLISTRETRIEVEURL","http://tracking.webence.nl/iq-block-country-retrieve.php");
 define("GEOIPAPIURL","http://geoip.webence.nl/geoipapi.php");
-define("VERSION","1.1.18");
+define("GEOIPAPICHECKURL","http://geoip.webence.nl/geoipapi-keycheck.php");
+define("VERSION","1.1.19a");
 define("DBVERSION","121");
 define("PLUGINPATH",plugin_dir_path( __FILE__ )); 
 
@@ -225,7 +234,7 @@ if ((iqblockcountry_is_login_page() || is_admin()) && get_option('blockcountry_b
 /*
  * Check first if users want to block the frontend.
  */
-if (get_option('blockcountry_blockfrontend'))
+if (get_option('blockcountry_blockfrontend') == "on")
 {
     add_action ( 'wp_head', 'iqblockcountry_checkCountry', 1 );
 }
@@ -236,6 +245,9 @@ add_filter ( 'update_option_blockcountry_tracking', 'iqblockcountry_schedule_tra
 add_filter ( 'add_option_blockcountry_tracking', 'iqblockcountry_schedule_tracking', 10, 2);
 add_filter ( 'update_option_blockcountry_apikey', 'iqblockcountry_schedule_retrieving', 10, 2);
 add_filter ( 'add_option_blockcountry_apikey', 'iqblockcountry_schedule_retrieving', 10, 2);
+add_filter ( 'update_option_blockcountry_geoapikey', 'iqblockcountry_check_geoapikey', 10, 2);
+add_filter ( 'add_option_blockcountry_geoapikey', 'iqblockcountry_check_geoapikey', 10, 2);
+
 //add_filter ( 'update_option_blockcountry_backendlogging', 'iqblockcountry_blockcountry_backendlogging', 10, 2);
 //add_filter ( 'add_option_blockcountry_backendlogging', 'iqblockcountry_blockcountry_backendlogging', 10, 2);
 add_action ( 'blockcountry_tracking', 'iqblockcountry_tracking' );

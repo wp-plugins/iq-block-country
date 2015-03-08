@@ -54,7 +54,7 @@ function iqblockcountry_register_mysettings()
         register_setting ( 'iqblockcountry-settings-group', 'blockcountry_tracking');
         register_setting ( 'iqblockcountry-settings-group', 'blockcountry_nrstatistics');
         register_setting ( 'iqblockcountry-settings-group', 'blockcountry_nrstatistics');
-        register_setting ( 'iqblockcountry-settings-group', 'blockcountry_geoapikey');
+        register_setting ( 'iqblockcountry-settings-group', 'blockcountry_geoapikey','iqblockcountry_check_geoapikey');
         register_setting ( 'iqblockcountry-settings-group', 'blockcountry_apikey');
         register_setting ( 'iqblockcountry-settings-group', 'blockcountry_backendlogging');
         register_setting ( 'iqblockcountry-settings-group', 'blockcountry_accessibility');
@@ -1073,7 +1073,7 @@ function iqblockcountry_settings_page() {
             <a href="?page=iq-block-country/libs/blockcountry-settings.php&tab=backend" class="nav-tab <?php echo $active_tab == 'backend' ? 'nav-tab-active' : ''; ?>"><?php _e('Backend', 'iqblockcountry'); ?></a>  
             <a href="?page=iq-block-country/libs/blockcountry-settings.php&tab=pages" class="nav-tab <?php echo $active_tab == 'pages' ? 'nav-tab-active' : ''; ?>"><?php _e('Pages', 'iqblockcountry'); ?></a>  
             <a href="?page=iq-block-country/libs/blockcountry-settings.php&tab=categories" class="nav-tab <?php echo $active_tab == 'categories' ? 'nav-tab-active' : ''; ?>"><?php _e('Categories', 'iqblockcountry'); ?></a>  
-            <!--<a href="?page=iq-block-country/libs/blockcountry-settings.php&tab=posttypes" class="nav-tab <?php echo $active_tab == 'posttypes' ? 'nav-tab-active' : ''; ?>"><?php _e('Post types', 'iqblockcountry'); ?></a>-->  
+            <a href="?page=iq-block-country/libs/blockcountry-settings.php&tab=posttypes" class="nav-tab <?php echo $active_tab == 'posttypes' ? 'nav-tab-active' : ''; ?>"><?php _e('Post types', 'iqblockcountry'); ?></a>
             <a href="?page=iq-block-country/libs/blockcountry-settings.php&tab=searchengines" class="nav-tab <?php echo $active_tab == 'searchengines' ? 'nav-tab-active' : ''; ?>"><?php _e('Search Engines', 'iqblockcountry'); ?></a>  
             <a href="?page=iq-block-country/libs/blockcountry-settings.php&tab=tools" class="nav-tab <?php echo $active_tab == 'tools' ? 'nav-tab-active' : ''; ?>"><?php _e('Tools', 'iqblockcountry'); ?></a>  
             <a href="?page=iq-block-country/libs/blockcountry-settings.php&tab=logging" class="nav-tab <?php echo $active_tab == 'logging' ? 'nav-tab-active' : ''; ?>"><?php _e('Logging', 'iqblockcountry'); ?></a>  
@@ -1110,10 +1110,10 @@ function iqblockcountry_settings_page() {
         {    
             iqblockcountry_settings_categories();
         }
-//        elseif ($active_tab == "posttypes")
-//        {    
-//            iqblockcountry_settings_posttypes();
-//        }
+        elseif ($active_tab == "posttypes")
+        {    
+            iqblockcountry_settings_posttypes();
+        }
         elseif ($active_tab == "searchengines")
         {    
             iqblockcountry_settings_searchengines();

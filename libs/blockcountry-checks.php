@@ -226,6 +226,7 @@ function iqblockcountry_check($country,$badcountries,$ip_address)
     return $blocked;
 }
 
+
 /*
  * 
  * Does the real check of visitor IP against MaxMind database or the GeoAPI
@@ -233,21 +234,6 @@ function iqblockcountry_check($country,$badcountries,$ip_address)
  */
 function iqblockcountry_CheckCountry() {
 
-    $ip_address = "";
-    
-    if ( isset($_SERVER['HTTP_X_FORWARDED_FOR']) && !empty($_SERVER['HTTP_X_FORWARDED_FOR']) ) {
-    $ips = explode(',', $_SERVER['HTTP_X_FORWARDED_FOR']);
-    $ip_address = trim($ips[0]);
-    } elseif ( isset($_SERVER['HTTP_X_REAL_IP']) && !empty($_SERVER['HTTP_X_REAL_IP']) ) {
-    $ip_address = $_SERVER['HTTP_X_REAL_IP'];
-    } elseif ( isset($_SERVER['HTTP_CLIENT_IP']) && !empty($_SERVER['HTTP_CLIENT_IP']) ) {
-    $ip_address = $_SERVER['HTTP_CLIENT_IP'];
-    } elseif ( isset($_SERVER['HTTP_X_TM_REMOTE_ADDR']) && !empty($_SERVER['HTTP_X_TM_REMOTE_ADDR']) ) {
-    $ip_address = $_SERVER['HTTP_X_TM_REMOTE_ADDR'];
-    }
-    
-    
-        
     $ip_address = iqblockcountry_get_ipaddress();
     $country = iqblockcountry_check_ipaddress($ip_address);
 
