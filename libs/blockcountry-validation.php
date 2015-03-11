@@ -54,7 +54,7 @@ function iqblockcountry_validate_ip($input)
 }
 
 /*
- * FIX: Fix this as it does not display properly.
+ * Check if GeoIP API key is correct.
  */
 function iqblockcountry_check_geoapikey($input)
 {

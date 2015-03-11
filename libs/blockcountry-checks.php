@@ -8,7 +8,7 @@ function iqblockcountry_check_ipaddress($ip_address)
 	include_once("geoip.inc");
     }
     
-    if ((file_exists ( IPV4DBFILE )) && function_exists('geoip_open')) {
+    if ((is_file ( IPV4DBFILE )) && function_exists('geoip_open')) {
 
 	$ipv4 = FALSE;
 	$ipv6 = FALSE;
@@ -23,7 +23,7 @@ function iqblockcountry_check_ipaddress($ip_address)
 	}
 	elseif ($ipv6)
 	{
-		if (file_exists ( IPV6DBFILE )) {				
+		if (is_file ( IPV6DBFILE )) {				
 			$gi = geoip_open(IPV6DBFILE,GEOIP_STANDARD);
 			$country = geoip_country_code_by_addr_v6 ( $gi, $ip_address );
  			geoip_close($gi);
@@ -64,6 +64,9 @@ function iqblockcountry_retrieve_geoipapi($ipaddress)
 	$body = $result['body'];
         $xml = new SimpleXmlElement($body);
         return (string) $xml->country;
+    }
+    elseif ( 403 == $result['response']['code'] ) {
+        update_option('blockcountry_geoapikey','');
     }
     else return "Unknown";
 }
@@ -144,17 +147,17 @@ function iqblockcountry_check($country,$badcountries,$ip_address)
 
     global $post;
 
-//    if ($blockedposttypes == "on")
-//    {
-//        $blockedposttypes = get_option('blockcountry_posttypes');
-//        if (is_array($blockedposttypes) && in_array(get_post_type( $post->ID ), $blockedposttypes) && ((is_array ( $badcountries ) && in_array ( $country, $badcountries ) || (is_array ( $frontendblacklistip ) && in_array ( $ip_address, $frontendblacklistip)))))
-//        {
-//            $blocked = TRUE;
-//            if (is_array ( $frontendwhitelistip ) && in_array ( $ip_address, $frontendwhitelistip)) {
-//                $blocked = FALSE;
-//            }
-//        }
-//    }
+    if ($blockedposttypes == "on")
+    {
+        $blockedposttypes = get_option('blockcountry_posttypes');
+        if (is_array($blockedposttypes) && in_array(get_post_type( $post->ID ), $blockedposttypes) && ((is_array ( $badcountries ) && in_array ( $country, $badcountries ) || (is_array ( $frontendblacklistip ) && in_array ( $ip_address, $frontendblacklistip)))))
+        {
+            $blocked = TRUE;
+            if (is_array ( $frontendwhitelistip ) && in_array ( $ip_address, $frontendwhitelistip)) {
+                $blocked = FALSE;
+            }
+        }
+    }
     
     if (is_page() && $blockedpage == "on")
     {

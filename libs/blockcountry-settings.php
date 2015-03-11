@@ -1,9 +1,44 @@
 <?php
 
 /* Check if the Geo Database exists or if GeoIP API key is entered otherwise display notification */
-if (! (file_exists ( IPV4DBFILE )) && !get_option('blockcountry_geoapikey')) {
+if (!is_file ( IPV4DBFILE ) && (!get_option('blockcountry_geoapikey'))) {
     add_action( 'admin_notices', 'iq_missing_db_notice' );
 }
+
+/*
+ * Unzip the MaxMind IPv4 database if somebody uploaded it in GZIP format
+ */
+if (is_file(IPV4DBFILE . ".gz"))
+{
+    $zd = gzopen ( IPV4DBFILE . ".gz", "r" );
+    $buffer = gzread ( $zd, 2000000 );
+    gzclose ( $zd );
+    if (is_file ( IPV4DBFILE . ".gz" )) { unlink ( IPV4DBFILE . ".gz" ); }
+			
+    /* Write this file to the GeoIP database file */
+    if (is_file ( IPV4DBFILE )) { unlink ( IPV4DBFILE ); } 
+    $fp = fopen ( IPV4DBFILE, "w" );
+    fwrite ( $fp, "$buffer" );
+    fclose ( $fp );
+}
+
+/*
+ * Unzip the MaxMind IPv6 database if somebody uploaded it in GZIP format
+ */
+if (is_file(IPV6DBFILE . ".gz"))
+{
+    $zd = gzopen ( IPV6DBFILE . ".gz", "r" );
+    $buffer = gzread ( $zd, 2000000 );
+    gzclose ( $zd );
+    if (is_file ( IPV6DBFILE . ".gz" )) { unlink ( IPV6DBFILE . ".gz" ); }
+			
+    /* Write this file to the GeoIP database file */
+    if (is_file ( IPV6DBFILE )) { unlink ( IPV6DBFILE ); } 
+    $fp = fopen ( IPV6DBFILE, "w" );
+    fwrite ( $fp, "$buffer" );
+    fclose ( $fp );
+}
+
 
 /*
  * Display missing database notification.
@@ -16,12 +51,12 @@ function iq_missing_db_notice()
             <p><?php _e('The MaxMind GeoIP database does not exist. Please download this file manually or if you wish to use the GeoIP API get an API key from: ', 'iqblockcountry'); ?><a href="http://geoip.webence.nl/" target="_blank">http://geoip.webence.nl/</a></p>
 		<p><?php _e("Please download the database from: " , 'iqblockcountry'); ?>
                    <?php echo "<a href=\"" . IPV4DB . "\" target=\"_blank\">" . IPV4DB . "</a> "; ?>
-                   <?php _e("and upload it to the following location: " , 'iqblockcountry'); ?>
+                   <?php _e("unzip the file and afterwards upload it to the following location: " , 'iqblockcountry'); ?>
                     <b><?php echo IPV4DBFILE; ?></b></p>
                    
                    <p><?php _e("If you also use IPv6 please also download the database from: " , 'iqblockcountry'); ?>
                    <?php echo "<a href=\"" . IPV6DB . "\" target=\"_blank\">" . IPV6DB . "</a> "; ?>
-                   <?php _e("and upload it to the following location: " , 'iqblockcountry'); ?>
+                   <?php _e("unzip the file and afterwards upload it to the following location: " , 'iqblockcountry'); ?>
                        <b><?php echo IPV6DBFILE; ?></b></p>
 		<p><?php _e('For more detailed instructions take a look at the documentation..', 'iqblockcountry'); ?></p>
                    
@@ -100,24 +135,16 @@ function iqblockcountry_get_options_arr() {
 function iqblockcountry_set_defaults() 
 {
         update_option('blockcountry_version',VERSION);
+        $countrylist = iqblockcountry_get_countries();
+        $ip_address = iqblockcountry_get_ipaddress();
+        $usercountry = iqblockcountry_check_ipaddress($ip_address);
+
         if (get_option('blockcountry_blockfrontend') === FALSE) { update_option('blockcountry_blockfrontend' , 'on'); }
 	if (get_option('blockcountry_backendnrblocks') === FALSE) { update_option('blockcountry_backendnrblocks', 0); }
 	if (get_option('blockcountry_frontendnrblocks') === FALSE) { update_option('blockcountry_frontendnrblocks', 0); }
 	if (get_option('blockcountry_header') === FALSE) { update_option('blockcountry_header', 'on'); }
         if (get_option('blockcountry_nrstatistics') === FALSE) { update_option('blockcountry_nrstatistics',15); }
-        $countrylist = iqblockcountry_get_countries();
-        $ip_address = iqblockcountry_get_ipaddress();
-        $usercountry = iqblockcountry_check_ipaddress($ip_address);
-
-        $blacklist = array();
-        foreach ($countrylist AS $shortcode => $country)
-        {
-            if (!($shortcode == $usercountry))
-            {
-                array_push($blacklist,$shortcode);
-            }
-        }    
-        if (get_option('blockcountry_backendbanlist') === FALSE) { update_option('blockcountry_backendbanlist',$blacklist); }
+        if (get_option('blockcountry_backendwhitelist') === FALSE || (get_option('blockcountry_backendwhitelist') == "")) { update_option('blockcountry_backendwhitelist',$ip_address); }
         iqblockcountry_install_db();       
 }
 
@@ -468,7 +495,6 @@ function iqblockcountry_settings_posttypes() {
  	<ul>
     <?php
         $post_types = get_post_types( '', 'names' ); 
-        //$selectedpages = get_option('blockcountry_pages'); 
         $selectedposttypes = get_option('blockcountry_posttypes');
         $selected = "";
     foreach ( $post_types as $post_type ) {
@@ -814,11 +840,11 @@ function iqblockcountry_settings_home()
 		
             $countrylist = iqblockcountry_get_countries();
 
-            $ip_address = iqblockcountry_get_ipaddress();
-            $country = iqblockcountry_check_ipaddress($ip_address);
-            if ($country == "Unknown" || $country == "ipv6" || $country == "" || $country == "FALSE")
-            { $displaycountry = "Unknown"; }
-            else { $displaycountry = $countrylist[$country]; }
+//            $ip_address = iqblockcountry_get_ipaddress();
+//            $country = iqblockcountry_check_ipaddress($ip_address);
+//            if ($country == "Unknown" || $country == "ipv6" || $country == "" || $country == "FALSE")
+//            { $displaycountry = "Unknown"; }
+//            else { $displaycountry = $countrylist[$country]; }
             
             
 	?>

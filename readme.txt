@@ -159,6 +159,13 @@ You can select the option on the home tab "Do not log IP addresses" to stop iQ B
 
 == Changelog ==
 
+= 1.1.19 =
+
+* Bugfix: Check if MaxMind databases actually exist.
+* New: Unzip MaxMind database(s) if gzip file is found.
+* New: Block post types
+* New: When (re)activating the plugin it now adds the IP address of the person activating the plugin to the backend whitelist if the whitelist is currently empty.
+
 = 1.1.18 =
 
 * Changed working directory for the GeoIP database to /wp-content/uploads
@@ -328,6 +335,6 @@ You can select the option on the home tab "Do not log IP addresses" to stop iQ B
 
 == Upgrade Notice ==
 
-= 1.1.18 =
+= 1.1.19 =
 
 This plugin no longer downloads the MaxMind database. You have to download manually or use the GeoIP API.
