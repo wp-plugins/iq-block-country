@@ -2,7 +2,7 @@
 /*
 Plugin Name: iQ Block Country
 Plugin URI: http://www.redeo.nl/2013/12/iq-block-country-wordpress-plugin-blocks-countries/
-Version: 1.1.19c
+Version: 1.1.19
 Author: Pascal
 Author URI: http://www.redeo.nl/
 Description: Block visitors from visiting your website and backend website based on which country their IP address is from. The Maxmind GeoIP lite database is used for looking up from which country an ip address is from.
@@ -136,15 +136,15 @@ function iqblockcountry_upgrade()
     /* Check if update is necessary */
     $dbversion = get_option( 'blockcountry_version' );
     update_option('blockcountry_version',VERSION);
-
+    
+    if ($dbversion != "" && version_compare($dbversion, "1.1.19", '<') )
+    {
+        update_option('blockcountry_blocksearch','on');
+    }
     if ($dbversion != "" && version_compare($dbversion, "1.1.17", '<') )
     {
         delete_option('blockcountry_automaticupdate');
         delete_option('blockcountry_lastupdate');
-    }
-    if ($dbversion != "" && version_compare($dbversion, "1.1.14", '<') )
-    {
-        update_option('blockcountry_automaticupdate', 'on');
     }
     elseif ($dbversion != "" && version_compare($dbversion, "1.1.11", '<') )
     {
@@ -196,7 +196,7 @@ define("TRACKINGURL","http://tracking.webence.nl/iq-block-country-tracking.php")
 define("BANLISTRETRIEVEURL","http://tracking.webence.nl/iq-block-country-retrieve.php");
 define("GEOIPAPIURL","http://geoip.webence.nl/geoipapi.php");
 define("GEOIPAPICHECKURL","http://geoip.webence.nl/geoipapi-keycheck.php");
-define("VERSION","1.1.19c");
+define("VERSION","1.1.19");
 define("DBVERSION","121");
 define("PLUGINPATH",plugin_dir_path( __FILE__ )); 
 
@@ -210,6 +210,7 @@ require_once('libs/blockcountry-logging.php');
 require_once('libs/blockcountry-tracking.php');
 require_once('libs/blockcountry-search-engines.php');
 
+    
 global $apiblacklist;
 $apiblacklist = FALSE;
 $backendblacklistcheck = FALSE;
