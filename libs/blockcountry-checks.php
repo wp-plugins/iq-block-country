@@ -226,6 +226,11 @@ function iqblockcountry_check($country,$badcountries,$ip_address)
         $blocked = FALSE;
     }
     
+    if (is_search() && (get_option('blockcountry_blocksearch')) == FALSE)
+    {
+        $blocked = FALSE;
+    }
+    
     return $blocked;
 }
 
@@ -239,7 +244,7 @@ function iqblockcountry_CheckCountry() {
 
     $ip_address = iqblockcountry_get_ipaddress();
     $country = iqblockcountry_check_ipaddress($ip_address);
-
+    
     if ((iqblockcountry_is_login_page() || is_admin()) && get_option('blockcountry_blockbackend'))
     { 
         $badcountries = get_option( 'blockcountry_backendbanlist' );

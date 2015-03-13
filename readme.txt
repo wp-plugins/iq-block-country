@@ -3,8 +3,8 @@ Contributors: iqpascal
 Donate link: http://www.redeo.nl/plugins/donate
 Tags: spam, block, countries, country, comments, ban, geo, geo blocking, geo ip, block country, block countries, ban countries, ban country, blacklist, whitelist
 Requires at least: 3.5.2
-Tested up to: 4.1
-Stable tag: 1.1.18
+Tested up to: 4.1.1
+Stable tag: 1.1.19
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -140,7 +140,7 @@ Maxmind updates the GeoLite database every month.
 
 This is possible if another plugin or your template sends out header information before this plugin does. You can deactivate and reactivate this plugin, it will try to load as the first plugin upon activation.
 
-If this does not help you out deselectt "Send headers when user is blocked". This will no longer send headers but only display the block message. This however will mess up your website if you use caching software for your website.
+If this does not help you out deselect "Send headers when user is blocked". This will no longer send headers but only display the block message. This however will mess up your website if you use caching software for your website.
 
 = What data get sends to you when I select "Allow tracking"? =
 
@@ -164,6 +164,7 @@ You can select the option on the home tab "Do not log IP addresses" to stop iQ B
 * Bugfix: Check if MaxMind databases actually exist.
 * New: Unzip MaxMind database(s) if gzip file is found.
 * New: Block post types
+* New: Added option to select if you want to block your search page.
 * New: When (re)activating the plugin it now adds the IP address of the person activating the plugin to the backend whitelist if the whitelist is currently empty.
 
 = 1.1.18 =

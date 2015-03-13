@@ -102,6 +102,7 @@ function iqblockcountry_register_mysettings()
 	register_setting ( 'iqblockcountry-settings-group-frontend', 'blockcountry_frontendblacklist','iqblockcountry_validate_ip');
 	register_setting ( 'iqblockcountry-settings-group-frontend', 'blockcountry_frontendwhitelist','iqblockcountry_validate_ip');
 	register_setting ( 'iqblockcountry-settings-group-frontend', 'blockcountry_blocklogin' );
+	register_setting ( 'iqblockcountry-settings-group-frontend', 'blockcountry_blocksearch' );
 	register_setting ( 'iqblockcountry-settings-group-frontend', 'blockcountry_blockfrontend' );
         register_setting ( 'iqblockcountry-settings-group-pages', 'blockcountry_blockpages');
         register_setting ( 'iqblockcountry-settings-group-pages', 'blockcountry_pages');
@@ -124,7 +125,7 @@ function iqblockcountry_get_options_arr() {
             'blockcountry_blockbackend','blockcountry_header','blockcountry_blockpages','blockcountry_pages','blockcountry_blockcategories','blockcountry_categories',
             'blockcountry_tracking','blockcountry_blockhome','blockcountry_nrstatistics','blockcountry_geoapikey','blockcountry_apikey','blockcountry_redirect','blockcountry_allowse',
             'blockcountry_backendlogging','blockcountry_buffer','blockcountry_accessibility','blockcountry_logging','blockcountry_blockposttypes',
-            'blockcountry_posttypes');
+            'blockcountry_posttypes','blockcountry_blocksearch');
         return apply_filters( 'iqblockcountry_options', $optarr );
 }
 
@@ -186,6 +187,7 @@ function iqblockcountry_uninstall() //deletes all the database entries that the 
         delete_option('blockcountry_logging');
         delete_option('blockcountry_blockposttypes');
         delete_option('blockcountry_posttypes');
+        delete_option('blockcountry_blocksearch');
 }
 
 
@@ -614,6 +616,12 @@ function iqblockcountry_settings_frontend()
             <th width="30%"><?php _e('Block visitors from visiting the frontend of your website:', 'iqblockcountry'); ?></th>
             <td width="70%">
     	    	<input type="checkbox" name="blockcountry_blockfrontend" <?php checked('on', get_option('blockcountry_blockfrontend'), true); ?> />
+            </td></tr>
+
+            <tr valign="top">
+            <th width="30%"><?php _e('Block visitors from using the search function of your website:', 'iqblockcountry'); ?></th>
+            <td width="70%">
+    	    	<input type="checkbox" name="blockcountry_blocksearch" <?php checked('on', get_option('blockcountry_blocksearch'), true); ?> />
             </td></tr>
             
             <tr valign="top">
